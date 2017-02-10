@@ -1,3 +1,13 @@
+# VS Code
+\.vscode
+
+# virtualenv environment
+\[Bb]in
+\[Ll]ib
+[Ii]nclude
+\[Ss]cripts
+pip-selfcheck.json
+
 *.py[cod]
 
 # C extensions
