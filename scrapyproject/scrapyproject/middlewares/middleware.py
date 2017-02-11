@@ -11,6 +11,11 @@ class SeleniumDownloaderMiddleware(object):
                 desired_capabilities=DesiredCapabilities.PHANTOMJS
             )
             driver.get(request.url)
+            # if have selectDate meta item, do click action
+            if "selectDate" in request.meta:
+                dateElement = driver.find_element_by_xpath(
+                    '//div[@id="' + str(request.meta["selectDate"]) + '"]')
+                dateElement.click()
             body = driver.page_source
             return HtmlResponse(driver.current_url, body=body,
                                 request=request, encoding='utf-8')
