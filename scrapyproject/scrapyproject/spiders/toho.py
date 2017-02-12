@@ -9,14 +9,18 @@ class TohoSpider(scrapy.Spider):
     start_urls = ['https://www.tohotheater.jp/theater/find.html']
 
     def parse(self, response):
+        cinema_name = getattr(self, 'cinema_name', 'TOHO CINEMAS SHINJUKU')
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        date = getattr(self, 'date', '{:02d}{:02d}{:02d}'.format(
+            tomorrow.year, tomorrow.month, tomorrow.day))
         cinema_page_url = response.xpath(
-            '//a[span[span[contains(text(), "TOHO CINEMAS SHINJUKU")]]]/@href'
-            ).extract_first()
+            '//a[span[span[contains(text(), "' + cinema_name +
+            '")]]]/@href').extract_first()
         if cinema_page_url is not None:
             cinema_page_url = response.urljoin(cinema_page_url)
             request = scrapy.Request(cinema_page_url,
                                      callback=self.parse_cinema)
-            request.meta["selectDate"] = 20170213
+            request.meta["selectDate"] = date
             yield request
 
     def parse_cinema(self, response):
@@ -40,7 +44,7 @@ class TohoSpider(scrapy.Spider):
                                            '"([0-9]+)", "([0-9]+)", '
                                            '"([0-9]+)", "([0-9]+)", '
                                            '"([0-9]+)"\)')
-        return "https://hlo.tohotheater.jp/net/ticket/076/"\
+        return "https://hlo.tohotheater.jp/net/ticket/{site_cd}/"\
                "TNPI2040J03.do?site_cd={site_cd}&jyoei_date={jyoei_date}"\
                "&gekijyo_cd={gekijyo_cd}&screen_cd={screen_cd}"\
                "&sakuhin_cd={sakuhin_cd}&pf_no={pf_no}&fnc={fnc}"\
@@ -54,6 +58,8 @@ class TohoSpider(scrapy.Spider):
         # example img src="/layout/0761/ppt/10/spacer.gif"
         screenItemSrc = response.xpath('//img[contains(@src, "/ppt/")]/@src'
                                        ).extract_first()
+        if screenItemSrc is None:
+            return
         itemList = screenItemSrc.split('/')
         screen = itemList[4]
 

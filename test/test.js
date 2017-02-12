@@ -7,7 +7,8 @@ page.onResourceReceived = function(response) {
   console.log('Receive ' + JSON.stringify(response, undefined, 4));
 };
 var t = Date.now();
-page.open('https://www.tohotheater.jp/theater/find.html', function(status) {
+//var url = 'https://www.tohotheater.jp/theater/find.html'
+page.open(url, function(status) {
     if (status !== 'success') {
         console.log('FAIL to load the address');
     } else {

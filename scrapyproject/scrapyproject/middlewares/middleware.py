@@ -16,9 +16,9 @@ class SeleniumDownloaderMiddleware(object):
             driver.get(request.url)
             # if have selectDate meta item, do click action and wait
             if "selectDate" in request.meta:
-                dateStr = str(request.meta["selectDate"])
+                dateStr = request.meta["selectDate"]
                 dateElement = driver.find_element_by_xpath(
-                    '//div[@id="' + str(request.meta["selectDate"]) + '"]')
+                    '//div[@id="' + dateStr + '"]')
                 singleDateStr = dateStr[-2:]
                 dateElement.click()
                 wait = WebDriverWait(driver, 10)
