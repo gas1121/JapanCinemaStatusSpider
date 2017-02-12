@@ -16,7 +16,7 @@ class TohoSpider(scrapy.Spider):
             cinema_page_url = response.urljoin(cinema_page_url)
             request = scrapy.Request(cinema_page_url,
                                      callback=self.parse_cinema)
-            request.meta["selectDate"] = 20170212
+            request.meta["selectDate"] = 20170213
             yield request
 
     def parse_cinema(self, response):
@@ -25,7 +25,7 @@ class TohoSpider(scrapy.Spider):
             '//div[contains(text(),"KIMINONAWA")]/../../..'
             )
         allSessionUrlItems = movieSection.xpath(
-            '//a[@class="wrapper"]/@href')
+            './/a[@class="wrapper"]/@href')
         for currSessionUrlItem in allSessionUrlItems:
             url = self.generate_session_url(currSessionUrlItem)
             yield scrapy.Request(url, callback=self.parse_session)
@@ -66,7 +66,7 @@ class TohoSpider(scrapy.Spider):
             'date': response.xpath('//dd[@class="message-showdate"]/text()'
                                    ).extract_first(),
             'time': response.xpath('//dd[@class="message-showdate"]/text()'
-                                   ).extract_last(),
+                                   )[-1].extract(),
             'ciname_name': response.xpath(
                 '//dd[@class="message-theater-name"]/text()').extract_first(),
             'screen': screen,

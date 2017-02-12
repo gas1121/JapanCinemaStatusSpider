@@ -1,5 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import scrapy
 
 
@@ -7,8 +10,10 @@ def test_parse(response):
     movieSection = response.xpath(
         '//div[contains(text(),"KIMINONAWA")]/../../..'
         )
+    print(movieSection)
     allSessionUrlItems = movieSection.xpath(
-        '//a[@class="wrapper"]/@href')
+        './/a[@class="wrapper"]/@href')
+    print(allSessionUrlItems)
     for currSessionUrlItem in allSessionUrlItems:
         print(currSessionUrlItem)
         url = generate_session_url(currSessionUrlItem)
@@ -39,10 +44,13 @@ driver = webdriver.Remote(
 cinema_page_url = 'https://hlo.tohotheater.jp/net/schedule/076/TNPI2000J01.do'
 print(cinema_page_url)
 driver.get(cinema_page_url)
-dateElement = driver.find_element_by_xpath('//div[@id="20170212"]')
+dateElement = driver.find_element_by_xpath('//div[@id="20170213"]')
+print(dateElement)
 dateElement.click()
+wait = WebDriverWait(driver, 10)
+wait.until(EC.element_to_be_clickable(
+    (By.XPATH, '//h3[@class="schedule-body-day" and contains(text(), "13")]')))
 body = driver.page_source
-print(body)
 request = scrapy.Request(cinema_page_url, callback=test_parse)
 response = scrapy.http.HtmlResponse(driver.current_url, body=body,
                                     request=request, encoding='utf-8')
