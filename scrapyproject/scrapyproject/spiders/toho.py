@@ -8,31 +8,47 @@ class TohoSpider(scrapy.Spider):
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
     start_urls = ['https://www.tohotheater.jp/theater/find.html']
 
-    def parse(self, response):
-        cinema_name = getattr(self, 'cinema_name', 'TOHO CINEMAS SHINJUKU')
+    def set_config(self, config):
+        config['movie_list'] = getattr(self, 'movie_list', ['君の名は。'])
+        if not isinstance(config['movie_list'], list):
+            config['movie_list'] = ['君の名は。']
+        config['crawl_all_cinemas'] = getattr(self, 'crawl_all_cinemas',
+                                              False)
+        config['cinema_list'] = getattr(self, 'cinema_list',
+                                        ['TOHOシネマズ 新宿'])
+        if not isinstance(config['cinema_list'], list):
+            config['cinema_list'] = ['TOHOシネマズ 新宿']
+        # date: default tomorrow
         tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-        date = getattr(self, 'date', '{:02d}{:02d}{:02d}'.format(
+        config['date'] = getattr(self, 'date', '{:02d}{:02d}{:02d}'.format(
             tomorrow.year, tomorrow.month, tomorrow.day))
-        cinema_page_url = response.xpath(
-            '//a[span[span[contains(text(), "' + cinema_name +
-            '")]]]/@href').extract_first()
-        if cinema_page_url is not None:
-            cinema_page_url = response.urljoin(cinema_page_url)
-            request = scrapy.Request(cinema_page_url,
-                                     callback=self.parse_cinema)
-            request.meta["selectDate"] = date
-            yield request
+
+    def parse(self, response):
+        config = {}
+        self.set_config(config)
+        for curr_cinema in config['cinema_list']:
+            cinema_page_url = response.xpath(
+                '//a[span[contains(text(),"' + curr_cinema +
+                '")]]/@href').extract_first()
+            if cinema_page_url is not None:
+                cinema_page_url = response.urljoin(cinema_page_url)
+                request = scrapy.Request(cinema_page_url,
+                                         callback=self.parse_cinema)
+                request.meta["selectDate"] = config['date']
+                request.meta["movie_list"] = config['movie_list']
+                yield request
 
     def parse_cinema(self, response):
-        # generate session url
-        movieSection = response.xpath(
-            '//div[contains(text(),"KIMINONAWA")]/../../..'
-            )
-        allSessionUrlItems = movieSection.xpath(
-            './/a[@class="wrapper"]/@href')
-        for currSessionUrlItem in allSessionUrlItems:
-            url = self.generate_session_url(currSessionUrlItem)
-            yield scrapy.Request(url, callback=self.parse_session)
+        for curr_movie in response.meta["movie_list"]:
+            # generate session url
+            movieSection = response.xpath(
+                '//h5[contains(text(),"'+curr_movie+'")]/../..'
+                )
+            allSessionUrlItems = movieSection.xpath(
+                './/a[@class="wrapper"]/@href')
+            for currSessionUrlItem in allSessionUrlItems:
+                url = self.generate_session_url(currSessionUrlItem)
+                yield scrapy.Request(url, callback=self.parse_session)
 
     def generate_session_url(self, currSessionUrlItem):
         # example: javascript:ScheduleUtils.purchaseTicket(
