@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class SeleniumDownloaderMiddleware(object):
     def process_request(self, request, spider):
-        if spider.name == "toho":
+        if spider.name == "toho" or spider.name == "toho_cinema":
             driver = webdriver.Remote(
                 command_executor='http://phantomjs:8910',
                 desired_capabilities=DesiredCapabilities.PHANTOMJS
