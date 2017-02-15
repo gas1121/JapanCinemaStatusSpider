@@ -66,11 +66,21 @@ DOWNLOADER_MIDDLEWARES = {
 #    'scrapy.extensions.telnet.TelnetConsole': None,
 #}
 
+# database settings
+DATABASE = {
+    'drivername': 'postgres',
+    'host': 'postgres',
+    'port': '5432',
+    'username': 'postgres',
+    'password': '',
+    'database': 'japan_cinema_status'
+}
+
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'scrapyproject.pipelines.ScrapyprojectPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'scrapyproject.pipelines.DataBasePipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
