@@ -37,8 +37,10 @@ class TohoSpider(scrapy.Spider):
         for curr_screen in all_screen_list:
             screen_name = curr_screen.xpath(
                 './td[position()=1]/text()').extract_first()
-            screen_seat_number = curr_screen.xpath(
-                './td[position()=2]/text()').extract_first()
             if screen_name is not None:
+                screen_seat_number_list = curr_screen.xpath(
+                    './td[position()=2]/text()').re(r'([0-9]+)\+\(([0-9]+)\)')
+                screen_seat_number = (int(screen_seat_number_list[0])
+                                      + int(screen_seat_number_list[1]))
                 result[screen_name] = screen_seat_number
         yield result
