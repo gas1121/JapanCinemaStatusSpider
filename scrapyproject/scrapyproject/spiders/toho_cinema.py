@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import datetime
 import scrapy
+from scrapyproject.items import Cinema
 
 
 class TohoSpider(scrapy.Spider):
@@ -24,7 +24,7 @@ class TohoSpider(scrapy.Spider):
             cinema_page_url = response.urljoin(tail_url)
             request = scrapy.Request(cinema_page_url,
                                      callback=self.parse_cinema)
-            yield request
+            return request
 
     def parse_cinema(self, response):
         cinema_name = response.xpath(
@@ -32,8 +32,9 @@ class TohoSpider(scrapy.Spider):
             '/span/text()').extract_first()
         all_screen_list = response.xpath(
             '//table[@class="c-table01 __table"]/tbody/tr')
-        result = {}
-        result['cinema_name'] = cinema_name
+        cinema = Cinema()
+        cinema['name'] = cinema_name
+        cinema['screens'] = {}
         for curr_screen in all_screen_list:
             screen_name = curr_screen.xpath(
                 './td[position()=1]/text()').extract_first()
@@ -42,5 +43,5 @@ class TohoSpider(scrapy.Spider):
                     './td[position()=2]/text()').re(r'([0-9]+)\+\(([0-9]+)\)')
                 screen_seat_number = (int(screen_seat_number_list[0])
                                       + int(screen_seat_number_list[1]))
-                result[screen_name] = screen_seat_number
-        yield result
+                cinema['screens'][screen_name] = screen_seat_number
+        yield cinema

@@ -7,6 +7,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data/
     restart: always
+  psql:
+    image: library/postgres:alpine
+    command: psql -h postgres -U postgres
+  pgweb:
+    image: sosedoff/pgweb
+    depends_on: 
+      - postgres
+    ports: 
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
   redis:
     image: library/redis:alpine
     ports:
