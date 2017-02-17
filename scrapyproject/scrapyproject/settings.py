@@ -73,7 +73,7 @@ DATABASE = {
     'port': '5432',
     'username': 'postgres',
     'password': '',
-    'database': 'japan_cinema_status'
+    'database': 'japancinemastatus'
 }
 
 # Configure item pipelines
