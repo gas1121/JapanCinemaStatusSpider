@@ -13,3 +13,17 @@ class Cinema(scrapy.Item):
     # name = scrapy.Field()
     name = scrapy.Field()
     screens = scrapy.Field()
+
+
+class Session(scrapy.Item):
+    title = scrapy.Field()
+    title_en = scrapy.Field()
+    country = scrapy.Field()
+    date = scrapy.Field()
+    start_time = scrapy.Field()
+    end_time = scrapy.Field()
+    cinema_name = scrapy.Field()
+    screen = scrapy.Field()
+    book_status = scrapy.Field()
+    book_data = scrapy.Field()
+    record_time = scrapy.Field()

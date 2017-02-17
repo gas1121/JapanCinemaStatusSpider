@@ -9,3 +9,4 @@
 - [ ] Connect to database 
 - [ ] Data select program
 - [ ] Add template and Env for security
+- [ ] Duplicate session in database
