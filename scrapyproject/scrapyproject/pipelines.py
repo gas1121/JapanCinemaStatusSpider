@@ -5,7 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
-from scrapyproject.models import Cinemas, db_connect, create_cinemas_table
+from scrapyproject.models import (Cinemas, Sessions,
+                                  db_connect, create_cinemas_table)
 
 
 class DataBasePipeline(object):
@@ -25,12 +26,13 @@ class DataBasePipeline(object):
         pass
 
     def process_item(self, item, spider):
-        if spider.name == "toho_cinema":
+        if spider.name == "toho_cinema" or spider.name == "toho":
+            db_item = (Cinemas(**item) if spider.name == "toho_cinema"
+                       else Sessions(**item))
             # save cinema info to database
             session = self.Session()
-            cinema = Cinemas(**item)
             try:
-                session.add(cinema)
+                session.add(db_item)
                 session.commit()
             except:
                 session.rollback()

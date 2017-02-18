@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
@@ -30,3 +30,19 @@ class Cinemas(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     name = Column('name', String, unique=True)
     screens = Column('screens', JSONB)
+
+
+class Sessions(DeclarativeBase):
+    __tablename__ = "sessions"
+
+    id = Column(Integer, primary_key=True)
+    title = Column('title', String)
+    title_en = Column('title_en', String)
+    country = Column('country', String)
+    start_time = Column('start_time', DateTime)
+    end_time = Column('end_time', DateTime)
+    cinema_name = Column('cinema_name', String)
+    screen = Column('screen', String)
+    book_status = Column('book_status', String)
+    book_data = Column('book_data', String)
+    record_time = Column('record_time', DateTime)

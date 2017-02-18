@@ -19,7 +19,6 @@ class Session(scrapy.Item):
     title = scrapy.Field()
     title_en = scrapy.Field()
     country = scrapy.Field()
-    date = scrapy.Field()
     start_time = scrapy.Field()
     end_time = scrapy.Field()
     cinema_name = scrapy.Field()

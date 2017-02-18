@@ -68,11 +68,17 @@ class TohoSpider(scrapy.Spider):
             title_en_list = [x.strip() for x in title_en_raw.split('/')]
             crawl_data['title_en'] = title_en_list[0]
             crawl_data['country'] = title_en_list[1]
-            crawl_data['date'] = response.meta["selectDate"]
-            crawl_data['start_time'] = movie_section.xpath(
-                './/span[@class="start"]/text()').extract_first()
-            crawl_data['end_time'] = movie_section.xpath(
-                './/span[@class="end"]/text()').extract_first()
+            start_time = (response.meta["selectDate"] + " "
+                          + movie_section.xpath(
+                              './/span[@class="start"]/text()'
+                              ).extract_first())
+            crawl_data['start_time'] = datetime.datetime.strptime(
+                start_time, "%Y%m%d %H:%M")
+            end_time = (response.meta["selectDate"] + " "
+                        + movie_section.xpath('.//span[@class="end"]/text()'
+                                              ).extract_first())
+            crawl_data['end_time'] = datetime.datetime.strptime(
+                end_time, "%Y%m%d %H:%M")
             crawl_data['cinema_name'] = response.xpath(
                 '//h4[@class="schedule-body-section-title"]/text()'
                 ).extract_first()
@@ -109,8 +115,7 @@ class TohoSpider(scrapy.Spider):
             else:
                 # outdated
                 crawl_data['book_data'] = "0/0"
-            crawl_data['record_time'] = datetime.datetime.now().strftime(
-                "%I:%M%p on %B %d, %Y")
+            crawl_data['record_time'] = datetime.datetime.now()
             return crawl_data.copy()
 
     def generate_session_url(self, curr_session_url_item):
@@ -139,6 +144,5 @@ class TohoSpider(scrapy.Spider):
         total_seat_count = empty_seat_count + booked_seat_count
         result = response.meta["crawl_data"]
         result['book_data'] = str(booked_seat_count)+'/'+str(total_seat_count)
-        result['record_time'] = datetime.datetime.now().strftime(
-                "%I:%M%p on %B %d, %Y")
+        result['record_time'] = datetime.datetime.now()
         yield result
