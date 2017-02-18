@@ -19,19 +19,22 @@ class DataBasePipeline(object):
     def open_spider(self, spider):
         engine = db_connect()
         create_cinemas_table(engine)
-        self.session = sessionmaker(bind=engine)
+        self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
-        self.session.close()
+        pass
 
     def process_item(self, item, spider):
         if spider.name == "toho_cinema":
             # save cinema info to database
+            session = self.Session()
             cinema = Cinemas(**item)
             try:
-                self.session.add(cinema)
-                self.session.commit()
+                session.add(cinema)
+                session.commit()
             except:
-                self.session.rollback()
+                session.rollback()
                 raise
+            finally:
+                session.close()
         return item

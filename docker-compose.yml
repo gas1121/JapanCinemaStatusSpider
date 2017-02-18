@@ -15,7 +15,7 @@ services:
     depends_on: 
       - postgres
     ports: 
-      - "8081:8081"
+      - "80:8081"
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
   redis:

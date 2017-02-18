@@ -9,6 +9,7 @@ incremental==16.10.1
 lxml==3.7.2
 packaging==16.8
 parsel==1.1.0
+psycopg2==2.6.2
 pyasn1==0.2.1
 pyasn1-modules==0.0.8
 pycparser==2.17

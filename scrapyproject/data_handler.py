@@ -16,7 +16,7 @@ def main():
     with open(args.file) as f:
         for line in f:
             curr_data = json.loads(line)
-            data = curr_data['book_status'].split('/')
+            data = curr_data['book_data'].split('/')
             if (args.cinema is not None
                     and curr_data['ciname_name'] != args.cinema):
                 continue

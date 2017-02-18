@@ -28,5 +28,5 @@ class Cinemas(DeclarativeBase):
     __tablename__ = "cinemas"
 
     id = Column(Integer, primary_key=True)
-    title = Column('name', String)
+    name = Column('name', String, unique=True)
     screens = Column('screens', JSONB)
