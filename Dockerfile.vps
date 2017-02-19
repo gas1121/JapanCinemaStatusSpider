@@ -1,5 +1,4 @@
 FROM library/python:alpine
-MAINTAINER gas1121 <jtdzhx@gmail.com>
 
 RUN apk update
 RUN apk add python-dev curl libxml2-dev libxslt-dev \

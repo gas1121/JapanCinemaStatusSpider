@@ -1,0 +1,66 @@
+version: "2"
+services:
+  postgres:
+    image: library/postgres:alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    restart: always
+  psql:
+    image: library/postgres:alpine
+    command: psql -h postgres -U postgres
+  pgweb:
+    image: sosedoff/pgweb
+    depends_on: 
+      - postgres
+    ports: 
+      - "80:8081"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+  redis:
+    image: library/redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    restart: always
+  phantomjs:
+    image: wernight/phantomjs:2
+    ports:
+      - "8910:8910"
+    volumes: 
+      - .:/app
+    command: phantomjs --proxy=10.0.2.2:1080 --proxy-type=socks5 --webdriver=8910
+  scrapy:
+    build:
+     context: .
+     dockerfile: Dockerfile
+    volumes: 
+      - .:/app
+    working_dir: /app
+    depends_on: 
+      - phantomjs
+      - postgres
+      - redis
+  phantomjs-vps:
+    image: wernight/phantomjs:2
+    ports:
+      - "8910:8910"
+    volumes: 
+      - .:/app
+    command: phantomjs --webdriver=8910
+  scrapy-vps:
+    build:
+      context: .
+      dockerfile: Dockerfile.vps
+    volumes: 
+      - .:/app
+    working_dir: /app
+    depends_on: 
+      - phantomjs-vps
+      - postgres
+      - redis
+volumes:
+  pgdata:
+  redisdata:

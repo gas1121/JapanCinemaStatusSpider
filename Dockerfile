@@ -1,5 +1,4 @@
 FROM library/python:alpine
-MAINTAINER gas1121 <jtdzhx@gmail.com>
 
 # use ustc mirrors
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
