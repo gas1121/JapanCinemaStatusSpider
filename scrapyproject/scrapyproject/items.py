@@ -24,5 +24,6 @@ class Session(scrapy.Item):
     cinema_name = scrapy.Field()
     screen = scrapy.Field()
     book_status = scrapy.Field()
-    book_data = scrapy.Field()
+    book_seat_count = scrapy.Field()
+    total_seat_count = scrapy.Field()
     record_time = scrapy.Field()

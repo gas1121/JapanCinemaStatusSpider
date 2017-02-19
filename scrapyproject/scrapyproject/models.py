@@ -13,6 +13,11 @@ def create_cinemas_table(engine):
     DeclarativeBase.metadata.create_all(engine)
 
 
+def drop_table_if_exist(engine, TableClass):
+    if engine.dialect.has_table(engine, TableClass.__table__):
+        TableClass.__table__.drop(engine)
+
+
 def db_connect():
     """
     connect to database described in settings
@@ -44,5 +49,6 @@ class Sessions(DeclarativeBase):
     cinema_name = Column('cinema_name', String)
     screen = Column('screen', String)
     book_status = Column('book_status', String)
-    book_data = Column('book_data', String)
+    book_seat_count = Column('book_seat_count', Integer, default=0)
+    total_seat_count = Column('total_seat_count', Integer, default=0)
     record_time = Column('record_time', DateTime)

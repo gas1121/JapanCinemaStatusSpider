@@ -111,10 +111,12 @@ class TohoSpider(scrapy.Spider):
             if crawl_data['book_status'] == "売り切れ":
                 # sold out
                 # TODO get screen seat number from database
-                crawl_data['book_data'] = "0/0"
+                crawl_data['book_seat_count'] = 0
+                crawl_data['total_seat_count'] = 0
             else:
                 # outdated
-                crawl_data['book_data'] = "0/0"
+                crawl_data['book_seat_count'] = 0
+                crawl_data['total_seat_count'] = 0
             crawl_data['record_time'] = datetime.datetime.now()
             return crawl_data.copy()
 
@@ -143,6 +145,7 @@ class TohoSpider(scrapy.Spider):
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
         total_seat_count = empty_seat_count + booked_seat_count
         result = response.meta["crawl_data"]
-        result['book_data'] = str(booked_seat_count)+'/'+str(total_seat_count)
+        result['book_seat_count'] = booked_seat_count
+        result['total_seat_count'] = total_seat_count
         result['record_time'] = datetime.datetime.now()
         yield result

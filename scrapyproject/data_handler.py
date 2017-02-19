@@ -16,12 +16,11 @@ def main():
     with open(args.file) as f:
         for line in f:
             curr_data = json.loads(line)
-            data = curr_data['book_data'].split('/')
             if (args.cinema is not None
                     and curr_data['ciname_name'] != args.cinema):
                 continue
-            total_booked += int(data[0])
-            total_seat += int(data[1])
+            total_booked += curr_data['book_seat_count']
+            total_seat += curr_data['total_seat_count']
     title = args.cinema if args.cinema is not None else 'total'
     print("result: {0}: {1}/{2}".format(title, total_booked, total_seat))
 

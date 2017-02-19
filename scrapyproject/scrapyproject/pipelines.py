@@ -5,8 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
-from scrapyproject.models import (Cinemas, Sessions,
-                                  db_connect, create_cinemas_table)
+from scrapyproject.models import (Cinemas, Sessions, db_connect,
+                                  drop_table_if_exist, create_cinemas_table)
 
 
 class DataBasePipeline(object):
@@ -19,6 +19,10 @@ class DataBasePipeline(object):
 
     def open_spider(self, spider):
         engine = db_connect()
+        if spider.name == "toho":
+            # we need to drop sessions table first if it exists
+            # as its data is outdated
+            drop_table_if_exist(engine, Sessions)
         create_cinemas_table(engine)
         self.Session = sessionmaker(bind=engine)
 
