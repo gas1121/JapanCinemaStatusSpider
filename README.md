@@ -5,8 +5,9 @@
 - [ ] crawl target cinema list from movie page
 - [x] support multiple movie and cinema
 - [ ] Better command line support for spider
-- [ ] Support json configuration file
+- [ ] Support json configuration file and bash script
 - [x] Connect to database 
-- [ ] Data select program
+- [x] Data select program
 - [ ] Add template and Env for security
-- [ ] Duplicate session in database
+- [x] Duplicate session in database
+- [ ] Add cron table
