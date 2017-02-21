@@ -1,11 +1,9 @@
 #JapanCinemaStatusSpider
 
 ## Usage
+- make sure python3 is installed
 - create init.json and follow example.json to set up options and environments variables
-- run one of init scripts:
- - init.py if python3 is installed
- - init.sh on linux system
- - init.ps1 on windows system
+- run init.py to initialize project
 - run `(sudo) docker-compose build scrapy(scrapy-vps)`
 - run `(sudo) docker-compose run scrapy(scrapy-vps) /bin/sh`
 
