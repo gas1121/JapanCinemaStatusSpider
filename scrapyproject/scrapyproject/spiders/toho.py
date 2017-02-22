@@ -68,17 +68,6 @@ class TohoSpider(scrapy.Spider):
             title_en_list = [x.strip() for x in title_en_raw.split('/')]
             crawl_data['title_en'] = title_en_list[0]
             crawl_data['country'] = title_en_list[1]
-            start_time = (response.meta["selectDate"] + " "
-                          + movie_section.xpath(
-                              './/span[@class="start"]/text()'
-                              ).extract_first())
-            crawl_data['start_time'] = datetime.datetime.strptime(
-                start_time, "%Y%m%d %H:%M")
-            end_time = (response.meta["selectDate"] + " "
-                        + movie_section.xpath('.//span[@class="end"]/text()'
-                                              ).extract_first())
-            crawl_data['end_time'] = datetime.datetime.strptime(
-                end_time, "%Y%m%d %H:%M")
             crawl_data['cinema_name'] = response.xpath(
                 '//h4[@class="schedule-body-section-title"]/text()'
                 ).extract_first()
@@ -90,8 +79,20 @@ class TohoSpider(scrapy.Spider):
                     './h5[@class="schedule-screen-title"]/text()'
                     ).extract_first()
                 curr_screen_sessions = curr_screen.xpath(
-                    './/div[@class="schedule-items group"]/div')
+                        './/div[@class="schedule-items group"]/div')
                 for curr_session in curr_screen_sessions:
+                    start_time = (response.meta["selectDate"] + " "
+                                  + curr_session.xpath(
+                                    './/span[@class="start"]/text()'
+                                    ).extract_first())
+                    crawl_data['start_time'] = datetime.datetime.strptime(
+                        start_time, "%Y%m%d %H:%M")
+                    end_time = (response.meta["selectDate"] + " "
+                                + curr_session.xpath(
+                                    './/span[@class="end"]/text()'
+                                    ).extract_first())
+                    crawl_data['end_time'] = datetime.datetime.strptime(
+                        end_time, "%Y%m%d %H:%M")
                     result = self.parse_session(crawl_data, curr_session)
                     yield result
 
