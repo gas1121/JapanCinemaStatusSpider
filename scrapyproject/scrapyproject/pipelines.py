@@ -23,6 +23,8 @@ class DataBasePipeline(object):
             # we need to drop sessions table first if it exists
             # as its data is outdated
             drop_table_if_exist(engine, Sessions)
+        elif spider.name == "toho_cinema":
+            drop_table_if_exist(engine, Cinemas)
         create_cinemas_table(engine)
         self.Session = sessionmaker(bind=engine)
 

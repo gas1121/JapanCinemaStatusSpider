@@ -21,8 +21,6 @@ def main():
         ).group_by(models.Sessions.title)
     if args.cinema is not None:
         query = query.filter(models.Sessions.cinema_name == args.cinema)
-    print(query.first())
-    print(query.all())
     for (title, book_seat_count, total_seat_count, count) in query.all():
         cinema = args.cinema if args.cinema is not None else 'total'
         book_seat_count = 0 if book_seat_count is None else book_seat_count

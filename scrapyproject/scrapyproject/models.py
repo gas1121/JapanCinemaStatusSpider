@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy.orm import sessionmaker
 from scrapyproject import settings
 
 
@@ -29,11 +30,26 @@ def db_connect():
     return engine
 
 
+def query_cinema_by_name(cinema_name):
+    engine = db_connect()
+    session = sessionmaker(bind=engine)()
+    query = session.query(Cinemas).filter(
+        Cinemas.name == cinema_name
+    )
+    cinema = query.first()
+    session.close()
+    return cinema
+
+
 class Cinemas(DeclarativeBase):
     __tablename__ = "cinemas"
 
     id = Column(Integer, primary_key=True)
     name = Column('name', String, unique=True)
+    area = Column('area', String)
+    area_en = Column('area_en', String)
+    county = Column('county', String)
+    county_en = Column('county_en', String)
     screens = Column('screens', JSONB)
 
 
