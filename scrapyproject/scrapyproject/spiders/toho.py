@@ -5,9 +5,7 @@ import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name,
                                  is_screen_name_special,
-                                 convert_special_screen_name,
-                                 is_cinema_name_special,
-                                 convert_special_cinema_name)
+                                 convert_special_screen_name)
 from scrapyproject.models import query_cinema_by_name
 
 
@@ -63,66 +61,71 @@ class TohoSpider(scrapy.Spider):
             yield request
 
     def parse_cinema(self, response):
-        if response.meta["crawl_all_movies"]:
-            # TODO support crawl all movies
-            pass
-        for curr_movie in response.meta["movie_list"]:
-            # select movie section
-            movie_section = response.xpath(
-                '//h5[contains(text(),"'+curr_movie+'")]/../..'
-                )
-            # try to use en title if can't select by jp title
-            if not movie_section:
-                movie_section = response.xpath(
-                    '//div[@class="en" and'
-                    ' contains(text(),"'+curr_movie+'")]/../../..'
-                    )
-            if not movie_section:
-                continue
-            crawl_data = Session()
-            crawl_data['title'] = movie_section.xpath(
-                './div/h5/text()').extract_first()
-            title_en_raw = movie_section.xpath(
-                './/div[@class="en"]/text()').extract_first()
-            # normalize str to avoid full width characters
-            title_en_raw = unicodedata.normalize('NFKC', title_en_raw)
-            title_en_list = [x.strip() for x in title_en_raw.split('/')]
-            crawl_data['title_en'] = title_en_list[0]
-            crawl_data['country'] = title_en_list[1]
-            # TODO multiple cinema names may exist in one page
-            crawl_data['cinema_name'] = response.xpath(
-                '//h4[@class="schedule-body-section-title"]/text()'
-                ).extract_first()
-            crawl_data['cinema_name'] = standardize_cinema_name(
-                crawl_data['cinema_name'])
-            # handle all sessions, include sold out and outdated sessions
-            all_screens = movie_section.xpath(
-                './/section[@class="schedule-screen"]')
-            for curr_screen in all_screens:
-                crawl_data['screen'] = curr_screen.xpath(
-                    './h5[@class="schedule-screen-title"]/text()'
-                    ).extract_first()
-                crawl_data['screen'] = standardize_screen_name(
-                     crawl_data['screen'])
-                curr_screen_sessions = curr_screen.xpath(
-                        './/div[@class="schedule-items group"]/div')
-                for curr_session in curr_screen_sessions:
-                    # time like 24:40 can not directly parsed by datetime,
-                    # so we need to use timedelta to handle this problem
-                    start_time_text = curr_session.xpath(
-                                    './/span[@class="start"]/text()'
-                                    ).extract_first()
-                    crawl_data['start_time'] = self.get_time_from_text(
-                        response, start_time_text
-                    )
-                    end_time_text = curr_session.xpath(
-                                    './/span[@class="end"]/text()'
-                                    ).extract_first()
-                    crawl_data['end_time'] = self.get_time_from_text(
-                        response, end_time_text
-                    )
-                    result = self.parse_session(crawl_data, curr_session)
-                    yield result
+        # multiple cinema names may exist in one page
+        sub_cinema_list = response.xpath(
+            '//section[@class="schedule-body-section"]')
+        result_list = []
+        for sub_cinema in sub_cinema_list:
+            self.parse_sub_cinema(response, sub_cinema, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_sub_cinema(self, response, sub_cinema, result_list):
+        cinema_name = sub_cinema.xpath('./h4/text()').extract_first()
+        cinema_name = standardize_cinema_name(cinema_name)
+        movie_section_list = sub_cinema.xpath('./div')
+        for movie_section in movie_section_list:
+            self.parse_movie_section(
+                response, movie_section, cinema_name, result_list)
+
+    def parse_movie_section(self, response, movie_section,
+                            cinema_name, result_list):
+        # title keep origin string
+        title = movie_section.xpath('./div/h5/text()').extract_first()
+        title_en = movie_section.xpath(
+            './/div[@class="en"]/text()').extract_first()
+        # normalize title_en to avoid full width characters
+        title_en = unicodedata.normalize('NFKC', title_en)
+        if not response.meta["crawl_all_movies"]:
+            # if not crawl all movies, test if input title is contained
+            title_contained = any(curr_title in title for curr_title
+                                  in response.meta["movie_list"])
+            title_en_contained = any(curr_title in title_en for curr_title
+                                     in response.meta["movie_list"])
+            if ((not title_contained) and (not title_en_contained)):
+                return
+        # handle all sessions, include sold out and outdated sessions
+        all_screens = movie_section.xpath(
+            './/section[@class="schedule-screen"]')
+        for curr_screen in all_screens:
+            self.parse_screen(response, curr_screen, cinema_name,
+                              title, title_en, result_list)
+
+    def parse_screen(self, response, curr_screen, cinema_name,
+                     title, title_en, result_list):
+        crawl_data = Session()
+        crawl_data['cinema_name'] = cinema_name
+        crawl_data['title'] = title
+        crawl_data['title_en'] = title_en
+        crawl_data['screen'] = curr_screen.xpath(
+            './h5[@class="schedule-screen-title"]/text()').extract_first()
+        crawl_data['screen'] = standardize_screen_name(crawl_data['screen'])
+        screen_sessions = curr_screen.xpath(
+            './/div[@class="schedule-items group"]/div')
+        for curr_session in screen_sessions:
+            # time like 24:40 can not directly parsed by datetime,
+            # so we need to use timedelta to handle this problem
+            start_time_text = curr_session.xpath(
+                './/span[@class="start"]/text()').extract_first()
+            crawl_data['start_time'] = self.get_time_from_text(
+                response, start_time_text)
+            end_time_text = curr_session.xpath(
+                './/span[@class="end"]/text()').extract_first()
+            crawl_data['end_time'] = self.get_time_from_text(
+                response, end_time_text)
+            result = self.parse_session(crawl_data, curr_session)
+            result_list.append(result)
 
     def get_time_from_text(self, response, time_text):
         """
@@ -152,8 +155,6 @@ class TohoSpider(scrapy.Spider):
             if crawl_data['book_status'] == "売り切れ":
                 # sold out
                 cinema_name = crawl_data['cinema_name']
-                if is_cinema_name_special(cinema_name):
-                    cinema_name = convert_special_cinema_name(cinema_name)
                 cinema = query_cinema_by_name(cinema_name)
                 if cinema:
                     screen = crawl_data['screen']
@@ -170,23 +171,8 @@ class TohoSpider(scrapy.Spider):
                     crawl_data['total_seat_count'] = 0
             else:
                 # outdated
-                cinema_name = crawl_data['cinema_name']
-                if is_cinema_name_special(cinema_name):
-                    cinema_name = convert_special_cinema_name(cinema_name)
-                cinema = query_cinema_by_name(cinema_name)
-                if cinema:
-                    screen = crawl_data['screen']
-                    if is_screen_name_special(screen):
-                        screen = convert_special_screen_name(screen)
-                    if screen in cinema.screens:
-                        crawl_data['book_seat_count'] = cinema.screens[screen]
-                        crawl_data['total_seat_count'] = cinema.screens[screen]
-                    else:
-                        crawl_data['book_seat_count'] = 0
-                        crawl_data['total_seat_count'] = 0
-                else:
-                    crawl_data['book_seat_count'] = 0
-                    crawl_data['total_seat_count'] = 0
+                crawl_data['book_seat_count'] = 0
+                crawl_data['total_seat_count'] = 0
             crawl_data['record_time'] = datetime.datetime.now()
             return crawl_data.copy()
 

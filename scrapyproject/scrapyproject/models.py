@@ -59,7 +59,6 @@ class Sessions(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     title = Column('title', String)
     title_en = Column('title_en', String)
-    country = Column('country', String)
     start_time = Column('start_time', DateTime)
     end_time = Column('end_time', DateTime)
     cinema_name = Column('cinema_name', String)

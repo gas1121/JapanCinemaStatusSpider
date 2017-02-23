@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import scrapy
 from scrapyproject.items import (Cinema, standardize_cinema_name,
                                  standardize_screen_name)
@@ -30,7 +31,6 @@ class TohoSpider(scrapy.Spider):
                     cinema_number = curr_cinema_url.re(
                         r'/net/schedule/([0-9]+)/TNPI2000J01.do')
                     tail_url = '/theater/'+cinema_number[0]+'/institution.html'
-                    tail_url = '/theater/034/institution.html'
                     cinema_page_url = response.urljoin(tail_url)
                     request = scrapy.Request(cinema_page_url,
                                              callback=self.parse_cinema)
@@ -38,11 +38,9 @@ class TohoSpider(scrapy.Spider):
                     request.meta['area_en'] = area_en
                     request.meta['county'] = county
                     request.meta['county_en'] = county_en
-                    #yield request
-                    return request
+                    yield request
 
     def parse_cinema(self, response):
-        # TODO one of cinemas is missing
         cinema_name = response.xpath(
             '//h1[@class="c-page_heading is-lv-01"]'
             '/span/text()').extract_first()
@@ -56,21 +54,22 @@ class TohoSpider(scrapy.Spider):
         # some cinemas have detail page and need to forward
         sub_page_list = response.xpath(
             '//section[@class="about"]//a[@class="link bold"]/@href').extract()
-        for sub_page_url in sub_page_list:
-            sub_page_url = response.urljoin(sub_page_url)
-            request = scrapy.Request(sub_page_url,
-                                     callback=self.parse_sub_cinema)
-            request.meta['cinema'] = cinema.copy()
-            print(request.meta['cinema'])
-            yield request
+        if sub_page_list:
+            for sub_page_url in sub_page_list:
+                sub_page_url = response.urljoin(sub_page_url)
+                request = scrapy.Request(sub_page_url,
+                                         callback=self.parse_sub_cinema)
+                request.meta['cinema'] = copy.deepcopy(cinema)
+                print(request.meta['cinema'])
+                yield request
         else:
             self.parse_seat_number_list(response, cinema)
             yield cinema
 
     def parse_sub_cinema(self, response):
-        # TODO BUG 
         print("parse_sub_cinema")
-        cinema = response.meta['cinema'].copy()
+        cinema = response.meta['cinema']
+        print(cinema is response.meta['cinema'])
         print(cinema)
         self.parse_seat_number_list(response, cinema)
         # sub cinema use its own name
@@ -87,8 +86,9 @@ class TohoSpider(scrapy.Spider):
         for curr_screen in all_screen_list:
             screen_name = curr_screen.xpath(
                 './td[1]/text()').extract_first()
-            screen_name = standardize_screen_name(screen_name)
+            # empty row may exist
             if screen_name is not None:
+                screen_name = standardize_screen_name(screen_name)
                 screen_seat_number_list = curr_screen.xpath(
                     './td[2]/text()').re(r'([0-9]+)[\+\＋]\(([0-9]+)\)')
                 screen_seat_number = (int(screen_seat_number_list[0])
