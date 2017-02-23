@@ -59,7 +59,7 @@ class TohoSpider(scrapy.Spider):
                     ' contains(text(),"'+curr_movie+'")]/../../..'
                     )
             if not movie_section:
-                return
+                continue
             crawl_data = Session()
             crawl_data['title'] = movie_section.xpath(
                 './div/h5/text()').extract_first()
@@ -81,20 +81,34 @@ class TohoSpider(scrapy.Spider):
                 curr_screen_sessions = curr_screen.xpath(
                         './/div[@class="schedule-items group"]/div')
                 for curr_session in curr_screen_sessions:
-                    start_time = (response.meta["selectDate"] + " "
-                                  + curr_session.xpath(
+                    # start time like 24:40 can not directly parsed by datetime,
+                    # so we need to use timedelta to handle this problem
+                    start_time_text = curr_session.xpath(
                                     './/span[@class="start"]/text()'
-                                    ).extract_first())
-                    crawl_data['start_time'] = datetime.datetime.strptime(
-                        start_time, "%Y%m%d %H:%M")
-                    end_time = (response.meta["selectDate"] + " "
-                                + curr_session.xpath(
+                                    ).extract_first()
+                    crawl_data['start_time'] = self.get_time_from_text(
+                        response, start_time_text
+                    )
+                    end_time_text = curr_session.xpath(
                                     './/span[@class="end"]/text()'
-                                    ).extract_first())
-                    crawl_data['end_time'] = datetime.datetime.strptime(
-                        end_time, "%Y%m%d %H:%M")
+                                    ).extract_first()
+                    crawl_data['end_time'] = self.get_time_from_text(
+                        response, end_time_text
+                    )
                     result = self.parse_session(crawl_data, curr_session)
                     yield result
+
+    def get_time_from_text(self, response, time_text):
+        """
+        generate datetime object from response and extracted time text
+        """
+        time_list = time_text.split(':')
+        hours = int(time_list[0])
+        minutes = int(time_list[1])
+        time_delta = datetime.timedelta(hours=hours, minutes=minutes)
+        time = datetime.datetime.strptime(response.meta["selectDate"],
+                                          "%Y%m%d")+time_delta
+        return time
 
     def parse_session(self, crawl_data, curr_session):
         crawl_data['book_status'] = curr_session.xpath(
