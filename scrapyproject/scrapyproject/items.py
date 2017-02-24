@@ -12,7 +12,7 @@ import scrapy
 
 special_cinema = {
     'TOHOシネマズシャンテ': {
-        r'[a-zA-Z]+': r'CHANTER-'
+        r'SCREEN': r'CHANTER-'
     },
     'TOHOシネマズスカラ座・みゆき座': {
         r'^スカラ座$': r'SCALAZA',
@@ -25,10 +25,10 @@ special_cinema = {
         r'シネマ': r'SCREEN'
     },
     'TOHOシネマズなんば': {
-        r'\((\w+)\)(\w+)': r'\1\2'
+        r'^\((\w+)\)(\w+)$': r'\1\2'
     },
     'TOHOシネマズ天神': {
-        r'(\w+)\((\w+)\)': r'\2\1'
+        r'^(\w+)\((\w+)\)$': r'\2\1'
     }
 }
 
@@ -36,8 +36,13 @@ special_cinema = {
 def standardize_cinema_name(cinema_name):
     """
     standardize cinema name
+    when handle special case like 'ＴＯＨＯシネマズなんば　本館・別館',
+    trim words after space
     """
-    return standardize_name(cinema_name)
+    if '本館' in cinema_name:
+        cinema_name = cinema_name.split('本館')[0]
+    cinema_name = standardize_name(cinema_name)
+    return cinema_name
 
 
 def standardize_screen_name(screen_name, cinema_name):
@@ -45,12 +50,8 @@ def standardize_screen_name(screen_name, cinema_name):
     make sure screen name is same with those in order page,
     and convert all full width characters to half width
     """
-    print("standardize_screen_name")
     # remove full width first to avoid regex failure
     screen_name = standardize_name(screen_name)
-    print(screen_name)
-    print(cinema_name)
-    print(special_cinema)
     if is_screen_name_special(screen_name, cinema_name):
         screen_name = convert_special_screen_name(screen_name, cinema_name)
     return screen_name
@@ -76,7 +77,6 @@ def convert_special_screen_name(screen_name, cinema_name):
     so we need to keep them same for further use.
     convert should only happen in toho_cinema spider
     """
-    print("convert_special_screen_name")
     # replace special cinema screens
     if cinema_name in special_cinema:
         for key in special_cinema[cinema_name]:
