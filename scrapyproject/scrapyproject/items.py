@@ -5,19 +5,31 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
+import re
 import unicodedata
 import scrapy
 
 
-special_screen = {
-    "NICHIGEKI-1": "日劇1",
-    "NICHIGEKI-2": "日劇2",
-    "NICHIGEKI-3": "日劇3",
-    "SCALAZA": "スカラ座",
-    "MIYUKIZA": "みゆき座",
-    "CHANTER-1": "SCREEN1",
-    "CHANTER-2": "SCREEN2",
-    "CHANTER-3": "SCREEN3"
+special_cinema = {
+    'TOHOシネマズシャンテ': {
+        r'[a-zA-Z]+': r'CHANTER-'
+    },
+    'TOHOシネマズスカラ座・みゆき座': {
+        r'^スカラ座$': r'SCALAZA',
+        r'^みゆき座$': r'MIYUKIZA'
+    },
+    'TOHOシネマズ日劇': {
+        r'日劇': r'NICHIGEKI-'
+    },
+    'TOHOシネマズ高岡': {
+        r'シネマ': r'SCREEN'
+    },
+    'TOHOシネマズなんば': {
+        r'\((\w+)\)(\w+)': r'\1\2'
+    },
+    'TOHOシネマズ天神': {
+        r'(\w+)\((\w+)\)': r'\2\1'
+    }
 }
 
 
@@ -28,28 +40,49 @@ def standardize_cinema_name(cinema_name):
     return standardize_name(cinema_name)
 
 
-def is_screen_name_special(screen_name):
+def standardize_screen_name(screen_name, cinema_name):
+    """
+    make sure screen name is same with those in order page,
+    and convert all full width characters to half width
+    """
+    print("standardize_screen_name")
+    # remove full width first to avoid regex failure
+    screen_name = standardize_name(screen_name)
+    print(screen_name)
+    print(cinema_name)
+    print(special_cinema)
+    if is_screen_name_special(screen_name, cinema_name):
+        screen_name = convert_special_screen_name(screen_name, cinema_name)
+    return screen_name
+
+
+def is_screen_name_special(screen_name, cinema_name):
     """
     check if given screen name is not same with screen name on cinemas table
     """
-    return (screen_name in special_screen)
+    # example:
+    # (本館)SELECT -> 本館SELECT
+    # SCREEN1(本館) -> 本館SCREEN1
+    # シネマ1 -> SCREEN1
+    # みゆき座 -> MIYUKIZA
+    # 日劇1 -> NICHIGEKI-1
+    # (TOHOシネマズシャンテ) SCREEN1 -> CHANTER-1
+    return cinema_name in special_cinema
 
 
-def convert_special_screen_name(screen_name):
+def convert_special_screen_name(screen_name, cinema_name):
     """
-    convert special screen name to which is in cinemas table
+    some cinema have different screen name in order page and institution page,
+    so we need to keep them same for further use.
+    convert should only happen in toho_cinema spider
     """
-    if screen_name in special_screen:
-        return special_screen[screen_name]
-    else:
-        return screen_name
-
-
-def standardize_screen_name(screen_name):
-    """
-    standardize screen name
-    """
-    return standardize_name(screen_name)
+    print("convert_special_screen_name")
+    # replace special cinema screens
+    if cinema_name in special_cinema:
+        for key in special_cinema[cinema_name]:
+            screen_name = re.sub(
+                key, special_cinema[cinema_name][key], screen_name)
+    return screen_name
 
 
 def standardize_name(name):

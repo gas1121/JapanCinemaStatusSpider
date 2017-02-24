@@ -20,3 +20,4 @@
 - [ ] Add support for windows docker
 - [ ] Add support for Appveyor and TravisCI
 - [ ] Add redis as cache
+- [ ] Handle database when crawling multiple companies

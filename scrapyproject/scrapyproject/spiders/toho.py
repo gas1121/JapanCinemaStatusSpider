@@ -3,9 +3,7 @@ import datetime
 import unicodedata
 import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
-                                 standardize_screen_name,
-                                 is_screen_name_special,
-                                 convert_special_screen_name)
+                                 standardize_screen_name)
 from scrapyproject.models import query_cinema_by_name
 
 
@@ -110,7 +108,9 @@ class TohoSpider(scrapy.Spider):
         crawl_data['title_en'] = title_en
         crawl_data['screen'] = curr_screen.xpath(
             './h5[@class="schedule-screen-title"]/text()').extract_first()
-        crawl_data['screen'] = standardize_screen_name(crawl_data['screen'])
+        # make sure screen name is same with those in cinemas table
+        crawl_data['screen'] = standardize_screen_name(
+            crawl_data['screen'], crawl_data['cinema_name'])
         screen_sessions = curr_screen.xpath(
             './/div[@class="schedule-items group"]/div')
         for curr_session in screen_sessions:
@@ -157,12 +157,11 @@ class TohoSpider(scrapy.Spider):
                 cinema_name = crawl_data['cinema_name']
                 cinema = query_cinema_by_name(cinema_name)
                 if cinema:
-                    screen = crawl_data['screen']
-                    if is_screen_name_special(screen):
-                        screen = convert_special_screen_name(screen)
-                    if screen in cinema.screens:
-                        crawl_data['book_seat_count'] = cinema.screens[screen]
-                        crawl_data['total_seat_count'] = cinema.screens[screen]
+                    if crawl_data['screen'] in cinema.screens:
+                        crawl_data['book_seat_count'] = cinema.screens[
+                            crawl_data['screen']]
+                        crawl_data['total_seat_count'] = cinema.screens[
+                            crawl_data['screen']]
                     else:
                         crawl_data['book_seat_count'] = 0
                         crawl_data['total_seat_count'] = 0

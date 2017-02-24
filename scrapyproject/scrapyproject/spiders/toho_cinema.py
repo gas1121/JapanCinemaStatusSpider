@@ -60,22 +60,18 @@ class TohoSpider(scrapy.Spider):
                 request = scrapy.Request(sub_page_url,
                                          callback=self.parse_sub_cinema)
                 request.meta['cinema'] = copy.deepcopy(cinema)
-                print(request.meta['cinema'])
                 yield request
         else:
             self.parse_seat_number_list(response, cinema)
             yield cinema
 
     def parse_sub_cinema(self, response):
-        print("parse_sub_cinema")
         cinema = response.meta['cinema']
-        print(cinema is response.meta['cinema'])
-        print(cinema)
-        self.parse_seat_number_list(response, cinema)
         # sub cinema use its own name
         cinema_name = response.xpath(
             '//div[@id="more-anchor-01"]/h4/text()').extract_first()
         cinema['name'] = standardize_cinema_name(cinema_name)
+        self.parse_seat_number_list(response, cinema)
         yield cinema
 
     def parse_seat_number_list(self, response, cinema):
@@ -88,7 +84,8 @@ class TohoSpider(scrapy.Spider):
                 './td[1]/text()').extract_first()
             # empty row may exist
             if screen_name is not None:
-                screen_name = standardize_screen_name(screen_name)
+                screen_name = standardize_screen_name(
+                    screen_name, cinema['name'])
                 screen_seat_number_list = curr_screen.xpath(
                     './td[2]/text()').re(r'([0-9]+)[\+\＋]\(([0-9]+)\)')
                 screen_seat_number = (int(screen_seat_number_list[0])
