@@ -35,6 +35,18 @@ class SeleniumDownloaderMiddleware(object):
                         '//h3[@class="schedule-body-day"'
                         ' and contains(text(), "'+singleDateStr+'")]'
                         )))
+
+                    # TOHOシネマズ ららぽーと横浜 have a node that
+                    # has too much depth which will lead spider fail to crawl.
+                    # so we need to remove part of the page before using it.
+                    driver.execute_script("""
+                    var currlist = document.evaluate("//section[@class='news']"
+                    ,document, null, XPathResult.ANY_TYPE, null);
+                    var element = currlist.iterateNext()
+                    if (element) {
+                        element.parentNode.removeChild(element);
+                    }
+                    """)
                 except NoSuchElementException:
                     driver.close()
                     return
