@@ -1,0 +1,2824 @@
+[
+    {
+        "vitCd": "076",
+        "showDay": {
+            "selectable": "0",
+            "rowSpan": 0,
+            "list": [],
+            "eventName": [],
+            "date": "20170226",
+            "dayOfWeek": 0
+        },
+        "copyrights": [
+            null,
+            "（C）2016 Summit Entertainment, LLC. All Rights Reserved.",
+            "（C）2016 Summit Entertainment, LLC. All Rights Reserved.",
+            "（C）2016 Summit Entertainment, LLC. All Rights Reserved.",
+            "（C）2016 Paramount Pictures and Revolution Studios. All Rights Reserved.",
+            "（C）2016 Paramount Pictures and Revolution Studios. All Rights Reserved.",
+            "（C）2016 Paramount Pictures and Revolution Studios. All Rights Reserved.",
+            "（C）2016 WARNER BROS. ENTERTAINMENT INC., VILLAGE ROADSHOW FILMS NORTH AMERICA INC. AND RATPAC-DUNE ENTERTAINMENT, LLC",
+            "(c)2017「きょうのキラ君」製作委員会　(c)みきもと凜／講談社",
+            "(C)2016 川原 礫／ＫＡＤＯＫＡＷＡ　アスキー・メディアワークス刊／SAO MOVIE Project",
+            "(C)2017「MFS DOCUMENTARY FILM」製作委員会",
+            "（C）2016 Paramount Pictures. All Rights Reserved.",
+            "（Ｃ）２０１７「相棒-劇場版IV-」パートナーズ",
+            "(C)2017フジテレビジョン／東宝／電通／アルタミラピクチャーズ",
+            "(C)2017フジテレビジョン／東宝／電通／アルタミラピクチャーズ",
+            null,
+            "（C）2017「君と１００回目の恋」製作委員会",
+            "（C）2016 Twentieth Century Fox Film Corporation. ",
+            "（C）2017 Marvel. All Rights Reserved.",
+            "(C)2017「恋妻家宮本」製作委員会",
+            "(C)Yana Toboso/SQUARE ENIX,Project Atlantic",
+            "(C) 2016「君の名は。」製作委員会",
+            "原作：モンキー・パンチ （C）TMS"
+        ],
+        "siteCount": 1,
+        "list": [
+            {
+                "name": "ＴＯＨＯシネマズ新宿",
+                "list": [
+                    {
+                        "icon": "",
+                        "hours": 200,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "15:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "18:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "09",
+                                "msg": "",
+                                "icon3Suti": "",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "",
+                                "name": "スクリーン９",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN9",
+                                "iconImg3": "",
+                                "iconImg2": "tcx.gif",
+                                "iconNm3": "",
+                                "iconNm2": "TCX",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014419",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "宝塚雪組『星逢一夜（ほしあいひとよ）』『Ｇｒｅａｔｅｓｔ　ＨＩＴＳ！』ライブ中継",
+                        "ename": "TAKARAZUKA YUKIGUMI HOSHIAIHITOYO GREATEST HITS / JAPANESE",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014419"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 128,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "9:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "12:00"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "12:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:50"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "19:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:40"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "22:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 8,
+                                        "showingEnd": "24:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "09",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "14",
+                                "name": "スクリーン９",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN9",
+                                "iconImg3": "atmos.gif",
+                                "iconImg2": "tcx.gif",
+                                "iconNm3": "ドルビーアトモス",
+                                "iconNm2": "TCX",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014508",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ラ・ラ・ランド　（字幕版・ＤＯＬＢＹ－ＡＴＭＯＳ）",
+                        "ename": "La La Land / English DOLBY-ATMOS",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014174"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 128,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "13:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:20"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "15:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "18:10"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "18:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:00"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "21:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "10",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１０",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN10",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "imax.gif",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "IMAX",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014367",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ラ・ラ・ランド　（字幕版・ＩＭＡＸ）",
+                        "ename": "La La Land / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014174"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 128,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "05",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン５",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN5",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "9:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "11:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "14:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "17:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "20:00"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "20:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "22:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "07",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン７",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN7",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014174",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ラ・ラ・ランド　（字幕版）",
+                        "ename": "La La Land / English",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014174"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 107,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "8:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:00"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "10:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "10",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "11",
+                                "name": "スクリーン１０",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN10",
+                                "iconImg3": "3d.gif",
+                                "iconImg2": "imax.gif",
+                                "iconNm3": "3D",
+                                "iconNm2": "IMAX",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "20170302",
+                        "code": "014479",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ｘＸｘ（トリプルＸ）　再起動（３Ｄ・字幕版・ＩＭＡＸ）",
+                        "ename": "xXx: The Return of Xander / English 3D IMAX",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014157"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 107,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "11:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:30"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "14:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "16:00"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "16:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:30"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "19:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:00"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "21:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "02",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "11",
+                                "name": "スクリーン２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN2",
+                                "iconImg3": "3d.gif",
+                                "iconImg2": "mx4d.gif",
+                                "iconNm3": "3D",
+                                "iconNm2": "MX4D",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014480",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ｘＸｘ（トリプルＸ）　再起動（３Ｄ・字幕版・ＭＸ４Ｄ）",
+                        "ename": "xXx: The Return of Xander / English 3D MX4D",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014157"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 107,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "9:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "11:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "19:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:30"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "22:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 8,
+                                        "showingEnd": "24:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "03",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン３",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN3",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "06",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン６",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN6",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014157",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ｘＸｘ（トリプルＸ）　再起動　（字幕版）",
+                        "ename": "xXx: The Return of Xander / English",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014157"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 97,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "14:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "16:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "03",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン３",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN3",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "8:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:30"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "22:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "05",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン５",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN5",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014128",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "素晴らしきかな、人生（字幕版）",
+                        "ename": "Collateral Beauty / English",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014128"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 109,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "8:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:50"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "11",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN11",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013855",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "きょうのキラ君",
+                        "ename": "KYOUNOKIRAKUN / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013855"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 119,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "8:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "11:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "14:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "16:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "19:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "19:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:40"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "22:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 8,
+                                        "showingEnd": "24:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "04",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン４",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN4",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013726",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "劇場版　ソードアート・オンライン　－オーディナル・スケール－",
+                        "ename": "SWORD ART ONLINE / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013726"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 101,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "11:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:55"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "08",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン８",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN8",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "20170302",
+                        "code": "014184",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ＭＹ　ＦＩＲＳＴ　ＳＴＯＲＹ　ＤＯＣＵＭＥＮＴＡＲＹ　ＦＩＬＭ　－全心－",
+                        "ename": "MY FIRST STORY DOCUMENTARY FILM ZENSHIN",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014184"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 124,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN1",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013938",
+                        "ratingCd": "01",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "マリアンヌ（字幕版）",
+                        "ename": "ALLIED / ENGLISH",
+                        "rowSpan": 1,
+                        "ratingImgPath": "mod_ico02_pg12.gif",
+                        "mcode": "013938"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 120,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN1",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "06",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン６",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN6",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013950",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "相棒－劇場版ＩＶ－",
+                        "ename": "AIBOU 4 / JAPANESE",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "013950"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 117,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:30"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "12",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN12",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013959",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "サバイバルファミリー",
+                        "ename": "SURVIVAL FAMILY / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013959"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 117,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "8:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "08",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン８",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN8",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013960",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "サバイバルファミリー（日本語字幕付き）",
+                        "ename": "SURVIVAL FAMILY / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013959"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 124,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "10:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:15"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "12",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN12",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013468",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "浮雲（４Ｋ上映）",
+                        "ename": "UKIGUMO / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013289"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 116,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "08",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン８",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN8",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013852",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "君と１００回目の恋",
+                        "ename": "KIMITO100KAIMENOKOI / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013852"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 127,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "08",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン８",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN8",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "12",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN12",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014113",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ミス・ペレグリンと奇妙なこどもたち（字幕版）",
+                        "ename": "Miss Peregrines Home for Peculiar Children / English",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014113"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 115,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:40"
+                                    },
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN1",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:00"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "12",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN12",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "20170302",
+                        "code": "014097",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ドクター・ストレンジ　（字幕版）",
+                        "ename": "DOCTOR STRANGE / ENGLISH ",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014097"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 117,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "8:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "06",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン６",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN6",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013920",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "恋妻家宮本",
+                        "ename": "KOISAIKA MIYAMOTO / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013920"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 100,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "08",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン８",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN8",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013854",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "劇場版「黒執事　Ｂｏｏｋ　ｏｆ　ｔｈｅ　Ａｔｌａｎｔｉｃ」",
+                        "ename": "KUROSHITSUJI / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013854"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 106,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#E4E3DF",
+                                        "eventIcon": "",
+                                        "showingStart": "21:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 7,
+                                        "showingEnd": "23:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "06",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン６",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN6",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013132",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "君の名は。",
+                        "ename": "KIMINONAWA / JAPANESE",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013132"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 100,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "9:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "10:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "02",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0761",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCREEN2",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "mx4d.gif",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "MX4D",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "20170302",
+                        "code": "014337",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ルパン三世　カリオストロの城　（ＭＸ４Ｄ上映）",
+                        "ename": "LUPIN THE 3RD THE CASTLE OF CAGLIOSTRO / JAPANESE",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014337"
+                    }
+                ],
+                "code": "076",
+                "msg": ""
+            }
+        ]
+    }
+]
