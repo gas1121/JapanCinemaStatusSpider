@@ -1,9 +1,11 @@
+from datetime import timedelta
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import exists
 from scrapyproject import settings
 
 
@@ -39,6 +41,24 @@ def query_cinema_by_name(cinema_name):
     cinema = query.first()
     session.close()
     return cinema
+
+
+def is_session_exist(item):
+    """
+    check if session exist in database by cinema_name, screen and start time
+    """
+    engine = db_connect()
+    session = sessionmaker(bind=engine)()
+    pre_start_time = item.start_time - timedelta(minutes=1)
+    post_start_time = item.start_time + timedelta(minutes=1)
+    query = session.query(exists().where(
+        Sessions.screen == item.screen).where(
+            Sessions.cinema_name == item.cinema_name).where(
+                Sessions.start_time > pre_start_time).where(
+                    Sessions.start_time < post_start_time))
+    result = query.scalar()
+    session.close()
+    return result
 
 
 class Cinemas(DeclarativeBase):

@@ -4,6 +4,8 @@ import unicodedata
 from scrapyproject import models
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
+from sqlalchemy import exists
+import datetime
 
 
 def main():

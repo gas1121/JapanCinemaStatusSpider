@@ -6,7 +6,8 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinemas, Sessions, db_connect,
-                                  drop_table_if_exist, create_cinemas_table)
+                                  drop_table_if_exist, create_cinemas_table,
+                                  is_session_exist)
 
 
 class DataBasePipeline(object):
@@ -18,13 +19,15 @@ class DataBasePipeline(object):
         return cls(database=crawler.settings.get('DATABASE'))
 
     def open_spider(self, spider):
+        self.keep_old_data = (
+            True if hasattr(spider, 'keep_old_data') else False)
         engine = db_connect()
-        if spider.name == "toho" or spider.name == "toho_v2":
-            # we need to drop sessions table first if it exists
-            # as its data is outdated
-            drop_table_if_exist(engine, Sessions)
-        elif spider.name == "toho_cinema":
-            drop_table_if_exist(engine, Cinemas)
+        if not self.keep_old_data:
+            # drop data
+            if spider.name == "toho" or spider.name == "toho_v2":
+                drop_table_if_exist(engine, Sessions)
+            elif spider.name == "toho_cinema":
+                drop_table_if_exist(engine, Cinemas)
         create_cinemas_table(engine)
         self.Session = sessionmaker(bind=engine)
 
@@ -36,6 +39,11 @@ class DataBasePipeline(object):
                 or spider.name == "toho_v2"):
             db_item = (Cinemas(**item) if spider.name == "toho_cinema"
                        else Sessions(**item))
+            # if spider is toho or toho_v2 and keep old data,
+            # check if data exists first
+            if ((spider.name == "toho" or spider.name == "toho_v2") and
+                    is_session_exist(db_item)):
+                    return item
             # save cinema info to database
             session = self.Session()
             try:
