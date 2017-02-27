@@ -20,5 +20,6 @@
 - [ ] Add support for windows docker
 - [ ] Add support for Appveyor and TravisCI
 - [ ] Add redis as cache
-- [ ] Handle database when crawling multiple companies
-- [ ] Use json api instead of spider
+- [ ] Handle database when crawling multiple companies and times
+- [x] Use json api instead of html page directly
+- [ ] run multiple time to ensure all record is crawled

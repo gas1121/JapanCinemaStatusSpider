@@ -165,7 +165,6 @@ class TohoV2Spider(scrapy.Spider):
         parse movie session data
         movie may have different versions
         """
-        # TODO remove version str in title and title_en
         title = curr_movie['name']
         title_en = curr_movie['ename']
         # normalize title_en to avoid full width characters
