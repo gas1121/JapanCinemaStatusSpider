@@ -2,6 +2,7 @@
 import datetime
 import unicodedata
 import json
+import copy
 import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name)
@@ -59,7 +60,7 @@ class TohoV2Spider(scrapy.Spider):
         config['crawl_all_movies'] = (
             True if hasattr(self, 'crawl_all_movies') else False)
         config['crawl_all_cinemas'] = (
-            True if hasattr(self, 'crawl_all_cinemas') else True)
+            True if hasattr(self, 'crawl_all_cinemas') else False)
         config['cinema_list'] = getattr(self, 'cinema_list',
                                         ['TOHOシネマズ 新宿'])
         if not isinstance(config['cinema_list'], list):
@@ -78,15 +79,18 @@ class TohoV2Spider(scrapy.Spider):
         """
         config = {}
         self.set_config(config)
-        theater_list = json.loads(response.text)
+        try:
+            theater_list = json.loads(response.text)
+        except json.JSONDecodeError:
+            return
         if (not theater_list):
             return
         for curr_cinema in theater_list:
             if not self.is_cinema_crawl(curr_cinema, config['cinema_list'],
                                         config['crawl_all_cinemas']):
                 continue
-            site_cd = curr_cinema['SITE_CD']
-            show_day = config['date'].strftime("%Y%m%d")
+            site_cd = curr_cinema['VIT_GROUP_CD']
+            show_day = config['date']
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
             request = scrapy.Request(curr_cinema_url,
@@ -101,10 +105,17 @@ class TohoV2Spider(scrapy.Spider):
         """
         if crawl_all_cinemas:
             return True
-        if (curr_cinema['VIT_GROUP_NM'] in cinema_list or
-                curr_cinema['THEATER_NAME'] in cinema_list or
-                curr_cinema['THEATER_NAME_ENGLISH'] in cinema_list or
-                curr_cinema['SITE_NM'] in cinema_list):
+        # replace full width text before compare
+        vit_group_nm = unicodedata.normalize('NFKC', 
+                                             curr_cinema['VIT_GROUP_NM'])
+        theater_name = unicodedata.normalize('NFKC', 
+                                             curr_cinema['THEATER_NAME'])
+        theater_name_english = unicodedata.normalize(
+            'NFKC', curr_cinema['THEATER_NAME_ENGLISH'])
+        site_name = unicodedata.normalize('NFKC', curr_cinema['SITE_NM'])
+        if (vit_group_nm in cinema_list or theater_name in cinema_list
+            or theater_name_english in cinema_list
+                or site_name in cinema_list):
                 return True
         return False
 
@@ -112,31 +123,64 @@ class TohoV2Spider(scrapy.Spider):
         """
         json data url for single cinema, all movies of curr cinema
         """
-        url = 'https://hlo.tohotheater.jp/net/'
-        'schedule/TNPI3050J02.do?__type__=html&__useResultInfo__=no'
-        '&vg_cd={site_cd}&show_day={show_day}&term=99'.format(
-            site_cd=site_cd, show_day=show_day)
+        url = 'https://hlo.tohotheater.jp/net/schedule/TNPI3050J02.do?'\
+              '__type__=html&__useResultInfo__=no'\
+              '&vg_cd={site_cd}&show_day={show_day}&term=99'.format(
+                site_cd=site_cd, show_day=show_day)
         return url
 
     def parse_cinema(self, response):
-        schedule_data = json.loads(response.text)
+        # some cinemas may not open currently and will return empty response
+        try:
+            schedule_data = json.loads(response.text)
+        except json.JSONDecodeError:
+            return
         if (not schedule_data):
             return
+        result_list = []
         for curr_cinema in schedule_data:
+            session_url_parameter = {}
+            session_url_parameter['show_day'] = curr_cinema['showDay']['date']
             for sub_cinema in curr_cinema['list']:
-                cinema_name = sub_cinema['name']
-                cinema_name = standardize_cinema_name(cinema_name)
-                for curr_movie in sub_cinema['list']:
-                    # movie may have different versions
-                    title = curr_movie['name']
-                    title_en = curr_movie['ename']
-                    # normalize title_en to avoid full width characters
-                    title_en = unicodedata.normalize('NFKC', title_en)
-                    if not self.is_movie_crawl(
-                        title, title_en, response.meta["movie_list"],
-                            response.meta["crawl_all_movies"]):
-                        continue
-                        # TODO
+                self.parse_sub_cinema(
+                    response, sub_cinema, session_url_parameter, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_sub_cinema(self, response, sub_cinema,
+                         session_url_parameter, result_list):
+        session_url_parameter['site_cd'] = sub_cinema['code']
+        cinema_name = sub_cinema['name']
+        cinema_name = standardize_cinema_name(cinema_name)
+        data_proto = Session()
+        data_proto['cinema_name'] = cinema_name
+        for curr_movie in sub_cinema['list']:
+            self.parse_movie(response, curr_movie, session_url_parameter,
+                             data_proto, result_list)
+
+    def parse_movie(self, response, curr_movie,
+                    session_url_parameter, data_proto, result_list):
+        """
+        parse movie session data
+        movie may have different versions
+        """
+        # TODO remove version str in title and title_en
+        title = curr_movie['name']
+        title_en = curr_movie['ename']
+        # normalize title_en to avoid full width characters
+        title_en = unicodedata.normalize('NFKC', title_en)
+        if not self.is_movie_crawl(
+            title, title_en, response.meta["movie_list"],
+                response.meta["crawl_all_movies"]):
+            return
+        session_url_parameter['movie_cd'] = curr_movie['code']
+        movie_data_proto = copy.deepcopy(data_proto)
+        movie_data_proto['title'] = title
+        movie_data_proto['title_en'] = title_en
+        for curr_screen in curr_movie['list']:
+            self.parse_screen(response, curr_screen, session_url_parameter,
+                              movie_data_proto, result_list)
 
     def is_movie_crawl(self, title, title_en, movie_list, crawl_all_movies):
         """
@@ -152,107 +196,117 @@ class TohoV2Spider(scrapy.Spider):
             return True
         return False
 
-    def generate_session_url(self, curr_session_url_item):
-        # example: javascript:ScheduleUtils.purchaseTicket(
-        #  "20170212", "076", "013132", "0761", "11", "2")
-        # example: https://hlo.tohotheater.jp/net/ticket/076/TNPI2040J03.do
-        # ?site_cd=076&jyoei_date=20170209&gekijyo_cd=0761&screen_cd=10
-        # &sakuhin_cd=014183&pf_no=5&fnc=1&pageid=2000J01&enter_kbn=
-        parameters = curr_session_url_item.re(r'purchaseTicket\("([0-9]+)", '
-                                              '"([0-9]+)", "([0-9]+)", '
-                                              '"([0-9]+)", "([0-9]+)", '
-                                              '"([0-9]+)"\)')
-        return "https://hlo.tohotheater.jp/net/ticket/{site_cd}/"\
-               "TNPI2040J03.do?site_cd={site_cd}&jyoei_date={jyoei_date}"\
-               "&gekijyo_cd={gekijyo_cd}&screen_cd={screen_cd}"\
-               "&sakuhin_cd={sakuhin_cd}&pf_no={pf_no}&fnc={fnc}"\
-               "&pageid={pageid}&enter_kbn={enter_kbn}".format(
-                   site_cd=parameters[1], jyoei_date=parameters[0],
-                   gekijyo_cd=parameters[3], screen_cd=parameters[4],
-                   sakuhin_cd=parameters[2], pf_no=parameters[5],
-                   fnc="1", pageid="2000J01", enter_kbn="")
-
-
-    def parse_screen(self, response, curr_screen, cinema_name,
-                     title, title_en, result_list):
-        crawl_data = Session()
-        crawl_data['cinema_name'] = cinema_name
-        crawl_data['title'] = title
-        crawl_data['title_en'] = title_en
-        crawl_data['screen'] = curr_screen.xpath(
-            './h5[@class="schedule-screen-title"]/text()').extract_first()
+    def parse_screen(self, response, curr_screen,
+                     session_url_parameter, data_proto, result_list):
+        screen = curr_screen['ename']
+        session_url_parameter['theater_cd'] = curr_screen['theaterCd']
+        session_url_parameter['screen_cd'] = curr_screen['code']
+        screen_data_proto = copy.deepcopy(data_proto)
         # make sure screen name is same with those in cinemas table
-        crawl_data['screen'] = standardize_screen_name(
-            crawl_data['screen'], crawl_data['cinema_name'])
-        screen_sessions = curr_screen.xpath(
-            './/div[@class="schedule-items group"]/div')
-        for curr_session in screen_sessions:
-            # time like 24:40 can not directly parsed by datetime,
-            # so we need to use timedelta to handle this problem
-            start_time_text = curr_session.xpath(
-                './/span[@class="start"]/text()').extract_first()
-            crawl_data['start_time'] = self.get_time_from_text(
-                response, start_time_text)
-            end_time_text = curr_session.xpath(
-                './/span[@class="end"]/text()').extract_first()
-            crawl_data['end_time'] = self.get_time_from_text(
-                response, end_time_text)
-            result = self.parse_session(crawl_data, curr_session)
-            result_list.append(result)
+        screen_data_proto['screen'] = standardize_screen_name(
+            screen, screen_data_proto['cinema_name'])
+        for curr_session in curr_screen['list']:
+            # filter empty session
+            if not curr_session['unsoldSeatInfo']:
+                continue
+            self.parse_session(response, curr_session, session_url_parameter,
+                               screen_data_proto, result_list)
 
-    def get_time_from_text(self, response, time_text):
+    def parse_session(self, response, curr_session,
+                      session_url_parameter, data_proto, result_list):
+        session_url_parameter['session_cd'] = curr_session['code']
+        session_data_proto = copy.deepcopy(data_proto)
+        # time like 24:40 can not directly parsed by datetime,
+        # so we need to use timedelta to handle this problem
+        session_data_proto['start_time'] = self.get_time_from_text(
+            session_url_parameter['show_day'], curr_session['showingStart']
+        )
+        session_data_proto['end_time'] = self.get_time_from_text(
+            session_url_parameter['show_day'], curr_session['showingEnd']
+        )
+        session_data_proto['book_status'] = curr_session[
+            'unsoldSeatInfo']['unsoldSeatStatus']
+        # status:
+        # A Plenty Left
+        # B Half full
+        # C Few Seats Left
+        # D Sold Out
+        # G Not Sold
+        if session_data_proto['book_status'] == 'D':
+            # sold out
+            cinema_name = data_proto['cinema_name']
+            cinema = query_cinema_by_name(cinema_name)
+            if cinema:
+                if session_data_proto['screen'] in cinema.screens:
+                    session_data_proto['book_seat_count'] = cinema.screens[
+                        session_data_proto['screen']]
+                    session_data_proto['total_seat_count'] = cinema.screens[
+                        session_data_proto['screen']]
+                else:
+                    session_data_proto['book_seat_count'] = 0
+                    session_data_proto['total_seat_count'] = 0
+            else:
+                session_data_proto['book_seat_count'] = 0
+                session_data_proto['total_seat_count'] = 0
+            session_data_proto['record_time'] = datetime.datetime.now()
+            result_list.append(session_data_proto)
+            return
+        elif session_data_proto['book_status'] == 'G':
+            # not sold
+            session_data_proto['book_seat_count'] = 0
+            session_data_proto['total_seat_count'] = 0
+            session_data_proto['record_time'] = datetime.datetime.now()
+            result_list.append(session_data_proto)
+            return
+        else:
+            # normal, need to crawl book number on order page
+            url = self.generate_session_url(session_url_parameter)
+            request = scrapy.Request(url,
+                                     callback=self.parse_normal_session)
+            request.meta["data_proto"] = session_data_proto
+            result_list.append(request)
+
+    def get_time_from_text(self, show_day, time_text):
         """
-        generate datetime object from response and extracted time text
+        generate datetime object from given day and time text
+
+        as time like 24:40 can not directly parsed by datetime,
+        so we need to use timedelta to handle this problem
         """
         time_list = time_text.split(':')
         hours = int(time_list[0])
         minutes = int(time_list[1])
         time_delta = datetime.timedelta(hours=hours, minutes=minutes)
-        time = datetime.datetime.strptime(response.meta["selectDate"],
-                                          "%Y%m%d")+time_delta
+        time = datetime.datetime.strptime(show_day, "%Y%m%d")+time_delta
         return time
 
-    def parse_session(self, crawl_data, curr_session):
-        crawl_data['book_status'] = curr_session.xpath(
-                './/p[contains(@class,"status")]/text()').extract_first()
-        if (curr_session.xpath('./@class').extract_first()
-                == 'schedule-item white'):
-            # normal
-            session_url = curr_session.xpath('./a/@href')
-            url = self.generate_session_url(session_url)
-            request = scrapy.Request(url,
-                                     callback=self.parse_normal_session)
-            request.meta["crawl_data"] = crawl_data.copy()
-            return request
-        else:
-            if crawl_data['book_status'] == "売り切れ":
-                # sold out
-                cinema_name = crawl_data['cinema_name']
-                cinema = query_cinema_by_name(cinema_name)
-                if cinema:
-                    if crawl_data['screen'] in cinema.screens:
-                        crawl_data['book_seat_count'] = cinema.screens[
-                            crawl_data['screen']]
-                        crawl_data['total_seat_count'] = cinema.screens[
-                            crawl_data['screen']]
-                    else:
-                        crawl_data['book_seat_count'] = 0
-                        crawl_data['total_seat_count'] = 0
-                else:
-                    crawl_data['book_seat_count'] = 0
-                    crawl_data['total_seat_count'] = 0
-            else:
-                # outdated
-                crawl_data['book_seat_count'] = 0
-                crawl_data['total_seat_count'] = 0
-            crawl_data['record_time'] = datetime.datetime.now()
-            return crawl_data.copy()
+    def generate_session_url(self, session_url_parameter):
+        # example: javascript:ScheduleUtils.purchaseTicket(
+        #  "20170212", "076", "013132", "0761", "11", "2")
+        # example: https://hlo.tohotheater.jp/net/ticket/076/TNPI2040J03.do
+        # ?site_cd=076&jyoei_date=20170209&gekijyo_cd=0761&screen_cd=10
+        # &sakuhin_cd=014183&pf_no=5&fnc=1&pageid=2000J01&enter_kbn=
+        site_cd = session_url_parameter['site_cd']
+        show_day = session_url_parameter['show_day']
+        theater_cd = session_url_parameter['theater_cd']
+        screen_cd = session_url_parameter['screen_cd']
+        movie_cd = session_url_parameter['movie_cd']
+        session_cd = session_url_parameter['session_cd']
+        return "https://hlo.tohotheater.jp/net/ticket/{site_cd}/"\
+               "TNPI2040J03.do?site_cd={site_cd}&jyoei_date={jyoei_date}"\
+               "&gekijyo_cd={gekijyo_cd}&screen_cd={screen_cd}"\
+               "&sakuhin_cd={sakuhin_cd}&pf_no={pf_no}&fnc={fnc}"\
+               "&pageid={pageid}&enter_kbn={enter_kbn}".format(
+                   site_cd=site_cd, jyoei_date=show_day,
+                   gekijyo_cd=theater_cd, screen_cd=screen_cd,
+                   sakuhin_cd=movie_cd, pf_no=session_cd,
+                   fnc="1", pageid="2000J01", enter_kbn="")
 
     def parse_normal_session(self, response):
         empty_seat_count = len(response.css('[alt~="空席(選択可)"]'))
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
         total_seat_count = empty_seat_count + booked_seat_count
-        result = response.meta["crawl_data"]
+        result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
         result['total_seat_count'] = total_seat_count
         result['record_time'] = datetime.datetime.now()

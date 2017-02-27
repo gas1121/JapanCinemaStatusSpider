@@ -19,7 +19,7 @@ class DataBasePipeline(object):
 
     def open_spider(self, spider):
         engine = db_connect()
-        if spider.name == "toho":
+        if spider.name == "toho" or spider.name == "toho_v2":
             # we need to drop sessions table first if it exists
             # as its data is outdated
             drop_table_if_exist(engine, Sessions)
@@ -32,7 +32,8 @@ class DataBasePipeline(object):
         pass
 
     def process_item(self, item, spider):
-        if spider.name == "toho_cinema" or spider.name == "toho":
+        if (spider.name == "toho_cinema" or spider.name == "toho"
+                or spider.name == "toho_v2"):
             db_item = (Cinemas(**item) if spider.name == "toho_cinema"
                        else Sessions(**item))
             # save cinema info to database

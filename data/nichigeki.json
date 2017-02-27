@@ -1,0 +1,1144 @@
+[
+    {
+        "vitCd": "034",
+        "showDay": {
+            "selectable": "0",
+            "rowSpan": 0,
+            "list": [],
+            "eventName": [],
+            "date": "20170227",
+            "dayOfWeek": 0
+        },
+        "copyrights": [
+            "（C）2016 Twentieth Century Fox Film Corporation. ",
+            "（C）2017 Marvel. All Rights Reserved.",
+            "（C）2017 Marvel. All Rights Reserved.",
+            "(C)2017「恋妻家宮本」製作委員会",
+            "（C）2016 Paramount Pictures and Revolution Studios. All Rights Reserved.",
+            "（C）2016 Summit Entertainment, LLC. All Rights Reserved.",
+            "（C）2016 Summit Entertainment, LLC. All Rights Reserved.",
+            "(c) 2016 HOLOGRAM FOR THE KING LTD. ALL RIGHTS RESERVED.",
+            "（C）Pathe Productions Limited, Channel Four Television Corporation and The British Film Institute 2015. All rights reserved. ",
+            "(C) 2016「君の名は。」製作委員会"
+        ],
+        "siteCount": 3,
+        "list": [
+            {
+                "name": "ＴＯＨＯシネマズ日劇",
+                "list": [
+                    {
+                        "icon": "",
+                        "hours": 127,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "14:05",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "16:25"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "19:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "19:35",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:55"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0423",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン３",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "NICHIGEKI－３",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014113",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ミス・ペレグリンと奇妙なこどもたち（字幕版）",
+                        "ename": "Miss Peregrines Home for Peculiar Children / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014113"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 115,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "13:35",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:45"
+                                    },
+                                    {
+                                        "bgColor": "#FFE4C4",
+                                        "eventIcon": "/schedule/schedule_ico02-8.gif",
+                                        "showingStart": "18:45",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:55"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0421",
+                                "iconImg1": "",
+                                "icon3Key2": "11",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "NICHIGEKI－１",
+                                "iconImg3": "3d.gif",
+                                "iconImg2": "",
+                                "iconNm3": "3D",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014345",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ドクター・ストレンジ　（３Ｄ・字幕版）",
+                        "ename": "DOCTOR STRANGE / ENGLISH 3D",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014097"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 115,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0421",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "NICHIGEKI－１",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014097",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "ドクター・ストレンジ　（字幕版）",
+                        "ename": "DOCTOR STRANGE / ENGLISH ",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014097"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 117,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:05",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:15"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:15",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:25"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0422",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "NICHIGEKI－２",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013920",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "恋妻家宮本",
+                        "ename": "KOISAIKA MIYAMOTO / Japanese",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013920"
+                    }
+                ],
+                "code": "042",
+                "msg": ""
+            },
+            {
+                "name": "ＴＯＨＯシネマズスカラ座・みゆき座",
+                "list": [
+                    {
+                        "icon": "",
+                        "hours": 107,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:05"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:35"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:05"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:25",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0341",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スカラ座",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "SCALAZA",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014157",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ｘＸｘ（トリプルＸ）　再起動　（字幕版）",
+                        "ename": "xXx: The Return of Xander / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014157"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 128,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:45"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:10",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:35"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:05",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "19:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "21:25"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0342",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "みゆき座",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "MIYUKIZA",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014174",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ラ・ラ・ランド　（字幕版）",
+                        "ename": "La La Land / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "014174"
+                    }
+                ],
+                "code": "034",
+                "msg": ""
+            },
+            {
+                "name": "ＴＯＨＯシネマズシャンテ",
+                "list": [
+                    {
+                        "icon": "",
+                        "hours": 128,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:00",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:25"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "14:05",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "16:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:55",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "19:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "19:45",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "22:10"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "01",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0411",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン１",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "CHANTER－１",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            },
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "12:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "14:55"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "15:25",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 4,
+                                        "showingEnd": "17:50"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:15",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "02",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0411",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "CHANTER－２",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014174",
+                        "ratingCd": "",
+                        "newShow": "1",
+                        "thumbnail": "",
+                        "name": "ラ・ラ・ランド　（字幕版）",
+                        "ename": "La La Land / English",
+                        "rowSpan": 2,
+                        "ratingImgPath": "",
+                        "mcode": "014174"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 98,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "9:30",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 1,
+                                        "showingEnd": "11:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "11:40",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "13:30"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "13:50",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 3,
+                                        "showingEnd": "15:40"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "18:45",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 6,
+                                        "showingEnd": "20:35"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "03",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0411",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン３",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "CHANTER－３",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "014145",
+                        "ratingCd": "01",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "王様のためのホログラム（字幕版）",
+                        "ename": "A Hologram for the King / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "mod_ico02_pg12.gif",
+                        "mcode": "014145"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 106,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "10:05",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-5.gif\" alt=\"販売対象外チケット　Ticket Not Sold\" style=\"float:left;",
+                                            "unsoldSeatStatus": "G"
+                                        },
+                                        "code": 2,
+                                        "showingEnd": "12:05"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "02",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0411",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン２",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "CHANTER－２",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "20170302",
+                        "code": "013965",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "未来を花束にして（字幕版）",
+                        "ename": "Suffragette / English",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013965"
+                    },
+                    {
+                        "icon": "",
+                        "hours": 106,
+                        "list": [
+                            {
+                                "list": [
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "16:20",
+                                        "unsoldSeatInfo": {
+                                            "icon": "/schedule/schedule_ico01-1.gif\" alt=\"余裕あり　Plenty Left\" style=\"float:left;",
+                                            "unsoldSeatStatus": "A"
+                                        },
+                                        "code": 5,
+                                        "showingEnd": "18:20"
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    },
+                                    {
+                                        "bgColor": "",
+                                        "eventIcon": "",
+                                        "showingStart": "",
+                                        "unsoldSeatInfo": null,
+                                        "code": 0,
+                                        "showingEnd": ""
+                                    }
+                                ],
+                                "code": "03",
+                                "msg": "",
+                                "icon3Suti": "1",
+                                "theaterCd": "0411",
+                                "iconImg1": "",
+                                "icon3Key2": "12",
+                                "name": "スクリーン３",
+                                "rowSpan": 1,
+                                "allSeatNum": 0,
+                                "ename": "CHANTER－３",
+                                "iconImg3": "digital.gif",
+                                "iconImg2": "",
+                                "iconNm3": "デジタル",
+                                "iconNm2": "",
+                                "iconNm1": "",
+                                "facilities": []
+                            }
+                        ],
+                        "rakubi": "",
+                        "code": "013132",
+                        "ratingCd": "",
+                        "newShow": "2",
+                        "thumbnail": "",
+                        "name": "君の名は。",
+                        "ename": "KIMINONAWA / JAPANESE",
+                        "rowSpan": 1,
+                        "ratingImgPath": "",
+                        "mcode": "013132"
+                    }
+                ],
+                "code": "041",
+                "msg": ""
+            }
+        ]
+    }
+]
