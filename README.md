@@ -22,5 +22,10 @@
 - [ ] Add redis as cache
 - [x] Handle database when crawling multiple companies and times
 - [x] Use json api instead of html page directly
-- [ ] run multiple time to ensure all record is crawled
+- [ ] run multiple times to ensure all record is crawled
 - [ ] spider command line bool option problem
+- [ ] Use information sites:
+ - [ ] http://eiga.com
+ - [ ] http://cinema.pia.co.jp
+ - [ ] http://movie.walkerplus.com
+ - [ ] http://movies.yahoo.co.jp
