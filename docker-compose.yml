@@ -7,9 +7,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data/
     restart: always
+    environment:
+      - POSTGRES_USER=japancinemastatus
+      - POSTGRES_PASSWORD=japancinemastatus
+      - POSTGRES_DB=japancinemastatus
+      - PGDATA=/var/lib/postgresql/data
   psql:
     image: library/postgres:alpine
-    command: psql -h postgres -U postgres
+    command: psql -h postgres -p 5432 -U japancinemastatus -W japancinemastatus
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
@@ -17,7 +22,7 @@ services:
     ports: 
       - "80:8081"
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+      - DATABASE_URL=postgres://japancinemastatus:japancinemastatus@postgres:5432/japancinemastatus?sslmode=disable
   redis:
     image: library/redis:alpine
     ports:
