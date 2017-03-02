@@ -14,7 +14,11 @@ def crawl_job():
 
 
 if __name__ == '__main__':
-    schedule.every().day.at('11:43').do(crawl_job)
+    def test():
+        print("test")
+    #schedule.every().day.at('11:54').do(crawl_job)
+    schedule.every().minutes.do(crawl_job)
+    schedule.every().minutes.do(test)
     while True:
         schedule.run_pending()
         time.sleep(1)
