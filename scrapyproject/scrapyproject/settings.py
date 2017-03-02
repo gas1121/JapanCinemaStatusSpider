@@ -9,6 +9,8 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
+import os
+
 BOT_NAME = 'scrapyproject'
 
 SPIDER_MODULES = ['scrapyproject.spiders']
@@ -78,9 +80,9 @@ DATABASE = {
     'drivername': 'postgres',
     'host': 'postgres',
     'port': '5432',
-    'username': 'postgres',
-    'password': '',
-    'database': 'japancinemastatus'
+    'username': os.environ['POSTGRES_USER'],
+    'password': os.environ['POSTGRES_PASSWORD'],
+    'database': os.environ['POSTGRES_DB']
 }
 
 # Configure item pipelines
