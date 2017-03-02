@@ -2,61 +2,66 @@ version: "2"
 services:
   postgres:
     image: library/postgres:alpine
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data/
+      - pgdata:{PGDATA}
     restart: always
+    environment:
+      - POSTGRES_USER={POSTGRES_USER}
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD}
+      - POSTGRES_DB={POSTGRES_DB}
+      - PGDATA={PGDATA}
   psql:
     image: library/postgres:alpine
-    command: psql -h postgres -U postgres
+    command: psql -h postgres -p 5432 -U {POSTGRES_USER} -W {POSTGRES_PASSWORD}
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
       - postgres
     ports: 
-      - "80:8081"
+      - "{PGWEB_PORT}:8081"
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+      - DATABASE_URL=postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@postgres:5432/{POSTGRES_DB}?sslmode=disable
   redis:
     image: library/redis:alpine
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
-      - redisdata:/data
+      - redisdata:{REDISDATA}
     restart: always
   phantomjs:
     image: wernight/phantomjs:2
-    ports:
-      - "8910:8910"
+    expose:
+      - "8910"
     volumes: 
-      - .:/app
-    command: phantomjs --proxy=10.0.2.2:1080 --proxy-type=socks5 --webdriver=8910
+      - .:{WORK_DIR}
+    command: phantomjs --proxy={PROXY_ADDRESS}:{PROXY_PORT} --proxy-type={PROXY_TYPE} --webdriver=8910
   scrapy:
     build:
      context: .
      dockerfile: Dockerfile
     volumes: 
-      - .:/app
-    working_dir: /app
+      - .:{WORK_DIR}
+    working_dir: {WORK_DIR}
     depends_on: 
       - phantomjs
       - postgres
       - redis
   phantomjs-vps:
     image: wernight/phantomjs:2
-    ports:
-      - "8910:8910"
+    expose:
+      - "8910"
     volumes: 
-      - .:/app
+      - .:{WORK_DIR}
     command: phantomjs --webdriver=8910
   scrapy-vps:
     build:
       context: .
       dockerfile: Dockerfile.vps
     volumes: 
-      - .:/app
-    working_dir: /app
+      - .:{WORK_DIR}
+    working_dir: {WORK_DIR}
     depends_on: 
       - phantomjs-vps
       - postgres

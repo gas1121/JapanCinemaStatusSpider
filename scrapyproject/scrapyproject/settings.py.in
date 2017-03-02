@@ -78,9 +78,9 @@ DATABASE = {
     'drivername': 'postgres',
     'host': 'postgres',
     'port': '5432',
-    'username': 'japancinemastatus',
-    'password': 'japancinemastatus',
-    'database': 'japancinemastatus'
+    'username': '{POSTGRES_USER}',
+    'password': '{POSTGRES_PASSWORD}',
+    'database': '{POSTGRES_DB}'
 }
 
 # Configure item pipelines
