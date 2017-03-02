@@ -5,9 +5,10 @@
 #
 
 render_template() {
-    input_file=$1
-    output_file=$2
-    cfg_parser init.cfg
+    setting_file=$1
+    input_file=$2
+    output_file=$3
+    cfg_parser $setting_file
     cfg_section_postgres
     cfg_section_pgweb
     cfg_section_redis
@@ -27,6 +28,4 @@ render_template() {
 
 . script/bash-ini-parser
 
-render_template docker-compose.yml.in docker-compose.yml
-render_template scrapyproject/scrapyproject/settings.py.in \
-scrapyproject/scrapyproject/settings.py
+render_template settings.cfg docker-compose.yml.in docker-compose.yml

@@ -44,6 +44,10 @@ services:
     volumes: 
       - .:{WORK_DIR}
     working_dir: {WORK_DIR}
+    environment:
+      - POSTGRES_USER={POSTGRES_USER}
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD}
+      - POSTGRES_DB={POSTGRES_DB}
     depends_on: 
       - phantomjs
       - postgres
@@ -62,6 +66,10 @@ services:
     volumes: 
       - .:{WORK_DIR}
     working_dir: {WORK_DIR}
+    environment:
+      - POSTGRES_USER={POSTGRES_USER}
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD}
+      - POSTGRES_DB={POSTGRES_DB}
     depends_on: 
       - phantomjs-vps
       - postgres
