@@ -23,4 +23,6 @@
 - [x] Handle database when crawling multiple companies and times
 - [x] Use json api instead of html page directly
 - [ ] run multiple time to ensure all record is crawled
+ - [x] database support multiple times
+ - [ ] pre filter request for crawled session
 - [ ] spider command line bool option problem
