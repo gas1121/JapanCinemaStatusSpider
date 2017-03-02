@@ -11,10 +11,10 @@
 - [x] build cinemas data table(to handle when single session is full)
 - [x] support multiple movie and cinema
 - [ ] Better command line support for spider
-- [ ] Support json configuration file and bash script
+- [x] Support configuration file and bash script
 - [x] Connect to database 
 - [x] Data select program
-- [ ] Add template and Env for security
+- [x] Add template and Env for security
 - [x] Duplicate session in database
 - [ ] Add cron table
 - [ ] Add support for windows docker
