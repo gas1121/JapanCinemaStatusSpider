@@ -7,6 +7,7 @@ Spider for movie booking status of major cinemas in japan.Program support toho's
 - dockerized for different parts like scrapy,phantomjs,postgres etc. 
 - time scheduled job support
 - support mirror if need
+- support proxy for scrapy spider
 
 
 ## Usage

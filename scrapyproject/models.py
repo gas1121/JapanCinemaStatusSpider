@@ -67,9 +67,7 @@ class Cinemas(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     name = Column('name', String, unique=True)
     area = Column('area', String)
-    area_en = Column('area_en', String)
     county = Column('county', String)
-    county_en = Column('county_en', String)
     screens = Column('screens', JSONB)
 
 
