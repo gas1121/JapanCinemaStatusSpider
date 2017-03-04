@@ -11,6 +11,10 @@ from scrapyproject.models import (Cinemas, Sessions, db_connect,
 
 
 class DataBasePipeline(object):
+    """
+    pipeline to add item to database
+    will keep exist data if spider has attribute 'keep_old_data'
+    """
     def __init__(self, database):
         self.database = database
 

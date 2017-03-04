@@ -66,6 +66,7 @@ DEFAULT_REQUEST_HEADERS = {
 #}
 DOWNLOADER_MIDDLEWARES = {
     'scrapyproject.middlewares.middleware.SeleniumDownloaderMiddleware': 543,
+    'scrapyproject.middlewares.middleware.ProxyDownloaderMiddleware': 544,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None
 }
 

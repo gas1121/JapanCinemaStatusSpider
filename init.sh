@@ -12,8 +12,8 @@ render_template() {
     cfg_section_postgres
     cfg_section_pgweb
     cfg_section_redis
-    cfg_section_phantomjs
     cfg_section_scrapy
+    cfg_section_proxy
     sed -e "s@{POSTGRES_USER}@$POSTGRES_USER@g" \
     -e "s@{POSTGRES_PASSWORD}@$POSTGRES_PASSWORD@g" \
     -e "s@{POSTGRES_DB}@$POSTGRES_DB@g" \
