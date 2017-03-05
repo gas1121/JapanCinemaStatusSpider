@@ -95,13 +95,9 @@ def standardize_name(name):
 
 
 class Cinema(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
     name = scrapy.Field()
-    area = scrapy.Field()
-    area_en = scrapy.Field()
     county = scrapy.Field()
-    county_en = scrapy.Field()
+    company = scrapy.Field()
     screens = scrapy.Field()
 
 

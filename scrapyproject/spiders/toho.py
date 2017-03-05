@@ -5,9 +5,10 @@ import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.models import query_cinema_by_name
+from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 
 
-class TohoSpider(scrapy.Spider):
+class TohoSpider(scrapy.Spider, CinemasDatabaseMixin):
     name = "toho"
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
     start_urls = ['https://www.tohotheater.jp/theater/find.html']

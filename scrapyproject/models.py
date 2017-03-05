@@ -61,13 +61,25 @@ def is_session_exist(item):
     return result
 
 
+def is_cinema_exist(item):
+    """
+    check if cinema exist in database by name
+    """
+    engine = db_connect()
+    session = sessionmaker(bind=engine)()
+    query = session.query(exists().where(Cinemas.name == item.name))
+    result = query.scalar()
+    session.close()
+    return result
+
+
 class Cinemas(DeclarativeBase):
     __tablename__ = "cinemas"
 
     id = Column(Integer, primary_key=True)
     name = Column('name', String, unique=True)
-    area = Column('area', String)
     county = Column('county', String)
+    company = Column('county', String)
     screens = Column('screens', JSONB)
 
 

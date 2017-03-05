@@ -3,9 +3,10 @@ import copy
 import scrapy
 from scrapyproject.items import (Cinema, standardize_cinema_name,
                                  standardize_screen_name)
+from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 
 
-class TohoCinemaSpider(scrapy.Spider):
+class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
     name = "toho_cinema"
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
     start_urls = ['https://www.tohotheater.jp/theater/find.html']
