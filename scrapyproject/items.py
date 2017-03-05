@@ -36,24 +36,40 @@ special_cinema = {
 def standardize_cinema_name(cinema_name):
     """
     standardize cinema name
-    when handle special case like 'ＴＯＨＯシネマズなんば　本館・別館',
-    trim words after space
+    this function has to handle several special cases include:
+    - name includes full width charaters
+      example: "ＴＯＨＯシネマズなんば　本館・別館"
+    - name may include or not include space depends on crawling site
+      example: " ＴＯＨＯシネマズなんば　本館・別館 "
+    - cinema may divide into several sub cinemas depends on crawling site
+      example: "TOHOシネマズなんば本館" "TOHOシネマズなんば別館"
+    - name may include or not include parenthesis depends on crawling site
+      example: "TOHOシネマズなんば　(本館・別館)"
     """
-    if '本館' in cinema_name:
-        cinema_name = cinema_name.split('本館')[0]
-    cinema_name = standardize_name(cinema_name)
+    # first, make sure only half width charaters left
+    cinema_name = unicodedata.normalize('NFKC', cinema_name)
+    # TODO
     return cinema_name
 
 
 def standardize_screen_name(screen_name, cinema_name):
     """
-    make sure screen name is same with those in order page,
-    and convert all full width characters to half width
+    standardize screen name, make sure screen can be queried in database
+    this function has to handle several special cases include:
+    - name includes full width charaters
+      example: "NICHIGEKI－３"
+    - name word order may be different
+      example: "別館SCREEN10" "SCREEN10別館"
+    - name may include or not include space depends on crawling site
+      example: "別館SCREEN10" " 別館 SCREEN10 "
+    - name may be english or katakana
+      example: "本館SELECT" "セレクト"
+    - name may include or not include parenthesis depends on crawling site
+      example: "本館SELECT" "(本館)SELECT"
     """
-    # remove full width first to avoid regex failure
-    screen_name = standardize_name(screen_name)
-    if is_screen_name_special(screen_name, cinema_name):
-        screen_name = convert_special_screen_name(screen_name, cinema_name)
+    # first, make sure only half width charaters left
+    cinema_name = unicodedata.normalize('NFKC', cinema_name)
+    # TODO
     return screen_name
 
 

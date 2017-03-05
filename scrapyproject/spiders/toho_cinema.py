@@ -19,13 +19,9 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         """
         all_areas = response.xpath('//h3[contains(text(),"地区")]/..')
         for curr_area in all_areas:
-            area = curr_area.xpath('./h3/text()').extract_first()
-            area_en = curr_area.xpath('./h3/span/text()').extract_first()
             all_counties = curr_area.xpath('./div//section')
             for curr_county in all_counties:
                 county = curr_county.xpath('./h4/text()').extract_first()
-                county_en = curr_county.xpath(
-                    './h4/span/text()').extract_first()
                 all_cinema_url = curr_county.xpath(
                     './/a[contains(@href,"schedule")]/@href')
                 for curr_cinema_url in all_cinema_url:
@@ -35,10 +31,7 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
                     cinema_page_url = response.urljoin(tail_url)
                     request = scrapy.Request(cinema_page_url,
                                              callback=self.parse_cinema)
-                    request.meta['area'] = area
-                    request.meta['area_en'] = area_en
                     request.meta['county'] = county
-                    request.meta['county_en'] = county_en
                     yield request
 
     def parse_cinema(self, response):
@@ -48,10 +41,8 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema = Cinema()
         cinema['name'] = standardize_cinema_name(cinema_name)
         cinema['screens'] = {}
-        cinema['area'] = response.meta['area']
-        cinema['area_en'] = response.meta['area_en']
         cinema['county'] = response.meta['county']
-        cinema['county_en'] = response.meta['county_en']
+        cinema['company'] = 'TOHO'
         # some cinemas have detail page and need to forward
         sub_page_list = response.xpath(
             '//section[@class="about"]//a[@class="link bold"]/@href').extract()

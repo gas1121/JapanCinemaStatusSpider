@@ -63,11 +63,12 @@ def is_session_exist(item):
 
 def is_cinema_exist(item):
     """
-    check if cinema exist in database by name
+    check if cinema exist in database by name and county
     """
     engine = db_connect()
     session = sessionmaker(bind=engine)()
-    query = session.query(exists().where(Cinemas.name == item.name))
+    query = session.query(exists().where(
+        Cinemas.name == item.name)).where(Cinemas.county == item.county)
     result = query.scalar()
     session.close()
     return result
