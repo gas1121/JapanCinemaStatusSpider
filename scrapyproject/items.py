@@ -33,9 +33,10 @@ special_cinema = {
 }
 
 
-def standardize_cinema_name(cinema_name):
+def standardize_cinema_name(cinema_name, cinema):
     """
-    standardize cinema name
+    standardize cinema name with related info like screen count and conuty
+
     this function has to handle several special cases include:
     - name includes full width charaters
       example: "ＴＯＨＯシネマズなんば　本館・別館"
@@ -69,6 +70,8 @@ def standardize_screen_name(screen_name, cinema_name):
     """
     # first, make sure only half width charaters left
     cinema_name = unicodedata.normalize('NFKC', cinema_name)
+    # next, we decide if cinema already exists by county name, screen number
+    # and is name is alike
     # TODO
     return screen_name
 

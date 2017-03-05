@@ -47,6 +47,8 @@ def is_session_exist(item):
     """
     check if session exist in database by cinema_name, screen and start time
     """
+    # TODO
+    return False
     engine = db_connect()
     session = sessionmaker(bind=engine)()
     pre_start_time = item.start_time - timedelta(minutes=1)
@@ -63,8 +65,14 @@ def is_session_exist(item):
 
 def is_cinema_exist(item):
     """
-    check if cinema exist in database by name and county
+    check if cinema exists in database by name similarity, county and
+    screen count.
+
+    we allow cinema and sub cinema exist at the same time as it doesn't
+    affect the query result
     """
+    # TODO
+    return False
     engine = db_connect()
     session = sessionmaker(bind=engine)()
     query = session.query(exists().where(
@@ -78,9 +86,12 @@ class Cinemas(DeclarativeBase):
     __tablename__ = "cinemas"
 
     id = Column(Integer, primary_key=True)
-    name = Column('name', String, unique=True)
+    # name may differ depends on crawled site, so we collect all names
+    # in order to make query easier.
+    name = Column('name', String)
+    #names = Column('names', JSONB)
     county = Column('county', String)
-    company = Column('county', String)
+    company = Column('company', String)
     screens = Column('screens', JSONB)
 
 
