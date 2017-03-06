@@ -1,4 +1,3 @@
-import os
 from scrapy.http import HtmlResponse
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -6,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import requests
+from scrapyproject.utils.site_utils import do_proxy_request
 
 
 class SeleniumDownloaderMiddleware(object):
@@ -69,21 +68,9 @@ class ProxyDownloaderMiddleware:
     middleware for sites that need proxy to visit
     enabled when spider has attribute 'keep_old_data'
     """
-    proxy_type = os.environ['PROXY_TYPE']
-    proxy_address = os.environ['PROXY_ADDRESS']
-    proxy_port = os.environ['PROXY_PORT']
-
-    def __init__(self):
-        self.proxy_str = (self.proxy_type + '://user:pass@'
-                          + self.proxy_address + ':' + self.proxy_port)
-
     def process_request(self, request, spider):
         if (hasattr(spider, 'use_proxy')):
-            proxies = {
-                'http': self.proxy_str,
-                'https': self.proxy_str
-            }
-            r = requests.get(request.url, proxies=proxies)
+            r = do_proxy_request(request.url)
             return HtmlResponse(request.url, body=r.text,
                                 request=request, encoding='utf-8')
         else:

@@ -4,7 +4,9 @@ import unicodedata
 import scrapy
 from scrapyproject.items import Cinema
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
-from scrapyproject.utils.site_utils import standardize_county_name
+from scrapyproject.utils.site_utils import (standardize_county_name,
+                                            extract_seat_number,
+                                            do_proxy_request)
 import requests
 
 
@@ -49,8 +51,12 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         site = response.urljoin(site)
         # we have to get redirected url
         if site:
-            r = requests.get(site, allow_redirects=False)
+            if (hasattr(self, 'use_proxy')):
+                r = do_proxy_request(site, allow_redirects=False)
+            else:
+                r = requests.get(site, allow_redirects=False)
             cinema['site'] = r.headers['Location']
+        # TODO handle screen name conflict in single cinema
         (cinema['screens'], cinema['screen_count'],
          cinema['total_seats']) = self.parse_screen_data(response)
         yield cinema
@@ -65,10 +71,10 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             raw_text = unicodedata.normalize('NFKC', raw_text)
             if "座席" not in raw_text:
                 continue
-            screen_name = re.sub(r"^(.+)  (.*)", r"\1", raw_text)
-            screen_name = screen_name.strip()
-            seat_count = re.sub(r"^(.+?)  (\d+)(.*)", r"\2", raw_text)
+            screen_name = re.sub(r"^(.+)  (.+)座席 (.*)$", r"\1", raw_text)
+            seat_str = re.sub(r"^(.+)  (.+)座席 (.*)$", r"\2", raw_text)
+            seat_count = extract_seat_number(seat_str)
             screen_count += 1
-            total_seats += int(seat_count)
-            screen[screen_name] = seat_count
+            total_seats += seat_count
+            screen[screen_name] = str(seat_count)
         return screen, screen_count, total_seats
