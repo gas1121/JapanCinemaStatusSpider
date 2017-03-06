@@ -1,6 +1,6 @@
 from datetime import timedelta
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
@@ -12,7 +12,7 @@ from scrapyproject import settings
 DeclarativeBase = declarative_base()
 
 
-def create_cinemas_table(engine):
+def create_table(engine):
     DeclarativeBase.metadata.create_all(engine)
 
 
@@ -36,7 +36,7 @@ def query_cinema_by_name(cinema_name):
     engine = db_connect()
     session = sessionmaker(bind=engine)()
     query = session.query(Cinemas).filter(
-        Cinemas.name == cinema_name
+        Cinemas.names.contains(cinema_name)
     )
     cinema = query.first()
     session.close()
@@ -65,18 +65,25 @@ def is_session_exist(item):
 
 def is_cinema_exist(item):
     """
-    check if cinema exists in database by name similarity, county and
-    screen count.
+    check if cinema exists in database by its official site url if exists,
+    otherwise by cinema's screen_count, total_seats and area
 
-    we allow cinema and sub cinema exist at the same time as it doesn't
-    affect the query result
+    edge cases like redirected url and alias url should be handle before
+    calling this function
     """
-    # TODO
-    return False
     engine = db_connect()
     session = sessionmaker(bind=engine)()
-    query = session.query(exists().where(
-        Cinemas.name == item.name)).where(Cinemas.county == item.county)
+    if item.site:
+        query = session.query(exists().where(Cinemas.site == item.site))
+    else:
+        # as only a very few  number of cinemas do not have official site,
+        # it's currently safe to only use screen_count and total_seats to
+        # identify such a cinema
+        query = session.query(exists().where(
+                Cinemas.screen_count == item.screen_count
+            ).where(
+                Cinemas.total_seats == item.total_seats
+            ))
     result = query.scalar()
     session.close()
     return result
@@ -88,11 +95,16 @@ class Cinemas(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     # name may differ depends on crawled site, so we collect all names
     # in order to make query easier.
-    name = Column('name', String)
-    #names = Column('names', JSONB)
-    county = Column('county', String)
+    names = Column('names', ARRAY(String), nullable=False)
+    county = Column('county', String, nullable=False)
     company = Column('company', String)
-    screens = Column('screens', JSONB)
+    site = Column('site', String)
+    # screens are handled as same as names
+    screens = Column('screens', JSONB, nullable=False)
+    # as screens may contain multiple versions of single screen,
+    # we use next two column to help identify a cinema
+    screen_count = Column('screen_count', Integer, nullable=False)
+    total_seats = Column('total_seats', Integer, nullable=False)
 
 
 class Sessions(DeclarativeBase):

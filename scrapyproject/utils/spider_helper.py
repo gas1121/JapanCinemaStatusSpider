@@ -12,7 +12,7 @@ class SessionsDatabaseMixin:
     use_sessions_database = True
 
 
-def use_cinema_database(spider):
+def use_cinemas_database(spider):
     return hasattr(spider, "use_cinemas_database")
 
 

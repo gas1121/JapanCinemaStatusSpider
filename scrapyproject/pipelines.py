@@ -6,8 +6,10 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinemas, Sessions, db_connect,
-                                  drop_table_if_exist, create_cinemas_table,
+                                  drop_table_if_exist, create_table,
                                   is_session_exist, is_cinema_exist)
+from scrapyproject.utils.spider_helper import (use_cinemas_database,
+                                               use_sessions_database)
 
 
 class DataBasePipeline(object):
@@ -28,11 +30,11 @@ class DataBasePipeline(object):
         engine = db_connect()
         if not self.keep_old_data:
             # drop data
-            if hasattr(spider, "use_sessions_database"):
+            if use_sessions_database(spider):
                 drop_table_if_exist(engine, Sessions)
-            elif hasattr(spider, "use_cinemas_database"):
+            elif use_cinemas_database(spider):
                 drop_table_if_exist(engine, Cinemas)
-        create_cinemas_table(engine)
+        create_table(engine)
         self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
@@ -44,9 +46,9 @@ class DataBasePipeline(object):
         use session table if spider has attribute "use_sessions_database"
         a spider should not have both attributes
         """
-        if hasattr(spider, "use_cinemas_database"):
+        if use_cinemas_database(spider):
             return self.process_cinema_item(item, spider)
-        elif hasattr(spider, "use_sessions_database"):
+        elif use_sessions_database(spider):
             return self.process_session_item(item, spider)
 
     def process_cinema_item(self, item, spider):

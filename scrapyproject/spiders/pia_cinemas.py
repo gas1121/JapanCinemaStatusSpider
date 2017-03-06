@@ -33,5 +33,6 @@ class PiaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             cinema = Cinema()
             cinema['name'] = cinema_name
             cinema['county'] = response.meta['county_name']
+            cinema['name'] = cinema_name
             cinema['screens'] = {}
             yield cinema
