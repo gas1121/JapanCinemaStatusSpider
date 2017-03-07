@@ -25,6 +25,29 @@ def standardize_county_name(county_name):
         return county_name
 
 
+def standardize_site_url(url, cinema):
+    """
+    change crawled cinema site url as some data are wrong
+    """
+    if "ジストシネマ和歌山" in cinema['names']:
+        return "http://www.o-entertainment.co.jp"\
+               "/xyst_cinema/wakayama/information.html"
+    elif "ジストシネマ御坊" in cinema['names']:
+        return "http://www.o-entertainment.co.jp"\
+               "/xyst_cinema/gobo/information.html"
+    elif "ジストシネマ田辺" in cinema['names']:
+        return "http://www.o-entertainment.co.jp"\
+               "/xyst_cinema/tanabe/information.html"
+    elif "ジストシネマ南紀" in cinema['names']:
+        return "http://www.o-entertainment.co.jp"\
+               "/xyst_cinema/nanki/information.html"
+    elif "ジストシネマ伊賀上野" in cinema['names']:
+        return "http://www.o-entertainment.co.jp"\
+               "/xyst_cinema/igaueno/information.html"
+    else:
+        return url
+
+
 def extract_seat_number(seat_str):
     """
     extract seat count from given screen

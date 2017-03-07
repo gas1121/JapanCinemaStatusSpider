@@ -37,7 +37,7 @@ def standardize_cinema_name(cinema_name):
     """
     standardize cinema name with related info like screen count and conuty
 
-    this function has to handle several special cases include:
+    this function has to handle several edge cases include:
     - name includes full width charaters
       example: "ＴＯＨＯシネマズなんば　本館・別館"
     - name may include or not include space depends on crawling site

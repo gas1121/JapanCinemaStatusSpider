@@ -7,7 +7,8 @@ from scrapyproject.items import (Cinema, standardize_cinema_name,
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 from scrapyproject.utils.site_utils import (standardize_county_name,
                                             extract_seat_number,
-                                            do_proxy_request)
+                                            do_proxy_request,
+                                            standardize_site_url)
 import requests
 
 
@@ -58,6 +59,7 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             else:
                 r = requests.get(site, allow_redirects=False)
             cinema['site'] = r.headers['Location']
+            cinema['site'] = standardize_site_url(cinema['site'], cinema)
         (cinema['screens'], cinema['screen_count'],
          cinema['total_seats']) = self.parse_screen_data(response, cinema)
         cinema['source'] = self.name
