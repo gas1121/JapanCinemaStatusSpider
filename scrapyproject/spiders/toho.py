@@ -4,7 +4,7 @@ import unicodedata
 import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.models import query_cinema_by_name
+from scrapyproject.models import Cinemas
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 
 
@@ -156,7 +156,7 @@ class TohoSpider(scrapy.Spider, CinemasDatabaseMixin):
             if crawl_data['book_status'] == "売り切れ":
                 # sold out
                 cinema_name = crawl_data['cinema_name']
-                cinema = query_cinema_by_name(cinema_name)
+                cinema = Cinemas.get_by_name(cinema_name)
                 if cinema:
                     if crawl_data['screen'] in cinema.screens:
                         crawl_data['book_seat_count'] = cinema.screens[

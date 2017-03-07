@@ -33,7 +33,11 @@ def extract_seat_number(seat_str):
     edge case:
     "(2D・IMAX)383 / (3D・IMAX)345"
     """
-    return max(int(_) for _ in re.findall(r"\d+", seat_str))
+    seats_count_list = [int(_) for _ in re.findall(r"\d+", seat_str)]
+    if seats_count_list:
+        return max(seats_count_list)
+    else:
+        return 0
 
 
 def do_proxy_request(url, **kwargs):

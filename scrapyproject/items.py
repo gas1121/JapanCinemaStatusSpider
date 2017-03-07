@@ -33,7 +33,7 @@ special_cinema = {
 }
 
 
-def standardize_cinema_name(cinema_name, cinema):
+def standardize_cinema_name(cinema_name):
     """
     standardize cinema name with related info like screen count and conuty
 
@@ -53,7 +53,7 @@ def standardize_cinema_name(cinema_name, cinema):
     return cinema_name
 
 
-def standardize_screen_name(screen_name, cinema_name):
+def standardize_screen_name(screen_name, cinema):
     """
     standardize screen name, make sure screen can be queried in database
     this function has to handle several special cases include:
@@ -69,7 +69,7 @@ def standardize_screen_name(screen_name, cinema_name):
       example: "本館SELECT" "(本館)SELECT"
     """
     # first, make sure only half width charaters left
-    cinema_name = unicodedata.normalize('NFKC', cinema_name)
+    screen_name = unicodedata.normalize('NFKC', screen_name)
     # next, we decide if cinema already exists by county name, screen number
     # and is name is alike
     # TODO
@@ -121,6 +121,7 @@ class Cinema(scrapy.Item):
     screens = scrapy.Field()
     screen_count = scrapy.Field()
     total_seats = scrapy.Field()
+    source = scrapy.Field()
 
 
 class Session(scrapy.Item):
@@ -134,3 +135,4 @@ class Session(scrapy.Item):
     book_seat_count = scrapy.Field()
     total_seat_count = scrapy.Field()
     record_time = scrapy.Field()
+    source = scrapy.Field()

@@ -4,10 +4,11 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from sqlalchemy import update
 from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinemas, Sessions, db_connect,
                                   drop_table_if_exist, create_table,
-                                  is_session_exist, is_cinema_exist)
+                                  is_session_exist)
 from scrapyproject.utils.spider_helper import (use_cinemas_database,
                                                use_sessions_database)
 
@@ -53,9 +54,26 @@ class DataBasePipeline(object):
 
     def process_cinema_item(self, item, spider):
         cinema = Cinemas(**item)
-        # if data do not exist in database, add it
-        if not is_cinema_exist(cinema):
+        exist_cinema = Cinemas.get_cinema_if_exist(cinema)
+        if not exist_cinema:
+            # if data do not exist in database, add it
             self.add_item_to_database(cinema)
+        else:
+            # otherwise check if it should be merged to exist record
+            # merge strategy:
+            # - if exist data is crawled from other source, only add names
+            # and screens to exist data;
+            # - if cinema do not have site url, item is treated as duplicate
+            # and dropped;
+            # - otherwise, merge all data
+            if cinema.source != exist_cinema.source:
+                exist_cinema.merge(
+                    cinema, merge_method=Cinemas.MergeMethod.info_only)
+                self.add_item_to_database(exist_cinema)
+            elif cinema.site:
+                exist_cinema.merge(
+                    cinema, merge_method=Cinemas.MergeMethod.update_count)
+                self.add_item_to_database(exist_cinema)
         return item
 
     def process_session_item(self, item, spider):
@@ -66,9 +84,11 @@ class DataBasePipeline(object):
         return item
 
     def add_item_to_database(self, db_item):
+        print(db_item.names)
+        print(db_item.id)
         session = self.Session()
         try:
-            session.add(db_item)
+            db_item = session.merge(db_item)
             session.commit()
         except:
             session.rollback()

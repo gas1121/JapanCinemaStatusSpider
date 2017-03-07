@@ -76,6 +76,13 @@ DOWNLOADER_MIDDLEWARES = {
 #    'scrapy.extensions.telnet.TelnetConsole': None,
 #}
 
+# use to debug
+#EXTENSIONS = {
+#    'scrapy.extensions.closespider.CloseSpider': 500
+#}
+
+#CLOSESPIDER_ERRORCOUNT = 1
+
 # database settings
 DATABASE = {
     'drivername': 'postgres',

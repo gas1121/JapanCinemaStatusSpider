@@ -36,6 +36,9 @@ Just use **scrapy** container instead of **scrapy-vps**
  - [ ] http://cinema.pia.co.jp
  - [ ] http://movie.walkerplus.com
  - [ ] http://movies.yahoo.co.jp
+ - [ ] http://www.entermeitele.net/roadshow/theater/
+ - [ ] http://cinema.co.jp/theater/list
+ - [ ] https://movie.jorudan.co.jp/theater/
 - [ ] run multiple time to ensure all record is crawled
  - [x] database support multiple times
  - [ ] pre filter request for crawled session

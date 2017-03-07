@@ -6,7 +6,7 @@ import copy
 import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.models import query_cinema_by_name
+from scrapyproject.models import Cinemas
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 
 
@@ -235,7 +235,7 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         if session_data_proto['book_status'] == 'D':
             # sold out
             cinema_name = data_proto['cinema_name']
-            cinema = query_cinema_by_name(cinema_name)
+            cinema = Cinemas.get_by_name(cinema_name)
             if cinema:
                 if session_data_proto['screen'] in cinema.screens:
                     session_data_proto['book_seat_count'] = cinema.screens[

@@ -2,7 +2,8 @@
 import re
 import unicodedata
 import scrapy
-from scrapyproject.items import Cinema
+from scrapyproject.items import (Cinema, standardize_cinema_name,
+                                 standardize_screen_name)
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 from scrapyproject.utils.site_utils import (standardize_county_name,
                                             extract_seat_number,
@@ -36,6 +37,7 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema_list = response.xpath('//div[@id="pref_theaters"]//a')
         for curr_cinema in cinema_list:
             cinema_name = curr_cinema.xpath('./text()').extract_first()
+            cinema_name = standardize_cinema_name(cinema_name)
             url = curr_cinema.xpath('./@href').extract_first()
             url = response.urljoin(url)
             request = scrapy.Request(url, callback=self.parse_cinema)
@@ -48,31 +50,33 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema['names'] = [response.meta['cinema_name']]
         cinema['county'] = response.meta['county_name']
         site = response.xpath('//span[@id="official"]/a/@href').extract_first()
-        site = response.urljoin(site)
         # we have to get redirected url
         if site:
+            site = response.urljoin(site)
             if (hasattr(self, 'use_proxy')):
                 r = do_proxy_request(site, allow_redirects=False)
             else:
                 r = requests.get(site, allow_redirects=False)
             cinema['site'] = r.headers['Location']
-        # TODO handle screen name conflict in single cinema
         (cinema['screens'], cinema['screen_count'],
-         cinema['total_seats']) = self.parse_screen_data(response)
+         cinema['total_seats']) = self.parse_screen_data(response, cinema)
+        cinema['source'] = self.name
         yield cinema
 
-    def parse_screen_data(self, response):
+    def parse_screen_data(self, response, cinema):
         screen_raw_texts = response.xpath(
             '//th[text()="音響・設備"]/../..//td/text()').extract()
         screen = {}
         screen_count = 0
         total_seats = 0
+        pattern = re.compile(r"^(.+)  (.+)座席 (.*)$")
         for raw_text in screen_raw_texts:
             raw_text = unicodedata.normalize('NFKC', raw_text)
-            if "座席" not in raw_text:
+            if not pattern.match(raw_text):
                 continue
-            screen_name = re.sub(r"^(.+)  (.+)座席 (.*)$", r"\1", raw_text)
-            seat_str = re.sub(r"^(.+)  (.+)座席 (.*)$", r"\2", raw_text)
+            screen_name = pattern.sub(r"\1", raw_text)
+            screen_name = standardize_screen_name(screen_name, cinema)
+            seat_str = pattern.sub(r"\2", raw_text)
             seat_count = extract_seat_number(seat_str)
             screen_count += 1
             total_seats += seat_count
