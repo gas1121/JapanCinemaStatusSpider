@@ -4,7 +4,6 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-from sqlalchemy import update
 from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinemas, Sessions, db_connect,
                                   drop_table_if_exist, create_table,
@@ -67,9 +66,13 @@ class DataBasePipeline(object):
             # and dropped;
             # - otherwise, merge all data
             if cinema.source != exist_cinema.source:
-                # TODO replace when old screen count is smaller than new one
-                exist_cinema.merge(
-                    cinema, merge_method=Cinemas.MergeMethod.info_only)
+                # replace when new cinema data crawled more screens
+                if cinema.screen_count > exist_cinema.screen_count:
+                    exist_cinema.merge(
+                        cinema, merge_method=Cinemas.MergeMethod.replace)
+                else:
+                    exist_cinema.merge(
+                        cinema, merge_method=Cinemas.MergeMethod.info_only)
                 self.add_item_to_database(exist_cinema)
             elif cinema.site:
                 exist_cinema.merge(

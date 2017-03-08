@@ -26,6 +26,7 @@ class YahooCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         for county in county_list:
             county_name = county.xpath('./text()').extract_first()
             county_name = standardize_county_name(county_name)
+            # TEST
             if county_name != "兵庫県":
                 continue
             url = county.xpath('./@href').extract_first()
