@@ -84,8 +84,6 @@ class DataBasePipeline(object):
         return item
 
     def add_item_to_database(self, db_item):
-        print(db_item.names)
-        print(db_item.id)
         session = self.Session()
         try:
             db_item = session.merge(db_item)
