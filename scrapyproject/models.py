@@ -88,13 +88,21 @@ class Cinemas(DeclarativeBase):
             query = session.query(Cinemas).filter(Cinemas.site == item.site)
         else:
             # as only a very few  number of cinemas do not have official site,
-            # it's currently safe to only use county, screen_count and
-            # total_seats to identify such a cinema
-            query = session.query(Cinemas).filter(and_(
-                    Cinemas.screen_count == item.screen_count,
-                    Cinemas.total_seats == item.total_seats,
-                    Cinemas.county == item.county
-                ))
+            # it's usually safe to only use county, screen_count and
+            # total_seats to identify such a cinema; but if cinema has no
+            # screen, we have to compare name.
+            if item.screen_count == 0:
+                # we do not arrow cinema without site to merge so only one
+                # name should exist
+                query = session.query(Cinemas).filter(
+                    Cinemas.names.any(item.names[0]))
+            else:
+                query = session.query(Cinemas).filter(and_(
+                        Cinemas.site is None,
+                        Cinemas.screen_count == item.screen_count,
+                        Cinemas.total_seats == item.total_seats,
+                        Cinemas.county == item.county
+                    ))
         result = query.first()
         session.close()
         return result
@@ -104,7 +112,7 @@ class Cinemas(DeclarativeBase):
         engine = db_connect()
         session = sessionmaker(bind=engine)()
         query = session.query(Cinemas).filter(
-            Cinemas.names.contains(cinema_name)
+            Cinemas.names.any(cinema_name)
         )
         cinema = query.first()
         session.close()
