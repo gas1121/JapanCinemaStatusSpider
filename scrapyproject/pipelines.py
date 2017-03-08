@@ -67,6 +67,7 @@ class DataBasePipeline(object):
             # and dropped;
             # - otherwise, merge all data
             if cinema.source != exist_cinema.source:
+                # TODO replace when old screen count is smaller than new one
                 exist_cinema.merge(
                     cinema, merge_method=Cinemas.MergeMethod.info_only)
                 self.add_item_to_database(exist_cinema)
