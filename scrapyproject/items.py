@@ -10,6 +10,7 @@ import unicodedata
 import scrapy
 
 
+# LEGACY
 special_cinema = {
     'TOHOシネマズシャンテ': {
         r'SCREEN': r'CHANTER-'
@@ -49,13 +50,15 @@ def standardize_cinema_name(cinema_name):
     """
     # first, make sure only half width charaters left
     cinema_name = unicodedata.normalize('NFKC', cinema_name)
-    # TODO
+    # second, remove all spaces
+    cinema_name = cinema_name.replace(' ', '')
     return cinema_name
 
 
 def standardize_screen_name(screen_name, cinema):
     """
     standardize screen name, make sure screen can be queried in database
+    # LEGACY
     this function has to handle several special cases include:
     - name includes full width charaters
       example: "NICHIGEKI－３"
@@ -70,13 +73,13 @@ def standardize_screen_name(screen_name, cinema):
     """
     # first, make sure only half width charaters left
     screen_name = unicodedata.normalize('NFKC', screen_name)
-    # next, we decide if cinema already exists by county name, screen number
-    # and is name is alike
-    # TODO
+    # second, remove all spaces
+    screen_name = screen_name.replace(' ', '')
     return screen_name
 
 
-def is_screen_name_special(screen_name, cinema_name):
+# LEGACY
+def is_screen_name_special(screen_name, cinema):
     """
     check if given screen name is not same with screen name on cinemas table
     """
@@ -87,30 +90,23 @@ def is_screen_name_special(screen_name, cinema_name):
     # みゆき座 -> MIYUKIZA
     # 日劇1 -> NICHIGEKI-1
     # (TOHOシネマズシャンテ) SCREEN1 -> CHANTER-1
-    return cinema_name in special_cinema
+    return any(name in special_cinema for name in cinema.names)
 
 
-def convert_special_screen_name(screen_name, cinema_name):
+# legacy
+def convert_special_screen_name(screen_name, cinema):
     """
     some cinema have different screen name in order page and institution page,
     so we need to keep them same for further use.
     convert should only happen in toho_cinema spider
     """
     # replace special cinema screens
-    if cinema_name in special_cinema:
-        for key in special_cinema[cinema_name]:
-            screen_name = re.sub(
-                key, special_cinema[cinema_name][key], screen_name)
+    for name in cinema.names:
+        if name in special_cinema:
+            for key in special_cinema[name]:
+                screen_name = re.sub(
+                    key, special_cinema[name][key], screen_name)
     return screen_name
-
-
-def standardize_name(name):
-    """
-    remove all spaces, normalize full width characters to double width
-    """
-    name = unicodedata.normalize('NFKC', name)
-    name = name.replace(' ', '')
-    return name
 
 
 class Cinema(scrapy.Item):
@@ -130,6 +126,7 @@ class Session(scrapy.Item):
     start_time = scrapy.Field()
     end_time = scrapy.Field()
     cinema_name = scrapy.Field()
+    cinema_site = scrapy.Field()
     screen = scrapy.Field()
     book_status = scrapy.Field()
     book_seat_count = scrapy.Field()

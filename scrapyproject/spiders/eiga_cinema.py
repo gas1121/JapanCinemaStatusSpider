@@ -78,6 +78,9 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
                 continue
             screen_name = pattern.sub(r"\1", raw_text)
             screen_name = standardize_screen_name(screen_name, cinema)
+            # add cinema name into screen name to avoid conflict for
+            # sub cinemas
+            screen_name = response.meta['cinema_name'] + "#" + screen_name
             seat_str = pattern.sub(r"\2", raw_text)
             seat_count = extract_seat_number(seat_str)
             screen_count += 1

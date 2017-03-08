@@ -35,17 +35,15 @@ def db_connect():
 
 def is_session_exist(item):
     """
-    check if session exist in database by cinema_name, screen and start time
+    check if session exist in database by cinema site, screen and start time
     """
-    # TODO
-    return False
     engine = db_connect()
     session = sessionmaker(bind=engine)()
     pre_start_time = item.start_time - timedelta(minutes=1)
     post_start_time = item.start_time + timedelta(minutes=1)
     query = session.query(exists().where(
         Sessions.screen == item.screen).where(
-            Sessions.cinema_name == item.cinema_name).where(
+            Sessions.cinema_site == item.cinema_site).where(
                 Sessions.start_time > pre_start_time).where(
                     Sessions.start_time < post_start_time))
     result = query.scalar()
@@ -155,6 +153,7 @@ class Sessions(DeclarativeBase):
     start_time = Column('start_time', DateTime)
     end_time = Column('end_time', DateTime)
     cinema_name = Column('cinema_name', String)
+    cinema_site = Column('cinema_site', String)
     screen = Column('screen', String)
     book_status = Column('book_status', String)
     book_seat_count = Column('book_seat_count', Integer, default=0)
