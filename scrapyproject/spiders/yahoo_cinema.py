@@ -66,7 +66,7 @@ class YahooCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         screen = {}
         screen_count = 0
         total_seats = 0
-        pattern = re.compile(r"^\[?(.*?)[\] ]?客席数 (.+)$")
+        pattern = re.compile(r"^\[?(.*?)(\] )?客席数 (.+)$")
         for raw_text in screen_raw_texts:
             raw_text = unicodedata.normalize('NFKC', raw_text)
             if not pattern.match(raw_text):
@@ -76,7 +76,7 @@ class YahooCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             # add cinema name into screen name to avoid conflict for
             # sub cinemas
             screen_name = response.meta['cinema_name'] + "#" + screen_name
-            seat_str = pattern.sub(r"\2", raw_text)
+            seat_str = pattern.sub(r"\3", raw_text)
             seat_count = extract_seat_number(seat_str)
             screen_count += 1
             total_seats += seat_count

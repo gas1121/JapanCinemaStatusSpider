@@ -29,7 +29,6 @@ def standardize_site_url(url, cinema):
     """
     change crawled cinema site url as some data are wrong
     """
-    # TODO replace site url like *.wald9.com
     if "ジストシネマ和歌山" in cinema['names']:
         return "http://www.o-entertainment.co.jp"\
                "/xyst_cinema/wakayama/information.html"

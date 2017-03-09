@@ -55,11 +55,6 @@ class EigaCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema['county'] = response.meta['county_name']
         site = response.xpath('//span[@id="official"]/a/@href').extract_first()
         # we have to get redirected url
-        # TODO site need to be standardized ex:
-        # - http://(www.)109cinemas.net/hatkobe/
-        # - http://www.smt-cinema.com/site/amagasaki(/index.html)
-        # - http://www.jollios.net(/cgi-bin/pc/site/det.cgi?tsc=21120)
-        # - http://kavc.or.jp/ or http://kavccinema.jp/
         if site:
             site = response.urljoin(site)
             if (hasattr(self, 'use_proxy')):

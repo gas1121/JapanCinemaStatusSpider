@@ -6,7 +6,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import exists, and_
+from sqlalchemy import exists, and_, or_, cast
 from scrapyproject import settings
 
 
@@ -24,7 +24,7 @@ def drop_table_if_exist(engine, TableClass):
 
 def db_connect():
     """
-    connect to database described in settings
+    Connect to database described in settings
     if database is not yet exist,will create first
     """
     engine = create_engine(URL(**settings.DATABASE))
@@ -35,7 +35,7 @@ def db_connect():
 
 def is_session_exist(item):
     """
-    check if session exist in database by cinema site, screen and start time
+    Check if session exist in database by cinema site, screen and start time
     """
     engine = db_connect()
     session = sessionmaker(bind=engine)()
@@ -73,34 +73,24 @@ class Cinemas(DeclarativeBase):
     @staticmethod
     def get_cinema_if_exist(item):
         """
-        git exist cinema in database with given item by its official site url
-        if exists, otherwise by cinema's screen_count, total_seats and area.
-        return None if no exist cinema found
+        Get cinema if it already exists in database, otherwise return None
 
-        edge cases like redirected url and alias url should be handle before
-        calling this function
+        As data crawled from those sites often differs between each other,
+        we have several rules to use to find exist cinema:
+        - first of all, same "county", then:
+        - have "site", same "site";
+        - have name in "names", same name in "names";
+        Some cinemas may be treated as different cinemas when crawled from
+        different site but we will leave them there now.
         """
         engine = db_connect()
         session = sessionmaker(bind=engine)()
-        if item.site:
-            query = session.query(Cinemas).filter(Cinemas.site == item.site)
-        else:
-            # as only a very few  number of cinemas do not have official site,
-            # it's usually safe to only use county, screen_count and
-            # total_seats to identify such a cinema; but if cinema has no
-            # screen, we have to compare name.
-            if item.screen_count == 0:
-                # we do not arrow cinema without site to merge so only one
-                # name should exist
-                query = session.query(Cinemas).filter(
-                    Cinemas.names.any(item.names[0]))
-            else:
-                query = session.query(Cinemas).filter(and_(
-                        Cinemas.site is None,
-                        Cinemas.screen_count == item.screen_count,
-                        Cinemas.total_seats == item.total_seats,
-                        Cinemas.county == item.county
-                    ))
+        query = session.query(Cinemas).filter(and_(
+            Cinemas.county == item.county, or_(
+                and_(item.site is not None, Cinemas.site == item.site),
+                and_(item.names is not None, Cinemas.names.overlap(
+                    cast(item.names, ARRAY(String))))
+            )))
         result = query.first()
         session.close()
         return result
