@@ -158,6 +158,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         cinema_name = standardize_cinema_name(cinema_name)
         data_proto = Showing()
         data_proto['cinema_name'] = cinema_name
+        # TODO site is not correct
         data_proto['cinema_site'] = response.url.split("?")[0]
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, showing_url_parameter,

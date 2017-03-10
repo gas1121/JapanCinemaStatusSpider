@@ -39,10 +39,12 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             '//h1[@class="c-page_heading is-lv-01"]'
             '/span/text()').extract_first()
         cinema = Cinema()
-        cinema['name'] = standardize_cinema_name(cinema_name)
+        cinema['names'] = [standardize_cinema_name(cinema_name)]
         cinema['screens'] = {}
         cinema['county'] = response.meta['county']
         cinema['company'] = 'TOHO'
+        cinema['source'] = self.name
+        # TODO site not added
         # some cinemas have detail page and need to forward
         sub_page_list = response.xpath(
             '//section[@class="about"]//a[@class="link bold"]/@href').extract()
@@ -62,7 +64,7 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         # sub cinema use its own name
         cinema_name = response.xpath(
             '//div[@id="more-anchor-01"]/h4/text()').extract_first()
-        cinema['name'] = standardize_cinema_name(cinema_name)
+        cinema['names'] = [standardize_cinema_name(cinema_name)]
         self.parse_seat_number_list(response, cinema)
         yield cinema
 
@@ -71,15 +73,21 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             '//table[contains(@class,"c-table01")]/tbody/tr')
         # except total seats line
         all_screen_list = all_screen_list[:-1]
+        screen_count = 0
+        total_seats = 0
         for curr_screen in all_screen_list:
             screen_name = curr_screen.xpath(
                 './td[1]/text()').extract_first()
             # empty row may exist
             if screen_name is not None:
                 screen_name = standardize_screen_name(
-                    screen_name, cinema['name'])
+                    screen_name, cinema['names'][0])
                 screen_seat_number_list = curr_screen.xpath(
                     './td[2]/text()').re(r'([0-9]+)[\+\＋]\(([0-9]+)\)')
                 screen_seat_number = (int(screen_seat_number_list[0])
                                       + int(screen_seat_number_list[1]))
+                screen_count += 1
+                total_seats += screen_seat_number
                 cinema['screens'][screen_name] = screen_seat_number
+        cinema['screen_count'] = screen_count
+        cinema['total_seats'] = total_seats

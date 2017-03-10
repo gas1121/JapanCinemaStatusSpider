@@ -13,47 +13,46 @@ class SeleniumDownloaderMiddleware(object):
     middleware to use phantomjs for site that need javascript support
     """
     def process_request(self, request, spider):
-        if spider.name == "toho_cinema":
+        if spider.name == "toho_cinema" and "selectDate" in request.meta:
+            # if have selectDate meta item, do click action and wait
             driver = webdriver.Remote(
                 command_executor='http://phantomjs:8910',
                 desired_capabilities=DesiredCapabilities.PHANTOMJS
             )
             driver.get(request.url)
-            # if have selectDate meta item, do click action and wait
-            if "selectDate" in request.meta:
-                dateStr = request.meta["selectDate"]
-                try:
-                    # wait page totally loaded first
-                    wait = WebDriverWait(driver, 10)
-                    wait.until(EC.element_to_be_clickable((
-                        By.XPATH,
-                        '//div[@class="schedule-tab-item"]'
-                        )))
-                    dateElement = driver.find_element_by_xpath(
-                        '//div[@id="' + dateStr + '"]')
-                    singleDateStr = dateStr[-2:]
-                    dateElement.click()
-                    wait = WebDriverWait(driver, 10)
-                    wait.until(EC.element_to_be_clickable((
-                        By.XPATH,
-                        '//h3[@class="schedule-body-day"'
-                        ' and contains(text(), "'+singleDateStr+'")]'
-                        )))
+            dateStr = request.meta["selectDate"]
+            try:
+                # wait page totally loaded first
+                wait = WebDriverWait(driver, 10)
+                wait.until(EC.element_to_be_clickable((
+                    By.XPATH,
+                    '//div[@class="schedule-tab-item"]'
+                    )))
+                dateElement = driver.find_element_by_xpath(
+                    '//div[@id="' + dateStr + '"]')
+                singleDateStr = dateStr[-2:]
+                dateElement.click()
+                wait = WebDriverWait(driver, 10)
+                wait.until(EC.element_to_be_clickable((
+                    By.XPATH,
+                    '//h3[@class="schedule-body-day"'
+                    ' and contains(text(), "'+singleDateStr+'")]'
+                    )))
 
-                    # TOHOシネマズ ららぽーと横浜 have a node that
-                    # has too much depth which will lead spider fail to crawl.
-                    # so we need to remove part of the page before using it.
-                    driver.execute_script("""
-                    var currlist = document.evaluate("//section[@class='news']"
-                    ,document, null, XPathResult.ANY_TYPE, null);
-                    var element = currlist.iterateNext()
-                    if (element) {
-                        element.parentNode.removeChild(element);
-                    }
-                    """)
-                except NoSuchElementException:
-                    driver.close()
-                    return
+                # TOHOシネマズ ららぽーと横浜 have a node that
+                # has too much depth which will lead spider fail to crawl.
+                # so we need to remove part of the page before using it.
+                driver.execute_script("""
+                var currlist = document.evaluate("//section[@class='news']"
+                ,document, null, XPathResult.ANY_TYPE, null);
+                var element = currlist.iterateNext()
+                if (element) {
+                    element.parentNode.removeChild(element);
+                }
+                """)
+            except NoSuchElementException:
+                driver.close()
+                return
             body = driver.page_source
             url = driver.current_url
             driver.close()
