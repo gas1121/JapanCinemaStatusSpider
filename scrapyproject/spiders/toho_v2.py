@@ -14,7 +14,8 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
     """
     Toho site spider version 2.
 
-    Improve crawling speed as we grab data from json api instead of site page
+    Improve crawling speed as we grab data from json api instead of site page.
+
     useful json api:
     theater list:
     https://hlo.tohotheater.jp/responsive/json/theater_list.json?_dc=1488106193
