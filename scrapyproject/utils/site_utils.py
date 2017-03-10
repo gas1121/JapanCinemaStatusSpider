@@ -14,10 +14,10 @@ def standardize_county_name(county_name):
         return "東京都"
     elif county_name == "東京":
         return county_name + "都"
-    elif county_name == "北海道":
-        return county_name
     elif county_name in ["大阪", "京都"]:
         return county_name + "府"
+    elif county_name in ["北海道", "東京都", "大阪府", "京都府"]:
+        return county_name
     elif "県" not in county_name:
         # "北海道" not included
         return county_name + "県"
