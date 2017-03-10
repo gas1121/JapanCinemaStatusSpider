@@ -1,4 +1,5 @@
 appdirs==1.4.0
+arrow==0.10.0
 attrs==16.3.0
 cffi==1.9.1
 constantly==15.1.0
@@ -17,6 +18,7 @@ PyDispatcher==2.0.5
 pyOpenSSL==16.2.0
 pyparsing==2.1.10
 PySocks==1.6.6
+python-dateutil==2.6.0
 queuelib==1.4.2
 requests==2.13.0
 schedule==0.4.2

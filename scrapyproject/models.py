@@ -1,10 +1,9 @@
 from enum import Enum
-from datetime import timedelta
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import database_exists, create_database, ArrowType
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import exists, and_, or_, cast
 from scrapyproject import settings
@@ -33,24 +32,6 @@ def db_connect():
     return engine
 
 
-def is_session_exist(item):
-    """
-    Check if session exist in database by cinema site, screen and start time
-    """
-    engine = db_connect()
-    session = sessionmaker(bind=engine)()
-    pre_start_time = item.start_time - timedelta(minutes=1)
-    post_start_time = item.start_time + timedelta(minutes=1)
-    query = session.query(exists().where(
-        Sessions.screen == item.screen).where(
-            Sessions.cinema_site == item.cinema_site).where(
-                Sessions.start_time > pre_start_time).where(
-                    Sessions.start_time < post_start_time))
-    result = query.scalar()
-    session.close()
-    return result
-
-
 class Cinemas(DeclarativeBase):
     __tablename__ = "cinemas"
 
@@ -68,7 +49,7 @@ class Cinemas(DeclarativeBase):
     screen_count = Column('screen_count', Integer, nullable=False)
     total_seats = Column('total_seats', Integer, nullable=False)
     # site that data mainly crawled from
-    source = Column('source', String)
+    source = Column('source', String, nullable=False)
 
     @staticmethod
     def get_cinema_if_exist(item):
@@ -138,16 +119,36 @@ class Sessions(DeclarativeBase):
     __tablename__ = "sessions"
 
     id = Column(Integer, primary_key=True)
-    title = Column('title', String)
+    title = Column('title', String, nullable=False)
     title_en = Column('title_en', String)
-    start_time = Column('start_time', DateTime)
-    end_time = Column('end_time', DateTime)
-    cinema_name = Column('cinema_name', String)
-    cinema_site = Column('cinema_site', String)
-    screen = Column('screen', String)
-    book_status = Column('book_status', String)
-    book_seat_count = Column('book_seat_count', Integer, default=0)
-    total_seat_count = Column('total_seat_count', Integer, default=0)
-    record_time = Column('record_time', DateTime)
+    start_time = Column('start_time', ArrowType, nullable=False)
+    end_time = Column('end_time', ArrowType, nullable=False)
+    cinema_name = Column('cinema_name', String, nullable=False)
+    cinema_site = Column('cinema_site', String, nullable=False)
+    screen = Column('screen', String, nullable=False)
+    book_status = Column('book_status', String, nullable=False)
+    book_seat_count = Column('book_seat_count', Integer, default=0,
+                             nullable=False)
+    total_seat_count = Column('total_seat_count', Integer, default=0,
+                              nullable=False)
+    record_time = Column('record_time', ArrowType, nullable=False)
     # site that data crawled from
-    source = Column('source', String)
+    source = Column('source', String, nullable=False)
+
+    @staticmethod
+    def is_session_exist(item):
+        """
+        Check if session exist by cinema site, screen and start time
+        """
+        engine = db_connect()
+        session = sessionmaker(bind=engine)()
+        pre_start_time = item.start_time.shift(minutes=-1)
+        post_start_time = item.start_time.shift(minutes=+1)
+        query = session.query(exists().where(
+            Sessions.screen == item.screen).where(
+                Sessions.cinema_site == item.cinema_site).where(
+                    Sessions.start_time > pre_start_time).where(
+                        Sessions.start_time < post_start_time))
+        result = query.scalar()
+        session.close()
+        return result

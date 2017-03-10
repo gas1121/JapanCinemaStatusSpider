@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-import datetime
 import unicodedata
 import json
 import copy
+import arrow
 import scrapy
 from scrapyproject.items import (Session, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.models import Cinemas
-from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
+from scrapyproject.utils.spider_helper import SessionsDatabaseMixin
 
 
-class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
+class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
     """
     Toho site spider version 2.
 
@@ -70,14 +70,14 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         for idx, item in enumerate(config['cinema_list']):
             config['cinema_list'][idx] = unicodedata.normalize('NFKC', item)
         # date: default tomorrow
-        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-        config['date'] = getattr(self, 'date', '{:02d}{:02d}{:02d}'.format(
-            tomorrow.year, tomorrow.month, tomorrow.day))
+        tomorrow = arrow.now().shift(days=+1)
+        config['date'] = getattr(self, 'date', tomorrow.format('YYYYMMDD'))
 
     def parse(self, response):
         """
         crawl theater list data first
         """
+        # TODO cache screen seat count for fully booked session
         config = {}
         self.set_config(config)
         try:
@@ -107,9 +107,9 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         if crawl_all_cinemas:
             return True
         # replace full width text before compare
-        vit_group_nm = unicodedata.normalize('NFKC', 
+        vit_group_nm = unicodedata.normalize('NFKC',
                                              curr_cinema['VIT_GROUP_NM'])
-        theater_name = unicodedata.normalize('NFKC', 
+        theater_name = unicodedata.normalize('NFKC',
                                              curr_cinema['THEATER_NAME'])
         theater_name_english = unicodedata.normalize(
             'NFKC', curr_cinema['THEATER_NAME_ENGLISH'])
@@ -141,7 +141,9 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         result_list = []
         for curr_cinema in schedule_data:
             session_url_parameter = {}
-            session_url_parameter['show_day'] = curr_cinema['showDay']['date']
+            date_str = curr_cinema['showDay']['date']
+            session_url_parameter['show_day'] = arrow.get(
+                date_str, 'YYYYMMDD').replace(tzinfo='UTC+9')
             for sub_cinema in curr_cinema['list']:
                 self.parse_sub_cinema(
                     response, sub_cinema, session_url_parameter, result_list)
@@ -156,6 +158,7 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         cinema_name = standardize_cinema_name(cinema_name)
         data_proto = Session()
         data_proto['cinema_name'] = cinema_name
+        data_proto['cinema_site'] = response.url.split("?")[0]
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, session_url_parameter,
                              data_proto, result_list)
@@ -216,8 +219,8 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
                       session_url_parameter, data_proto, result_list):
         session_url_parameter['session_cd'] = curr_session['code']
         session_data_proto = copy.deepcopy(data_proto)
-        # time like 24:40 can not directly parsed by datetime,
-        # so we need to use timedelta to handle this problem
+        # time like 24:40 can not be directly parsed,
+        # so we need to shift time properly
         session_data_proto['start_time'] = self.get_time_from_text(
             session_url_parameter['show_day'], curr_session['showingStart']
         )
@@ -248,19 +251,21 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
             else:
                 session_data_proto['book_seat_count'] = 0
                 session_data_proto['total_seat_count'] = 0
-            session_data_proto['record_time'] = datetime.datetime.now()
+            session_data_proto['record_time'] = arrow.now()
+            session_data_proto['source'] = self.name
             result_list.append(session_data_proto)
             return
         elif session_data_proto['book_status'] == 'G':
             # not sold
             session_data_proto['book_seat_count'] = 0
             session_data_proto['total_seat_count'] = 0
-            session_data_proto['record_time'] = datetime.datetime.now()
+            session_data_proto['record_time'] = arrow.now()
+            session_data_proto['source'] = self.name
             result_list.append(session_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
-            url = self.generate_session_url(session_url_parameter)
+            url = self.generate_session_url(**session_url_parameter)
             request = scrapy.Request(url,
                                      callback=self.parse_normal_session)
             request.meta["data_proto"] = session_data_proto
@@ -268,36 +273,39 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
 
     def get_time_from_text(self, show_day, time_text):
         """
-        generate datetime object from given day and time text
+        generate arrow object from given day and time text
 
-        as time like 24:40 can not directly parsed by datetime,
-        so we need to use timedelta to handle this problem
+        as time like 24:40 can not be directly parsed, we need shift time
+        properly
+
+        :param show_day: arrow object represent of 00:00 at show day.
+        :param time_text: text contains time like '24:40'
         """
         time_list = time_text.split(':')
         hours = int(time_list[0])
         minutes = int(time_list[1])
-        time_delta = datetime.timedelta(hours=hours, minutes=minutes)
-        time = datetime.datetime.strptime(show_day, "%Y%m%d")+time_delta
+        time = show_day.shift(hours=hours, minutes=minutes)
         return time
 
-    def generate_session_url(self, session_url_parameter):
+    def generate_session_url(self, site_cd, show_day, theater_cd, screen_cd,
+                             movie_cd, session_cd):
+        """
+        generate session url from given data
+
+        :param show_day: arrow object
+        """
         # example: javascript:ScheduleUtils.purchaseTicket(
         #  "20170212", "076", "013132", "0761", "11", "2")
         # example: https://hlo.tohotheater.jp/net/ticket/076/TNPI2040J03.do
         # ?site_cd=076&jyoei_date=20170209&gekijyo_cd=0761&screen_cd=10
         # &sakuhin_cd=014183&pf_no=5&fnc=1&pageid=2000J01&enter_kbn=
-        site_cd = session_url_parameter['site_cd']
-        show_day = session_url_parameter['show_day']
-        theater_cd = session_url_parameter['theater_cd']
-        screen_cd = session_url_parameter['screen_cd']
-        movie_cd = session_url_parameter['movie_cd']
-        session_cd = session_url_parameter['session_cd']
+        day_str = show_day.format('YYYYMMDD')
         return "https://hlo.tohotheater.jp/net/ticket/{site_cd}/"\
                "TNPI2040J03.do?site_cd={site_cd}&jyoei_date={jyoei_date}"\
                "&gekijyo_cd={gekijyo_cd}&screen_cd={screen_cd}"\
                "&sakuhin_cd={sakuhin_cd}&pf_no={pf_no}&fnc={fnc}"\
                "&pageid={pageid}&enter_kbn={enter_kbn}".format(
-                   site_cd=site_cd, jyoei_date=show_day,
+                   site_cd=site_cd, jyoei_date=day_str,
                    gekijyo_cd=theater_cd, screen_cd=screen_cd,
                    sakuhin_cd=movie_cd, pf_no=session_cd,
                    fnc="1", pageid="2000J01", enter_kbn="")
@@ -309,5 +317,6 @@ class TohoV2Spider(scrapy.Spider, CinemasDatabaseMixin):
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
         result['total_seat_count'] = total_seat_count
-        result['record_time'] = datetime.datetime.now()
+        result['record_time'] = arrow.now()
+        result['source'] = self.name
         yield result

@@ -6,8 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinemas, Sessions, db_connect,
-                                  drop_table_if_exist, create_table,
-                                  is_session_exist)
+                                  drop_table_if_exist, create_table)
 from scrapyproject.utils.spider_helper import (use_cinemas_database,
                                                use_sessions_database)
 
@@ -83,7 +82,7 @@ class DataBasePipeline(object):
     def process_session_item(self, item, spider):
         session = Sessions(**item)
         # if data do not exist in database, add it
-        if not is_session_exist(session):
+        if not Sessions.is_session_exist(session):
             self.add_item_to_database(session)
         return item
 
