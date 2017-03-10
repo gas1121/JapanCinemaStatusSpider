@@ -48,6 +48,30 @@ def standardize_site_url(url, cinema):
         return url
 
 
+def standardize_book_status(book_status):
+    """
+    standardize book status
+
+    toho site:
+    A Plenty Left
+    B Half full
+    C Few Seats Left
+    D Sold Out
+    G Not Sold
+    """
+    if book_status == 'A':
+        return "PlentyLeft"
+    elif book_status == 'B':
+        return "HalfFull"
+    elif book_status == 'C':
+        return "FewSeatsLeft"
+    elif book_status == 'D':
+        return "SoldOut"
+    else:
+        # 'G' for toho site
+        return "NotSold"
+
+
 def extract_seat_number(seat_str):
     """
     extract seat count from given screen

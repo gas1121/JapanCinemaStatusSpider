@@ -115,8 +115,8 @@ class Cinemas(DeclarativeBase):
             self = new_cinema
 
 
-class Sessions(DeclarativeBase):
-    __tablename__ = "sessions"
+class Showings(DeclarativeBase):
+    __tablename__ = "showings"
 
     id = Column(Integer, primary_key=True)
     title = Column('title', String, nullable=False)
@@ -136,19 +136,19 @@ class Sessions(DeclarativeBase):
     source = Column('source', String, nullable=False)
 
     @staticmethod
-    def is_session_exist(item):
+    def is_showing_exist(item):
         """
-        Check if session exist by cinema site, screen and start time
+        Check if showing exist by cinema site, screen and start time
         """
         engine = db_connect()
         session = sessionmaker(bind=engine)()
         pre_start_time = item.start_time.shift(minutes=-1)
         post_start_time = item.start_time.shift(minutes=+1)
         query = session.query(exists().where(
-            Sessions.screen == item.screen).where(
-                Sessions.cinema_site == item.cinema_site).where(
-                    Sessions.start_time > pre_start_time).where(
-                        Sessions.start_time < post_start_time))
+            Showings.screen == item.screen).where(
+                Showings.cinema_site == item.cinema_site).where(
+                    Showings.start_time > pre_start_time).where(
+                        Showings.start_time < post_start_time))
         result = query.scalar()
         session.close()
         return result

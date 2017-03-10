@@ -41,5 +41,5 @@ Just use **scrapy** container instead of **scrapy-vps**
  - [ ] https://movie.jorudan.co.jp/theater/
 - [ ] run multiple time to ensure all record is crawled
  - [x] database support multiple times
- - [ ] pre filter request for crawled session
+ - [ ] pre filter request for crawled showing
 - [ ] spider command line bool option problem

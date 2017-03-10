@@ -120,7 +120,7 @@ class Cinema(scrapy.Item):
     source = scrapy.Field()
 
 
-class Session(scrapy.Item):
+class Showing(scrapy.Item):
     title = scrapy.Field()
     title_en = scrapy.Field()
     start_time = scrapy.Field()

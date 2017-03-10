@@ -13,7 +13,7 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
 
     def parse(self, response):
         """
-        crawl toho cinema info, mainly seats conut of each screen
+        crawl toho cinema info, mainly seats count of each screen
         example: https://www.tohotheater.jp/theater/064/institution.html
         https://hlo.tohotheater.jp/net/schedule/064/TNPI2000J01.do
         """

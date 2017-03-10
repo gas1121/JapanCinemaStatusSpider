@@ -20,15 +20,15 @@ def main():
     engine = models.db_connect()
     session = sessionmaker(bind=engine)()
     book_count_label = func.sum(
-        models.Sessions.book_seat_count).label("book_count")
+        models.Showings.book_seat_count).label("book_count")
     query = session.query(
-        models.Sessions.title,
+        models.Showings.title,
         book_count_label,
-        func.sum(models.Sessions.total_seat_count),
-        func.count(models.Sessions.id)
-        ).group_by(models.Sessions.title).order_by(book_count_label.desc())
+        func.sum(models.Showings.total_seat_count),
+        func.count(models.Showings.id)
+        ).group_by(models.Showings.title).order_by(book_count_label.desc())
     if args.cinema is not None:
-        query = query.filter(models.Sessions.cinema_name == args.cinema)
+        query = query.filter(models.Showings.cinema_name == args.cinema)
     result = {}
     for (title, book_seat_count, total_seat_count, count) in query.all():
         title = unicodedata.normalize('NFKC', title)

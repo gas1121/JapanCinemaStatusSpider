@@ -4,13 +4,13 @@ import json
 import copy
 import arrow
 import scrapy
-from scrapyproject.items import (Session, standardize_cinema_name,
+from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.models import Cinemas
-from scrapyproject.utils.spider_helper import SessionsDatabaseMixin
+from scrapyproject.utils.site_utils import standardize_book_status
+from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
-class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
+class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
     """
     Toho site spider version 2.
 
@@ -78,7 +78,6 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
         """
         crawl theater list data first
         """
-        # TODO cache screen seat count for fully booked session
         config = {}
         self.set_config(config)
         try:
@@ -141,33 +140,33 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
             return
         result_list = []
         for curr_cinema in schedule_data:
-            session_url_parameter = {}
+            showing_url_parameter = {}
             date_str = curr_cinema['showDay']['date']
-            session_url_parameter['show_day'] = arrow.get(
+            showing_url_parameter['show_day'] = arrow.get(
                 date_str, 'YYYYMMDD').replace(tzinfo='UTC+9')
             for sub_cinema in curr_cinema['list']:
                 self.parse_sub_cinema(
-                    response, sub_cinema, session_url_parameter, result_list)
+                    response, sub_cinema, showing_url_parameter, result_list)
         for result in result_list:
             if result:
                 yield result
 
     def parse_sub_cinema(self, response, sub_cinema,
-                         session_url_parameter, result_list):
-        session_url_parameter['site_cd'] = sub_cinema['code']
+                         showing_url_parameter, result_list):
+        showing_url_parameter['site_cd'] = sub_cinema['code']
         cinema_name = sub_cinema['name']
         cinema_name = standardize_cinema_name(cinema_name)
-        data_proto = Session()
+        data_proto = Showing()
         data_proto['cinema_name'] = cinema_name
         data_proto['cinema_site'] = response.url.split("?")[0]
         for curr_movie in sub_cinema['list']:
-            self.parse_movie(response, curr_movie, session_url_parameter,
+            self.parse_movie(response, curr_movie, showing_url_parameter,
                              data_proto, result_list)
 
     def parse_movie(self, response, curr_movie,
-                    session_url_parameter, data_proto, result_list):
+                    showing_url_parameter, data_proto, result_list):
         """
-        parse movie session data
+        parse movie showing data
         movie may have different versions
         """
         title = curr_movie['name']
@@ -178,12 +177,12 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
             title, title_en, response.meta["movie_list"],
                 response.meta["crawl_all_movies"]):
             return
-        session_url_parameter['movie_cd'] = curr_movie['code']
+        showing_url_parameter['movie_cd'] = curr_movie['code']
         movie_data_proto = copy.deepcopy(data_proto)
         movie_data_proto['title'] = title
         movie_data_proto['title_en'] = title_en
         for curr_screen in curr_movie['list']:
-            self.parse_screen(response, curr_screen, session_url_parameter,
+            self.parse_screen(response, curr_screen, showing_url_parameter,
                               movie_data_proto, result_list)
 
     def is_movie_crawl(self, title, title_en, movie_list, crawl_all_movies):
@@ -201,75 +200,49 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
         return False
 
     def parse_screen(self, response, curr_screen,
-                     session_url_parameter, data_proto, result_list):
+                     showing_url_parameter, data_proto, result_list):
         screen = curr_screen['ename']
-        session_url_parameter['theater_cd'] = curr_screen['theaterCd']
-        session_url_parameter['screen_cd'] = curr_screen['code']
+        showing_url_parameter['theater_cd'] = curr_screen['theaterCd']
+        showing_url_parameter['screen_cd'] = curr_screen['code']
         screen_data_proto = copy.deepcopy(data_proto)
         # make sure screen name is same with those in cinemas table
         screen_data_proto['screen'] = standardize_screen_name(
             screen, screen_data_proto['cinema_name'])
-        for curr_session in curr_screen['list']:
-            # filter empty session
-            if not curr_session['unsoldSeatInfo']:
+        for curr_showing in curr_screen['list']:
+            # filter empty showing
+            if not curr_showing['unsoldSeatInfo']:
                 continue
-            self.parse_session(response, curr_session, session_url_parameter,
+            self.parse_showing(response, curr_showing, showing_url_parameter,
                                screen_data_proto, result_list)
 
-    def parse_session(self, response, curr_session,
-                      session_url_parameter, data_proto, result_list):
-        session_url_parameter['session_cd'] = curr_session['code']
-        session_data_proto = copy.deepcopy(data_proto)
+    def parse_showing(self, response, curr_showing,
+                      showing_url_parameter, data_proto, result_list):
+        showing_url_parameter['showing_cd'] = curr_showing['code']
+        showing_data_proto = copy.deepcopy(data_proto)
         # time like 24:40 can not be directly parsed,
         # so we need to shift time properly
-        session_data_proto['start_time'] = self.get_time_from_text(
-            session_url_parameter['show_day'], curr_session['showingStart']
+        showing_data_proto['start_time'] = self.get_time_from_text(
+            showing_url_parameter['show_day'], curr_showing['showingStart']
         )
-        session_data_proto['end_time'] = self.get_time_from_text(
-            session_url_parameter['show_day'], curr_session['showingEnd']
+        showing_data_proto['end_time'] = self.get_time_from_text(
+            showing_url_parameter['show_day'], curr_showing['showingEnd']
         )
-        session_data_proto['book_status'] = curr_session[
-            'unsoldSeatInfo']['unsoldSeatStatus']
-        # status:
-        # A Plenty Left
-        # B Half full
-        # C Few Seats Left
-        # D Sold Out
-        # G Not Sold
-        if session_data_proto['book_status'] == 'D':
-            # sold out
-            cinema_name = data_proto['cinema_name']
-            cinema = Cinemas.get_by_name(cinema_name)
-            if cinema:
-                if session_data_proto['screen'] in cinema.screens:
-                    session_data_proto['book_seat_count'] = cinema.screens[
-                        session_data_proto['screen']]
-                    session_data_proto['total_seat_count'] = cinema.screens[
-                        session_data_proto['screen']]
-                else:
-                    session_data_proto['book_seat_count'] = 0
-                    session_data_proto['total_seat_count'] = 0
-            else:
-                session_data_proto['book_seat_count'] = 0
-                session_data_proto['total_seat_count'] = 0
-            session_data_proto['record_time'] = arrow.now()
-            session_data_proto['source'] = self.name
-            result_list.append(session_data_proto)
-            return
-        elif session_data_proto['book_status'] == 'G':
-            # not sold
-            session_data_proto['book_seat_count'] = 0
-            session_data_proto['total_seat_count'] = 0
-            session_data_proto['record_time'] = arrow.now()
-            session_data_proto['source'] = self.name
-            result_list.append(session_data_proto)
+        showing_data_proto['book_status'] = standardize_book_status(
+            curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
+        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # sold out or not sold, seat set to 0
+            showing_data_proto['book_seat_count'] = 0
+            showing_data_proto['total_seat_count'] = 0
+            showing_data_proto['record_time'] = arrow.now()
+            showing_data_proto['source'] = self.name
+            result_list.append(showing_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
-            url = self.generate_session_url(**session_url_parameter)
+            url = self.generate_showing_url(**showing_url_parameter)
             request = scrapy.Request(url,
-                                     callback=self.parse_normal_session)
-            request.meta["data_proto"] = session_data_proto
+                                     callback=self.parse_normal_showing)
+            request.meta["data_proto"] = showing_data_proto
             result_list.append(request)
 
     def get_time_from_text(self, show_day, time_text):
@@ -288,10 +261,10 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
         time = show_day.shift(hours=hours, minutes=minutes)
         return time
 
-    def generate_session_url(self, site_cd, show_day, theater_cd, screen_cd,
-                             movie_cd, session_cd):
+    def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
+                             movie_cd, showing_cd):
         """
-        generate session url from given data
+        generate showing url from given data
 
         :param show_day: arrow object
         """
@@ -308,10 +281,10 @@ class TohoV2Spider(scrapy.Spider, SessionsDatabaseMixin):
                "&pageid={pageid}&enter_kbn={enter_kbn}".format(
                    site_cd=site_cd, jyoei_date=day_str,
                    gekijyo_cd=theater_cd, screen_cd=screen_cd,
-                   sakuhin_cd=movie_cd, pf_no=session_cd,
+                   sakuhin_cd=movie_cd, pf_no=showing_cd,
                    fnc="1", pageid="2000J01", enter_kbn="")
 
-    def parse_normal_session(self, response):
+    def parse_normal_showing(self, response):
         empty_seat_count = len(response.css('[alt~="空席(選択可)"]'))
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
         total_seat_count = empty_seat_count + booked_seat_count

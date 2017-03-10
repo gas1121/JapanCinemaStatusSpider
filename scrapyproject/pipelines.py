@@ -5,10 +5,10 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
-from scrapyproject.models import (Cinemas, Sessions, db_connect,
+from scrapyproject.models import (Cinemas, Showings, db_connect,
                                   drop_table_if_exist, create_table)
 from scrapyproject.utils.spider_helper import (use_cinemas_database,
-                                               use_sessions_database)
+                                               use_showings_database)
 
 
 class DataBasePipeline(object):
@@ -18,6 +18,9 @@ class DataBasePipeline(object):
     """
     def __init__(self, database):
         self.database = database
+        self.sold_out_showings = []
+        # screen seat cache for counting sold out showing's data
+        self.screen_cache = {}
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -29,26 +32,43 @@ class DataBasePipeline(object):
         engine = db_connect()
         if not self.keep_old_data:
             # drop data
-            if use_sessions_database(spider):
-                drop_table_if_exist(engine, Sessions)
+            if use_showings_database(spider):
+                drop_table_if_exist(engine, Showings)
             elif use_cinemas_database(spider):
                 drop_table_if_exist(engine, Cinemas)
         create_table(engine)
         self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
-        pass
+        # For showing spider, sold out showing may exist, so we need
+        # to fix data for these showings.
+        if use_showings_database(spider) and self.sold_out_showings:
+            for showing in self.sold_out_showings:
+                cinema_name = showing.cinema_name
+                screen = showing.screen
+                if (cinema_name in self.screen_cache and
+                        screen in self.screen_cache[cinema_name]):
+                    showing.book_seat_count = self.screen_cache[
+                        cinema_name][screen]
+                    showing.total_seat_count = self.screen_cache[
+                        cinema_name][screen]
+                else:
+                    cinema = Cinemas.get_by_name(showing.cinema_name)
+                    if cinema and screen in cinema.screens:
+                        showing.book_seat_count = cinema.screens[screen]
+                        showing.total_seat_count = cinema.screens[screen]
+                self.add_item_to_database(showing)
 
     def process_item(self, item, spider):
         """
         use cinema table if spider has attribute "use_cinemas_database"
-        use session table if spider has attribute "use_sessions_database"
+        use showing table if spider has attribute "use_showings_database"
         a spider should not have both attributes
         """
         if use_cinemas_database(spider):
             return self.process_cinema_item(item, spider)
-        elif use_sessions_database(spider):
-            return self.process_session_item(item, spider)
+        elif use_showings_database(spider):
+            return self.process_showing_item(item, spider)
 
     def process_cinema_item(self, item, spider):
         cinema = Cinemas(**item)
@@ -79,11 +99,23 @@ class DataBasePipeline(object):
                 self.add_item_to_database(exist_cinema)
         return item
 
-    def process_session_item(self, item, spider):
-        session = Sessions(**item)
+    def process_showing_item(self, item, spider):
+        showing = Showings(**item)
+        # sold out item will pass by now and handle when spider finish
+        if item['book_status'] == 'SoldOut':
+            self.sold_out_showings.append(showing)
+            return item
+        # cache screen data for later use
+        cinema_name = showing.cinema_name
+        if cinema_name not in self.screen_cache:
+            self.screen_cache[cinema_name] = {}
+        if showing.screen not in self.screen_cache[cinema_name]:
+            self.screen_cache[cinema_name][
+                showing.screen] = showing.total_seat_count
+
         # if data do not exist in database, add it
-        if not Sessions.is_session_exist(session):
-            self.add_item_to_database(session)
+        if not Showings.is_showing_exist(showing):
+            self.add_item_to_database(showing)
         return item
 
     def add_item_to_database(self, db_item):

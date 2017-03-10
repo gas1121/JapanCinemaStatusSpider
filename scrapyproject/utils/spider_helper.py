@@ -5,16 +5,16 @@ class CinemasDatabaseMixin:
     use_cinemas_database = True
 
 
-class SessionsDatabaseMixin:
+class ShowingsDatabaseMixin:
     """
-    mixin to make spider use database's sessions table
+    mixin to make spider use database's showings table
     """
-    use_sessions_database = True
+    use_showings_database = True
 
 
 def use_cinemas_database(spider):
     return hasattr(spider, "use_cinemas_database")
 
 
-def use_sessions_database(spider):
-    return hasattr(spider, "use_sessions_database")
+def use_showings_database(spider):
+    return hasattr(spider, "use_showings_database")
