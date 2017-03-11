@@ -4,6 +4,7 @@ import scrapy
 from scrapyproject.items import (Cinema, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
+from scrapyproject.utils.site_utils import TohoUtil
 
 
 class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
@@ -29,9 +30,12 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
                         r'/net/schedule/([0-9]+)/TNPI2000J01.do')
                     tail_url = '/theater/'+cinema_number[0]+'/institution.html'
                     cinema_page_url = response.urljoin(tail_url)
+                    cinema_site = TohoUtil.generate_cinema_homepage_url(
+                        cinema_number[0])
                     request = scrapy.Request(cinema_page_url,
                                              callback=self.parse_cinema)
                     request.meta['county'] = county
+                    request.meta['site'] = cinema_site
                     yield request
 
     def parse_cinema(self, response):
@@ -44,7 +48,7 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema['county'] = response.meta['county']
         cinema['company'] = 'TOHO'
         cinema['source'] = self.name
-        # TODO site not added
+        cinema['site'] = response.meta['site']
         # some cinemas have detail page and need to forward
         sub_page_list = response.xpath(
             '//section[@class="about"]//a[@class="link bold"]/@href').extract()
@@ -69,6 +73,8 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         yield cinema
 
     def parse_seat_number_list(self, response, cinema):
+        # TODO buggy on https://www.tohotheater.jp/theater/032/institution.html
+        # also on some other sites, maybe we should use another xpath parser
         all_screen_list = response.xpath(
             '//table[contains(@class,"c-table01")]/tbody/tr')
         # except total seats line

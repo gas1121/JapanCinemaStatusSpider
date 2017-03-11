@@ -99,3 +99,10 @@ def do_proxy_request(url, **kwargs):
     }
     r = requests.get(url, **dict(kwargs, proxies=proxies))
     return r
+
+
+class TohoUtil(object):
+    @staticmethod
+    def generate_cinema_homepage_url(site_cd):
+        return 'https://hlo.tohotheater.jp/net/schedule/{site_cd}'\
+               '/TNPI2000J01.do'.format(site_cd=site_cd)

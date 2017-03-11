@@ -6,7 +6,7 @@ import arrow
 import scrapy
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import standardize_book_status
+from scrapyproject.utils.site_utils import standardize_book_status, TohoUtil
 from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
@@ -91,6 +91,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
                                         config['crawl_all_cinemas']):
                 continue
             site_cd = curr_cinema['VIT_GROUP_CD']
+            # TODO pre crawl for screen number on late date
             show_day = config['date']
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
@@ -153,13 +154,14 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
 
     def parse_sub_cinema(self, response, sub_cinema,
                          showing_url_parameter, result_list):
-        showing_url_parameter['site_cd'] = sub_cinema['code']
+        site_cd = sub_cinema['code']
+        showing_url_parameter['site_cd'] = site_cd
         cinema_name = sub_cinema['name']
         cinema_name = standardize_cinema_name(cinema_name)
         data_proto = Showing()
         data_proto['cinema_name'] = cinema_name
-        # TODO site is not correct
-        data_proto['cinema_site'] = response.url.split("?")[0]
+        data_proto["cinema_site"] = TohoUtil.generate_cinema_homepage_url(
+            site_cd)
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, showing_url_parameter,
                              data_proto, result_list)
