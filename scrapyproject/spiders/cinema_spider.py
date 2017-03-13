@@ -1,5 +1,5 @@
 """
-base class for cinema info crawling spiders as processes are usually
+base class for spiders crawling cinema info as processes are usually
 very similar, like: county->cinema->(detailed page)
 """
 import re

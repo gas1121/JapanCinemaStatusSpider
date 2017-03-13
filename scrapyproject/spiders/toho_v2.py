@@ -132,7 +132,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         return url
 
     def parse_cinema(self, response):
-        # some cinemas may not open currently and will return empty response
+        # some cinemas may not open and will return empty response
         try:
             schedule_data = json.loads(response.text)
         except json.JSONDecodeError:
