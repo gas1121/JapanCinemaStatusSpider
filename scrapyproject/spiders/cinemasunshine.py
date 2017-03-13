@@ -4,75 +4,21 @@ import json
 import copy
 import arrow
 import scrapy
+from scrapyproject.spiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import standardize_book_status
-from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
-class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
+class CinemaSunshineSpider(ShowingSpider):
     """
-    Toho site spider version 2.
-
-    Improve crawling speed as we grab data from json api instead of site page.
-
-    useful json api:
-    theater list:
-    https://hlo.tohotheater.jp/responsive/json/theater_list.json?_dc=1488106193
-    movies showing now:
-    https://hlo.tohotheater.jp/data_net/json/movie/TNPI3090.JSON
-    movies coming soon:
-    https://hlo.tohotheater.jp/data_net/json/movie/TNPI3080.JSON
-    time schedule table:
-    https://hlo.tohotheater.jp/net/schedule/TNPI3070J02.do?
-    __type__=json&movie_cd=014174&vg_cd=028&term=99&seq_disp_term=7
-    &site_cd=&enter_kbn=&_dc=1488106557
-    detail schedule table for movie:
-    https://hlo.tohotheater.jp/net/schedule/TNPI3070J01.do?
-    __type__=json&movie_cd=014174&vg_cd=028&show_day=20170226
-    &term=99&isMember=&site_cd=028&enter_kbn=&_dc=1488106558
-    cinema schedult table:
-    https://hlo.tohotheater.jp/net/schedule/TNPI3050J02.do?
-    __type__=html&__useResultInfo__=no&vg_cd=076&show_day=20170226
-    &term=99&isMember=&enter_kbn=&_dc=1488120297
-
-    Visit page example:
-    https://www.tohotheater.jp/theater/find.html
-    https://hlo.tohotheater.jp/net/movie/TNPI3090J01.do
-    https://hlo.tohotheater.jp/net/movie/TNPI3060J01.do?sakuhin_cd=014174
-    https://hlo.tohotheater.jp/net/ticket/034/TNPI2040J03.do
-
-    We will first crawl cinema list, then crawl each cinema's schedule data,
-    and generate booking page urls to crawl exact booking number
+    Cinema Sunshine spider.
     """
-    name = "toho_v2"
-    allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
+    name = "cinemasunshine"
+    allowed_domains = ["www.cinemasunshine.co.jp", "www2.css-ebox.jp"]
     start_urls = [
-        'https://hlo.tohotheater.jp/responsive/json/theater_list.json'
+        'http://www.cinemasunshine.co.jp/theater/'
     ]
-
-    def set_config(self, config):
-        """
-        only movie title are raw str, others are normailized
-        """
-        config['movie_list'] = getattr(self, 'movie_list', ['君の名は。'])
-        if not isinstance(config['movie_list'], list):
-            config['movie_list'] = config['movie_list'].split(',')
-        # scrapy doesn't allow to pass name without value
-        config['crawl_all_movies'] = (
-            True if hasattr(self, 'crawl_all_movies') else False)
-        config['crawl_all_cinemas'] = (
-            True if hasattr(self, 'crawl_all_cinemas') else False)
-        config['cinema_list'] = getattr(self, 'cinema_list',
-                                        ['TOHOシネマズ 新宿'])
-        if not isinstance(config['cinema_list'], list):
-            config['cinema_list'] = config['cinema_list'].split(',')
-        # should not remove space, but normalize only
-        for idx, item in enumerate(config['cinema_list']):
-            config['cinema_list'][idx] = unicodedata.normalize('NFKC', item)
-        # date: default tomorrow
-        tomorrow = arrow.now().shift(days=+1)
-        config['date'] = getattr(self, 'date', tomorrow.format('YYYYMMDD'))
 
     def parse(self, response):
         """
@@ -80,55 +26,22 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         """
         config = {}
         self.set_config(config)
-        try:
-            theater_list = json.loads(response.text)
-        except json.JSONDecodeError:
-            return
-        if (not theater_list):
-            return
-        for curr_cinema in theater_list:
-            if not self.is_cinema_crawl(curr_cinema, config['cinema_list'],
-                                        config['crawl_all_cinemas']):
+        theater_list = response.xpath('//li[@class="clearfix"]')
+        for theater_element in theater_list:
+            cinema_names = theater_element.xpath(
+                './p[@class="theaterName"]/a/text()').extract()
+            if not self.is_cinema_crawl(cinema_names, config):
                 continue
-            site_cd = curr_cinema['VIT_GROUP_CD']
-            show_day = config['date']
-            curr_cinema_url = self.generate_cinema_schedule_url(
-                site_cd, show_day)
+            county = theater_element.xpath(
+                './p[@class="theaterPracce"]/text()').extract_first()
+            curr_cinema_url = theater_element.xpath(
+                './p[@class="theaterName"]/a/@href').extract_first()
+            curr_cinema_url = response.urljoin(curr_cinema_url)
             request = scrapy.Request(curr_cinema_url,
                                      callback=self.parse_cinema)
-            request.meta["crawl_all_movies"] = config['crawl_all_movies']
-            request.meta["movie_list"] = config['movie_list']
+            request.meta["county"] = county
+            request.meta["conifg"] = config
             yield request
-
-    def is_cinema_crawl(self, curr_cinema, cinema_list, crawl_all_cinemas):
-        """
-        check if current cinema should be crawled
-        """
-        if crawl_all_cinemas:
-            return True
-        # replace full width text before compare
-        vit_group_nm = unicodedata.normalize('NFKC',
-                                             curr_cinema['VIT_GROUP_NM'])
-        theater_name = unicodedata.normalize('NFKC',
-                                             curr_cinema['THEATER_NAME'])
-        theater_name_english = unicodedata.normalize(
-            'NFKC', curr_cinema['THEATER_NAME_ENGLISH'])
-        site_name = unicodedata.normalize('NFKC', curr_cinema['SITE_NM'])
-        if (vit_group_nm in cinema_list or theater_name in cinema_list
-            or theater_name_english in cinema_list
-                or site_name in cinema_list):
-                return True
-        return False
-
-    def generate_cinema_schedule_url(self, site_cd, show_day):
-        """
-        json data url for single cinema, all movies of curr cinema
-        """
-        url = 'https://hlo.tohotheater.jp/net/schedule/TNPI3050J02.do?'\
-              '__type__=html&__useResultInfo__=no'\
-              '&vg_cd={site_cd}&show_day={show_day}&term=99'.format(
-                site_cd=site_cd, show_day=show_day)
-        return url
 
     def parse_cinema(self, response):
         # some cinemas may not open and will return empty response
