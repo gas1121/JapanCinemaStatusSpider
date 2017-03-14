@@ -8,12 +8,12 @@ from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
 class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         Prepare common settings for showing spider.
         Only movie title are raw str, others are normailized
         """
-        # TODO bug
+        super(ShowingSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'movie_list'):
             self.movie_list = ['君の名は。']
         if not isinstance(self.movie_list, list):

@@ -15,7 +15,8 @@ from scrapyproject.utils.site_utils import (standardize_county_name,
 
 class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(CinemaSpider, self).__init__(*args, **kwargs)
         if not hasattr(self, 'county_xpath'):
             self.county_xpath = '/invalid_path'
         if not hasattr(self, 'cinema_xpath'):
