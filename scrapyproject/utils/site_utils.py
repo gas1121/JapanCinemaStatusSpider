@@ -48,30 +48,6 @@ def standardize_site_url(url, cinema):
         return url
 
 
-def standardize_book_status(book_status):
-    """
-    standardize book status
-
-    toho site:
-    A Plenty Left
-    B Half full
-    C Few Seats Left
-    D Sold Out
-    G Not Sold
-    """
-    if book_status == 'A':
-        return "PlentyLeft"
-    elif book_status == 'B':
-        return "HalfFull"
-    elif book_status == 'C':
-        return "FewSeatsLeft"
-    elif book_status == 'D':
-        return "SoldOut"
-    else:
-        # 'G' for toho site
-        return "NotSold"
-
-
 def extract_seat_number(seat_str):
     """
     extract seat count from given screen
@@ -92,7 +68,8 @@ def do_proxy_request(url, **kwargs):
     start a request using proxy
     """
     proxy_str = (os.environ['PROXY_TYPE'] + '://user:pass@'
-                 + os.environ['PROXY_ADDRESS'] + ':' + os.environ['PROXY_PORT'])
+                 + os.environ['PROXY_ADDRESS'] + ':'
+                 + os.environ['PROXY_PORT'])
     proxies = {
         'http': proxy_str,
         'https': proxy_str
@@ -106,3 +83,42 @@ class TohoUtil(object):
     def generate_cinema_homepage_url(site_cd):
         return 'https://hlo.tohotheater.jp/net/schedule/{site_cd}'\
                '/TNPI2000J01.do'.format(site_cd=site_cd)
+
+    @staticmethod
+    def standardize_book_status(book_status):
+        """
+        standardize book status
+
+        toho site:
+        A Plenty Left
+        B Half full
+        C Few Seats Left
+        D Sold Out
+        G Not Sold
+        """
+        if book_status == 'A':
+            return "PlentyLeft"
+        elif book_status == 'B':
+            return "HalfFull"
+        elif book_status == 'C':
+            return "FewSeatsLeft"
+        elif book_status == 'D':
+            return "SoldOut"
+        else:
+            # 'G'
+            return "NotSold"
+
+
+class CinemaSunshineUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        # seems status "3" is not used now...
+        if book_status == "0":
+            return "PlentyLeft"
+        elif book_status == "2":
+            return "HalfFull"
+        elif book_status == "5":
+            return "SoldOut"
+        else:
+            # "1" "4" 6"
+            return "NotSold"

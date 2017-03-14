@@ -6,7 +6,7 @@ import arrow
 import scrapy
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import standardize_book_status, TohoUtil
+from scrapyproject.utils.site_utils import TohoUtil
 from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
@@ -52,6 +52,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
     ]
 
     def set_config(self, config):
+        # TODO use base class
         """
         only movie title are raw str, others are normailized
         """
@@ -230,7 +231,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         showing_data_proto['end_time'] = self.get_time_from_text(
             showing_url_parameter['show_day'], curr_showing['showingEnd']
         )
-        showing_data_proto['book_status'] = standardize_book_status(
+        showing_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0

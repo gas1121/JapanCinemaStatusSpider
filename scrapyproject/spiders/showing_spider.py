@@ -47,3 +47,28 @@ class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
             if used_name in self.cinema_list:
                 return True
         return False
+
+    def is_movie_crawl(self, movie_names):
+        """
+        check if current movie should be crawled
+        """
+        # TODO movie name crawled may have version string
+        if self.crawl_all_movies:
+            return True
+        for curr_name in movie_names:
+            if movie_names in self.movie_list:
+                return True
+        return False
+
+    def get_time_from_text(self, hours, minutes):
+        """
+        generate arrow object from given day and time text
+
+        as time like 24:40 can not be directly parsed, we need shift time
+        properly
+
+        :param show_day: arrow object represent of 00:00 at show day.
+        """
+        time = arrow.get(self.date, 'YYYYMMDD').replace(tzinfo='UTC+9')
+        time = time.shift(hours=hours, minutes=minutes)
+        return time
