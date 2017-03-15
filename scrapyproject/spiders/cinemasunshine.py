@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import unicodedata
 import json
 import copy
 import arrow
@@ -21,9 +20,6 @@ class CinemaSunshineSpider(ShowingSpider):
 
     cinema_list = ['シネマサンシャイン池袋']
 
-    #TEST
-    test_count = 0
-
     def parse(self, response):
         """
         crawl theater list data first
@@ -32,6 +28,7 @@ class CinemaSunshineSpider(ShowingSpider):
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
                 './p[@class="theaterName"]/a/text()').extract_first()
+            standardize_cinema_name(cinema_name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_element.xpath(
@@ -42,8 +39,7 @@ class CinemaSunshineSpider(ShowingSpider):
             request = scrapy.Request(json_url, callback=self.parse_cinema)
             request.meta["cinema_name"] = cinema_name
             request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
-            #yield request
-            return request
+            yield request
 
     def generate_cinema_schedule_url(self, cinema_name, date):
         """
@@ -76,12 +72,7 @@ class CinemaSunshineSpider(ShowingSpider):
             self.parse_movie(response, curr_movie, data_proto, result_list)
         for result in result_list:
             if result:
-                if self.test_count < 3:
-                    yield result
-                    self.test_count += 1
-                else:
-                    return
-                #yield result
+                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
