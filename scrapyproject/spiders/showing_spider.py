@@ -52,11 +52,13 @@ class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
         """
         check if current movie should be crawled
         """
-        # TODO movie name crawled may have version string
+        # TODO movie name crawled may have version string,consider use part
+        # of name to compare?
+        # any(curr_title in title for curr_title in movie_list)
         if self.crawl_all_movies:
             return True
         for curr_name in movie_names:
-            if movie_names in self.movie_list:
+            if curr_name in self.movie_list:
                 return True
         return False
 

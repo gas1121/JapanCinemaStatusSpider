@@ -173,6 +173,7 @@ class CinemaSunshineSpider(ShowingSpider):
         yield request
 
     def parse_normal_showing(self, response):
+        # some cinemas are free seat ordered, so data may not be crawled
         empty_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_100.gif")]'))
         booked_seat_count = len(response.xpath(

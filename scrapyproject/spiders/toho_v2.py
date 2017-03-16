@@ -4,13 +4,13 @@ import json
 import copy
 import arrow
 import scrapy
+from scrapyproject.spiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import TohoUtil
-from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
 
 
-class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
+class TohoV2Spider(ShowingSpider):
     """
     Toho site spider version 2.
 
@@ -51,36 +51,12 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         'https://hlo.tohotheater.jp/responsive/json/theater_list.json'
     ]
 
-    def set_config(self, config):
-        # TODO use base class
-        """
-        only movie title are raw str, others are normailized
-        """
-        config['movie_list'] = getattr(self, 'movie_list', ['君の名は。'])
-        if not isinstance(config['movie_list'], list):
-            config['movie_list'] = config['movie_list'].split(',')
-        # scrapy doesn't allow to pass name without value
-        config['crawl_all_movies'] = (
-            True if hasattr(self, 'crawl_all_movies') else False)
-        config['crawl_all_cinemas'] = (
-            True if hasattr(self, 'crawl_all_cinemas') else False)
-        config['cinema_list'] = getattr(self, 'cinema_list',
-                                        ['TOHOシネマズ 新宿'])
-        if not isinstance(config['cinema_list'], list):
-            config['cinema_list'] = config['cinema_list'].split(',')
-        # should not remove space, but normalize only
-        for idx, item in enumerate(config['cinema_list']):
-            config['cinema_list'][idx] = unicodedata.normalize('NFKC', item)
-        # date: default tomorrow
-        tomorrow = arrow.now().shift(days=+1)
-        config['date'] = getattr(self, 'date', tomorrow.format('YYYYMMDD'))
+    cinema_list = ['TOHOシネマズ 新宿']
 
     def parse(self, response):
         """
         crawl theater list data first
         """
-        config = {}
-        self.set_config(config)
         try:
             theater_list = json.loads(response.text)
         except json.JSONDecodeError:
@@ -88,26 +64,19 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         if (not theater_list):
             return
         for curr_cinema in theater_list:
-            if not self.is_cinema_crawl(curr_cinema, config['cinema_list'],
-                                        config['crawl_all_cinemas']):
+            cinema_name_list = self.get_cinema_name_list(curr_cinema)
+            if not self.is_cinema_crawl(cinema_name_list):
                 continue
             site_cd = curr_cinema['VIT_GROUP_CD']
             # TODO pre crawl for screen number on late date
-            show_day = config['date']
+            show_day = self.date
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
             request = scrapy.Request(curr_cinema_url,
                                      callback=self.parse_cinema)
-            request.meta["crawl_all_movies"] = config['crawl_all_movies']
-            request.meta["movie_list"] = config['movie_list']
             yield request
 
-    def is_cinema_crawl(self, curr_cinema, cinema_list, crawl_all_cinemas):
-        """
-        check if current cinema should be crawled
-        """
-        if crawl_all_cinemas:
-            return True
+    def get_cinema_name_list(self, curr_cinema):
         # replace full width text before compare
         vit_group_nm = unicodedata.normalize('NFKC',
                                              curr_cinema['VIT_GROUP_NM'])
@@ -116,11 +85,7 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         theater_name_english = unicodedata.normalize(
             'NFKC', curr_cinema['THEATER_NAME_ENGLISH'])
         site_name = unicodedata.normalize('NFKC', curr_cinema['SITE_NM'])
-        if (vit_group_nm in cinema_list or theater_name in cinema_list
-            or theater_name_english in cinema_list
-                or site_name in cinema_list):
-                return True
-        return False
+        return [vit_group_nm, theater_name, theater_name_english, site_name]
 
     def generate_cinema_schedule_url(self, site_cd, show_day):
         """
@@ -174,12 +139,9 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         movie may have different versions
         """
         title = curr_movie['name']
-        title_en = curr_movie['ename']
         # normalize title_en to avoid full width characters
-        title_en = unicodedata.normalize('NFKC', title_en)
-        if not self.is_movie_crawl(
-            title, title_en, response.meta["movie_list"],
-                response.meta["crawl_all_movies"]):
+        title_en = unicodedata.normalize('NFKC', curr_movie['ename'])
+        if not self.is_movie_crawl([title, title_en]):
             return
         showing_url_parameter['movie_cd'] = curr_movie['code']
         movie_data_proto = copy.deepcopy(data_proto)
@@ -188,20 +150,6 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
         for curr_screen in curr_movie['list']:
             self.parse_screen(response, curr_screen, showing_url_parameter,
                               movie_data_proto, result_list)
-
-    def is_movie_crawl(self, title, title_en, movie_list, crawl_all_movies):
-        """
-        check if current movie should be crawled
-        """
-        if crawl_all_movies:
-            return True
-        # if not crawl all movies, check if input title is contained
-        title_contained = any(curr_title in title for curr_title in movie_list)
-        title_en_contained = any(curr_title in title_en for curr_title
-                                 in movie_list)
-        if (title_contained or title_en_contained):
-            return True
-        return False
 
     def parse_screen(self, response, curr_screen,
                      showing_url_parameter, data_proto, result_list):
@@ -221,16 +169,21 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
 
     def parse_showing(self, response, curr_showing,
                       showing_url_parameter, data_proto, result_list):
+        def parse_time(time_str):
+            """
+            ex. "24:40"
+            """
+            return (int(time_str[:2]), int(time_str[3:]))
         showing_url_parameter['showing_cd'] = curr_showing['code']
         showing_data_proto = copy.deepcopy(data_proto)
         # time like 24:40 can not be directly parsed,
         # so we need to shift time properly
+        start_hour, start_minute = parse_time(curr_showing['showingStart'])
         showing_data_proto['start_time'] = self.get_time_from_text(
-            showing_url_parameter['show_day'], curr_showing['showingStart']
-        )
+            start_hour, start_minute)
+        end_hour, end_minute = parse_time(curr_showing['showingEnd'])
         showing_data_proto['end_time'] = self.get_time_from_text(
-            showing_url_parameter['show_day'], curr_showing['showingEnd']
-        )
+            end_hour, end_minute)
         showing_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
@@ -248,22 +201,6 @@ class TohoV2Spider(scrapy.Spider, ShowingsDatabaseMixin):
                                      callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
             result_list.append(request)
-
-    def get_time_from_text(self, show_day, time_text):
-        """
-        generate arrow object from given day and time text
-
-        as time like 24:40 can not be directly parsed, we need shift time
-        properly
-
-        :param show_day: arrow object represent of 00:00 at show day.
-        :param time_text: text contains time like '24:40'
-        """
-        time_list = time_text.split(':')
-        hours = int(time_list[0])
-        minutes = int(time_list[1])
-        time = show_day.shift(hours=hours, minutes=minutes)
-        return time
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
                              movie_cd, showing_cd):
