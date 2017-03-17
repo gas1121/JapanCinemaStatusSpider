@@ -63,7 +63,7 @@ def extract_seat_number(seat_str):
         return 0
 
 
-def do_proxy_request(url, **kwargs):
+def do_proxy_request(url, method="GET", **kwargs):
     """
     start a request using proxy
     """
@@ -74,7 +74,12 @@ def do_proxy_request(url, **kwargs):
         'http': proxy_str,
         'https': proxy_str
     }
-    r = requests.get(url, **dict(kwargs, proxies=proxies))
+    if method == "GET":
+        r = requests.get(url, **dict(kwargs, proxies=proxies))
+    elif method == "POST":
+        r = requests.post(url, **dict(kwargs, proxies=proxies))
+    else:
+        r = requests.get(url, **dict(kwargs, proxies=proxies))
     # fix encoding problem in requests
     r.encoding = r.apparent_encoding
     return r

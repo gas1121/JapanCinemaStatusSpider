@@ -28,8 +28,13 @@ class ProxyDownloaderMiddleware:
     enabled when spider has attribute 'keep_old_data'
     """
     def process_request(self, request, spider):
+        # TODO fix form post problem for useing requests
+        print(request.url)
+        print(request.method)
+        if request.method == "POST":
+            print(request.__dict__)
         if (hasattr(spider, 'use_proxy')):
-            r = do_proxy_request(request.url)
+            r = do_proxy_request(request.url, cookies=request.cookies)
             return HtmlResponse(request.url, body=r.text,
                                 request=request, encoding='utf-8')
         else:
