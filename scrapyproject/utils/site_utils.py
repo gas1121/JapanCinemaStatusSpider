@@ -75,6 +75,8 @@ def do_proxy_request(url, **kwargs):
         'https': proxy_str
     }
     r = requests.get(url, **dict(kwargs, proxies=proxies))
+    # fix encoding problem in requests
+    r.encoding = r.apparent_encoding
     return r
 
 

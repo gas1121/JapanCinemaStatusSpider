@@ -173,7 +173,8 @@ class TohoV2Spider(ShowingSpider):
             """
             ex. "24:40"
             """
-            return (int(time_str[:2]), int(time_str[3:]))
+            time = time_str.split(":")
+            return (int(time[0]), int(time[1]))
         showing_url_parameter['showing_cd'] = curr_showing['code']
         showing_data_proto = copy.deepcopy(data_proto)
         # time like 24:40 can not be directly parsed,
