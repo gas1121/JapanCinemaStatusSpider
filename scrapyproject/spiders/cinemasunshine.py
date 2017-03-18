@@ -177,9 +177,9 @@ class CinemaSunshineSpider(ShowingSpider):
         empty_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_100.gif")]'))
         booked_seat_count = len(response.xpath(
-            '//img[contains(@alt,"予約済")]'))
+            '//img[contains(@src,"seat_102.gif")]'))
         locked_seat_count = len(response.xpath(
-            '//img[contains(@alt,"予約不可")]'))
+            '//img[contains(@src,"seat_109.gif")]'))
         total_seat_count = (empty_seat_count + booked_seat_count
                             + locked_seat_count)
         result = response.meta["data_proto"]
