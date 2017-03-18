@@ -22,19 +22,17 @@ class SeleniumDownloaderMiddleware(object):
         return HtmlResponse(url, body=body, request=request, encoding='utf-8')
 
 
-class ProxyDownloaderMiddleware:
+class ProxyDownloaderMiddleware(object):
     """
     middleware for sites that need proxy to visit
     enabled when spider has attribute 'keep_old_data'
     """
     def process_request(self, request, spider):
-        # TODO fix form post problem for useing requests
-        print(request.url)
-        print(request.method)
-        if request.method == "POST":
-            print(request.__dict__)
         if (hasattr(spider, 'use_proxy')):
-            r = do_proxy_request(request.url, cookies=request.cookies)
+            r = do_proxy_request(url=request.url, method=request.method,
+                                 data=request.body,
+                                 headers=request.headers.to_unicode_dict(),
+                                 cookies=request.cookies)
             return HtmlResponse(request.url, body=r.text,
                                 request=request, encoding='utf-8')
         else:

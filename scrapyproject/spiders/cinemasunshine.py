@@ -24,7 +24,6 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        print("parse:"+arrow.now().format())
         theater_list = response.xpath('//li[@class="clearfix"]')
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
@@ -52,8 +51,6 @@ class CinemaSunshineSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        print("parse_cinema:"+arrow.now().format())
-        print(response.headers.getlist('Set-Cookie'))
         try:
             schedule_data = json.loads(response.text)
         except json.JSONDecodeError:
@@ -143,8 +140,6 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         redirect with form data
         """
-        print("parse_pre_ordering:"+arrow.now().format())
-        print(response.headers.getlist('Set-Cookie'))
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form', callback=self.parse_agreement)
         request.meta["data_proto"] = response.meta["data_proto"]
@@ -155,8 +150,6 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         agreement page
         """
-        print("parse_agreement:"+arrow.now().format())
-        print(response.headers.getlist('Set-Cookie'))
         check_value = response.xpath(
             '//input[@type="checkbox"]/@value').extract_first()
         request = scrapy.FormRequest.from_response(
@@ -171,7 +164,6 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         ticket number select page
         """
-        print("parse_select_ticket_count:"+arrow.now().format())
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form[@name="FORM1"]',
             formdata={'goArea': 'goArea', 'ninzu[]': "1"},
@@ -181,7 +173,6 @@ class CinemaSunshineSpider(ShowingSpider):
         yield request
 
     def parse_normal_showing(self, response):
-        print("parse_normal_showing:"+arrow.now().format())
         # some cinemas are free seat ordered, so data may not be crawled
         empty_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_100.gif")]'))

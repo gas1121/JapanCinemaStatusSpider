@@ -63,7 +63,7 @@ def extract_seat_number(seat_str):
         return 0
 
 
-def do_proxy_request(url, method="GET", **kwargs):
+def do_proxy_request(url=None, method="GET", data=None, **kwargs):
     """
     start a request using proxy
     """
@@ -74,15 +74,13 @@ def do_proxy_request(url, method="GET", **kwargs):
         'http': proxy_str,
         'https': proxy_str
     }
-    if method == "GET":
-        r = requests.get(url, **dict(kwargs, proxies=proxies))
-    elif method == "POST":
-        r = requests.post(url, **dict(kwargs, proxies=proxies))
-    else:
-        r = requests.get(url, **dict(kwargs, proxies=proxies))
+    req = requests.Request(method, url, data=data, **kwargs)
+    prepped = req.prepare()
+    s = requests.Session()
+    resp = s.send(prepped, proxies=proxies)
     # fix encoding problem in requests
-    r.encoding = r.apparent_encoding
-    return r
+    resp.encoding = resp.apparent_encoding
+    return resp
 
 
 class TohoUtil(object):
