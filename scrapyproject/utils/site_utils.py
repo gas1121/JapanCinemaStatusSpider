@@ -127,3 +127,19 @@ class CinemaSunshineUtil(object):
         else:
             # "1" "4" 6"
             return "NotSold"
+
+
+class ForumUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        # use css to judge book status
+        # seems css "soldout" is used for not sold...
+        # we still don't know how sold out is presented
+        if book_status == "purchase vacancy":
+            return "PlentyLeft"
+        if book_status == "purchase little":
+            return "FewSeatsLeft"
+        elif book_status == "purchase soldout":
+            return "NotSold"
+        else:
+            return "NotSold"

@@ -27,15 +27,15 @@ We use [schedule](http://schedule.readthedocs.io/en/latest/]) library to schedul
 Just use **scrapy** container instead of **scrapy-vps**
 
 ## TODO list
-- [ ] Better command line support for spider
+- [x] Better command line support for spider
 - [ ] Add support for windows docker
 - [ ] Add support for Appveyor and TravisCI
 - [ ] Add redis as cache
 - [ ] Use information sites:
- - [ ] http://eiga.com
+ - [x] http://eiga.com
  - [ ] http://cinema.pia.co.jp
  - [ ] http://movie.walkerplus.com
- - [ ] http://movies.yahoo.co.jp
+ - [x] http://movies.yahoo.co.jp
  - [ ] http://www.entermeitele.net/roadshow/theater/
  - [ ] http://cinema.co.jp/theater/list
  - [ ] https://movie.jorudan.co.jp/theater/

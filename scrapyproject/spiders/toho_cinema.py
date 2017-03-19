@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import copy
 import scrapy
 from scrapyproject.items import (Cinema, standardize_cinema_name,
@@ -73,8 +74,9 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         yield cinema
 
     def parse_seat_number_list(self, response, cinema):
-        # TODO buggy on https://www.tohotheater.jp/theater/032/institution.html
-        # also on some other sites, maybe we should use another xpath parser
+        # table on https://www.tohotheater.jp/theater/021/institution.html
+        # has wrong order of <tr> and </tr> which makes parser fails to parse,
+        # so we have to handle this problem manually...
         all_screen_list = response.xpath(
             '//table[contains(@class,"c-table01")]/tbody/tr')
         # except total seats line
@@ -95,5 +97,19 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
                 screen_count += 1
                 total_seats += screen_seat_number
                 cinema['screens'][screen_name] = screen_seat_number
+        # screen_count<2 means we have problem crawling data
+        if screen_count < 2:
+            tbody_text = response.xpath(
+                '//table[contains(@class,"c-table01")]/tbody').extract_first()
+            screen_list = re.findall(r'<td>(SCREEN.*)</td>', tbody_text)
+            seat_list = re.findall(r'<td>(\d+)\+\((\d+)\)', tbody_text)
+            screen_count = 0
+            total_seats = 0
+            cinema['screens'] = {}
+            for screen_name, seats in zip(screen_list, seat_list):
+                curr_seat_count = int(seats[0]) + int(seats[1])
+                cinema['screens'][screen_name] = curr_seat_count
+                screen_count += 1
+                total_seats += curr_seat_count
         cinema['screen_count'] = screen_count
         cinema['total_seats'] = total_seats
