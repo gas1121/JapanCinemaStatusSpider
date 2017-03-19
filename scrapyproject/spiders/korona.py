@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import json
 import copy
 import arrow
 import scrapy
 from scrapyproject.spiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import CinemaSunshineUtil
+from scrapyproject.utils.site_utils import KoronaUtil
 
 
 class KoronaSpider(ShowingSpider):
@@ -24,51 +23,45 @@ class KoronaSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        # TODO
-        theater_list = response.xpath('//li[@class="clearfix"]')
+        theater_list = response.xpath(
+            '//div[@class="LNbowlingList LNshopList"]//a')
         for theater_element in theater_list:
-            cinema_name = theater_element.xpath(
-                './p[@class="theaterName"]/a/text()').extract_first()
+            county_name = theater_element.xpath(
+                './text()').extract_first()
+            cinema_name = county_name + "コロナシネマワールド"
             standardize_cinema_name(cinema_name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_element.xpath(
-                './p[@class="theaterName"]/a/@href').extract_first()
-            cinema_name_en = curr_cinema_url.split('/')[-1]
-            json_url = self.generate_cinema_schedule_url(
+                './@href').extract_first()
+            cinema_name_en = curr_cinema_url.split('/')[-2]
+            schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = scrapy.Request(json_url, callback=self.parse_cinema)
+            request = scrapy.Request(
+                schedule_url, callback=self.parse_cinema)
             request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
+            request.meta["cinema_site"] = curr_cinema_url
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name, date):
         """
-        json data url for single cinema, all movies of curr cinema
+        schedule url for single cinema, all movies of curr cinema
         """
-        url = 'http://www.cinemasunshine.co.jp/lib/getJson.php?'\
-              'theater={cinema_name}&date={date}&top=true'.format(
-                cinema_name=cinema_name, date=date)
+        used_date = date[2:]
+        url = 'http://www.korona.co.jp/Cinema/{cinema_name}/'\
+              'List_Renew/{date}.asp'.format(
+                  cinema_name=cinema_name, date=used_date)
         return url
 
     def parse_cinema(self, response):
-        try:
-            schedule_data = json.loads(response.text)
-        except json.JSONDecodeError:
-            return
-        if (not schedule_data):
-            return
-        if 'data' not in schedule_data or 'movie' not in schedule_data['data']:
-            return
+        #with open('test.html', 'w') as f:
+        #    f.write(response.text)
+        # TODO encoding error
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []
-        movie_list = []
-        if isinstance(schedule_data['data']['movie'], dict):
-            movie_list.append(schedule_data['data']['movie'])
-        else:
-            movie_list = schedule_data['data']['movie']
+        movie_list = response.xpath('//div[@class="wrapFilm"]')
         for curr_movie in movie_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
         for result in result_list:
@@ -79,48 +72,38 @@ class KoronaSpider(ShowingSpider):
         """
         parse movie showing data
         """
-        title = curr_movie['name']
+        title = curr_movie.xpath('./h4/a/text()').extract_first()
         if not self.is_movie_crawl([title]):
             return
         movie_data_proto = copy.deepcopy(data_proto)
         movie_data_proto['title'] = title
-        screen_list = []
-        if isinstance(curr_movie['screen'], dict):
-            screen_list.append(curr_movie['screen'])
-        else:
-            screen_list = curr_movie['screen']
-        for curr_screen in screen_list:
-            self.parse_screen(response, curr_screen,
-                              movie_data_proto, result_list)
-
-    def parse_screen(self, response, curr_screen, data_proto, result_list):
-        screen = curr_screen['name']
-        screen_data_proto = copy.deepcopy(data_proto)
-        # make sure screen name is same with those in cinemas table
-        screen_data_proto['screen'] = standardize_screen_name(
-            screen, screen_data_proto['cinema_name'])
-        showing_list = []
-        if isinstance(curr_screen['time'], dict):
-            showing_list.append(curr_screen['time'])
-        else:
-            showing_list = curr_screen['time']
+        showing_list = curr_movie.xpath('.//tbody/tr')
+        print(showing_list)
         for curr_showing in showing_list:
             self.parse_showing(response, curr_showing,
-                               screen_data_proto, result_list)
+                               movie_data_proto, result_list)
 
     def parse_showing(self, response, curr_showing, data_proto, result_list):
         def parse_time(time_str):
-            return (int(time_str[:2]), int(time_str[2:]))
+            time = time_str.split(":")
+            return (int(time[0]), int(time[1]))
         showing_data_proto = copy.deepcopy(data_proto)
-        start_hour, start_minute = parse_time(curr_showing['start_time'])
+        screen_name = curr_showing.xpath('./th/div/text()').extract_first()
+        showing_data_proto['screen'] = standardize_screen_name(screen_name)
+        start_time = curr_showing.xpath(
+            './td[@class="time"]/div/text()').extract_first()
+        start_hour, start_minute = parse_time(start_time)
         showing_data_proto['start_time'] = self.get_time_from_text(
             start_hour, start_minute)
-        end_hour, end_minute = parse_time(curr_showing['end_time'])
+        end_time = curr_showing.xpath(
+            './td[@class="time"]/div/span/text()').extract_first()[1:]
+        end_hour, end_minute = parse_time(end_time)
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
+        book_status = curr_showing.xpath(
+            './img[contains(@src,"icon_seat_vacant")]/@alt')
         showing_data_proto['book_status'] = \
-            CinemaSunshineUtil.standardize_book_status(
-                curr_showing['available'])
+            KoronaUtil.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
@@ -131,58 +114,22 @@ class KoronaSpider(ShowingSpider):
             return
         else:
             # normal, need to crawl book number on order page
-            url = curr_showing['url']
-            request = scrapy.Request(url, callback=self.parse_pre_ordering)
+            url = curr_showing.xpath(
+                './td[@class="btnReservation"]/div/a/@href').extract_first()
+            request = scrapy.Request(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
-            request.meta["dont_merge_cookies"] = True
             result_list.append(request)
 
-    def parse_pre_ordering(self, response):
-        """
-        redirect with form data
-        """
-        request = scrapy.FormRequest.from_response(
-            response, formxpath='//form', callback=self.parse_agreement)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        request.meta["dont_merge_cookies"] = True
-        yield request
-
-    def parse_agreement(self, response):
-        """
-        agreement page
-        """
-        check_value = response.xpath(
-            '//input[@type="checkbox"]/@value').extract_first()
-        request = scrapy.FormRequest.from_response(
-            response, formxpath='//form[@name="FORM1"]',
-            formdata={'agre': 'agr', 'p_agree[]': check_value},
-            callback=self.parse_select_ticket_count)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        request.meta["dont_merge_cookies"] = True
-        yield request
-
-    def parse_select_ticket_count(self, response):
-        """
-        ticket number select page
-        """
-        request = scrapy.FormRequest.from_response(
-            response, formxpath='//form[@name="FORM1"]',
-            formdata={'goArea': 'goArea', 'ninzu[]': "1"},
-            callback=self.parse_normal_showing)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        request.meta["dont_merge_cookies"] = True
-        yield request
-
     def parse_normal_showing(self, response):
-        # some cinemas are free seat ordered, so data may not be crawled
-        empty_seat_count = len(response.xpath(
-            '//img[contains(@src,"seat_100.gif")]'))
-        booked_seat_count = len(response.xpath(
-            '//img[contains(@alt,"予約済")]'))
-        locked_seat_count = len(response.xpath(
-            '//img[contains(@alt,"予約不可")]'))
-        total_seat_count = (empty_seat_count + booked_seat_count
-                            + locked_seat_count)
+        # TODO booked seats if generated by javascript with json api
+        seat_block = response.xpath('//div[@class="cinema_seets step1"]')
+        all_li = len(seat_block.xpath('.//li'))
+        non_li = len(seat_block.xpath('.//li[@class="none"]'))
+        row_head_li = len(seat_block.xpath('.//li[@class="seet_row_head"]'))
+        total_seat_count = all_li - non_li - row_head_li
+        empty_seat_count = len(seat_block.xpath(
+            './/li[@class="noreserve"]'))
+        booked_seat_count = total_seat_count - empty_seat_count
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
         result['total_seat_count'] = total_seat_count

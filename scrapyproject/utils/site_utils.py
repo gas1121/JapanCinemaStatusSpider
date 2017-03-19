@@ -143,3 +143,18 @@ class ForumUtil(object):
             return "NotSold"
         else:
             return "NotSold"
+
+
+class KoronaUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        # use image alt attribute to determine book status
+        # we still don't know how sold out is presented
+        if book_status == "空席90％以上":
+            return "PlentyLeft"
+        elif book_status == "空席90％未満":
+            return "HalfFull"
+        elif book_status == "空席50％未満":
+            return "FewSeatsLeft"
+        elif book_status == "空席10％未満":
+            return "NotSold"
