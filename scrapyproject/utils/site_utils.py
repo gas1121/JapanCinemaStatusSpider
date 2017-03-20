@@ -79,7 +79,10 @@ def do_proxy_request(url=None, method="GET", data=None, **kwargs):
     s = requests.Session()
     resp = s.send(prepped, proxies=proxies)
     # fix encoding problem in requests
-    resp.encoding = resp.apparent_encoding
+    # python does not support "Windows-31J"
+    if resp.encoding and resp.encoding.lower() in [
+            x.lower() for x in ["ISO-8859-1", "Windows-31J"]]:
+        resp.encoding = resp.apparent_encoding
     return resp
 
 
@@ -149,7 +152,7 @@ class KoronaUtil(object):
     @staticmethod
     def standardize_book_status(book_status):
         # use image alt attribute to determine book status
-        # we still don't know how sold out is presented
+        # we don't know how sold out is presented
         if book_status == "空席90％以上":
             return "PlentyLeft"
         elif book_status == "空席90％未満":

@@ -34,6 +34,6 @@ class ProxyDownloaderMiddleware(object):
                                  headers=request.headers.to_unicode_dict(),
                                  cookies=request.cookies)
             return HtmlResponse(request.url, body=r.text,
-                                request=request, encoding='utf-8')
+                                request=request, encoding="utf-8")
         else:
             return
