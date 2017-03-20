@@ -110,6 +110,10 @@ class ForumSpider(ShowingSpider):
         showing_data_proto['book_status'] = \
             ForumUtil.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # CANNOTSOLVE we cannot get screen name from site for
+            # sold out and not sold showings so we have to give it a special
+            # screen name
+            showing_data_proto['screen'] = "unknown"
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
             showing_data_proto['total_seat_count'] = 0

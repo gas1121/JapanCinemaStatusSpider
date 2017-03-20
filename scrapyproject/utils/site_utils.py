@@ -105,7 +105,7 @@ class TohoUtil(object):
         G Not Sold
         """
         if book_status == 'A':
-            return "PlentyLeft"
+            return "PlentyLeft"
         elif book_status == 'B':
             return "HalfFull"
         elif book_status == 'C':
@@ -122,7 +122,7 @@ class CinemaSunshineUtil(object):
     def standardize_book_status(book_status):
         # seems status "3" is not used now...
         if book_status == "0":
-            return "PlentyLeft"
+            return "PlentyLeft"
         elif book_status == "2":
             return "HalfFull"
         elif book_status == "5":
@@ -139,7 +139,7 @@ class ForumUtil(object):
         # seems css "soldout" is used for not sold...
         # we still don't know how sold out is presented
         if book_status == "purchase vacancy":
-            return "PlentyLeft"
+            return "PlentyLeft"
         if book_status == "purchase little":
             return "FewSeatsLeft"
         elif book_status == "purchase soldout":
@@ -154,7 +154,7 @@ class KoronaUtil(object):
         # use image alt attribute to determine book status
         # we don't know how sold out is presented
         if book_status == "空席90％以上":
-            return "PlentyLeft"
+            return "PlentyLeft"
         elif book_status == "空席90％未満":
             return "HalfFull"
         elif book_status == "空席50％未満":
