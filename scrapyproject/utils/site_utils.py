@@ -74,16 +74,14 @@ def do_proxy_request(url=None, method="GET", data=None, **kwargs):
         'http': proxy_str,
         'https': proxy_str
     }
-    req = requests.Request(method, url, data=data, **kwargs)
-    prepped = req.prepare()
-    s = requests.Session()
-    resp = s.send(prepped, proxies=proxies)
+    r = requests.request(method=method, url=url,
+                         data=data, proxies=proxies, **kwargs)
     # fix encoding problem in requests
     # python does not support "Windows-31J"
-    if resp.encoding and resp.encoding.lower() in [
+    if r.encoding and r.encoding.lower() in [
             x.lower() for x in ["ISO-8859-1", "Windows-31J"]]:
-        resp.encoding = resp.apparent_encoding
-    return resp
+        r.encoding = r.apparent_encoding
+    return r
 
 
 class TohoUtil(object):
