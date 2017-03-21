@@ -28,12 +28,20 @@ class ProxyDownloaderMiddleware(object):
     enabled when spider has attribute 'keep_old_data'
     """
     def process_request(self, request, spider):
+        # TODO cookie headers issue
+        print("process_request")
+        print(request.cookies)
         if (hasattr(spider, 'use_proxy')):
             r = do_proxy_request(url=request.url, method=request.method,
                                  data=request.body,
                                  headers=request.headers.to_unicode_dict(),
                                  cookies=request.cookies)
-            return HtmlResponse(request.url, body=r.text,
+            headers = {}
+            if 'Set-Cookie' in r.headers:
+                headers['Set-Cookie'] = [r.headers['Set-Cookie']]
+            print(r.headers)
+            print(headers)
+            return HtmlResponse(request.url, body=r.text, headers=headers,
                                 request=request, encoding="utf-8")
         else:
             return

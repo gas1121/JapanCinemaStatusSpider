@@ -57,6 +57,8 @@ class AeonSpider(ShowingSpider):
         yield request
 
     def parse_cinema_schedule(self, response):
+        print("parse_cinema_schedule")
+        print(response.headers.getlist('Set-Cookie'))
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
@@ -73,7 +75,6 @@ class AeonSpider(ShowingSpider):
         """
         parse movie showing data
         """
-        return
         title = curr_movie.xpath('./div[1]/p[1]/a[1]/text()').extract_first()
         title = title.strip()
         title_en = curr_movie.xpath(
@@ -112,7 +113,7 @@ class AeonSpider(ShowingSpider):
             end_hour, end_minute)
         screen_name = curr_showing.xpath('./div[@class="screen"]/a/text()')
         showing_data_proto['screen'] = screen_name
-        book_status = curr_showing.xpath('./a/span/@class').extract_first()
+        book_status = curr_showing.xpath('./a/span/text()').extract_first()
         showing_data_proto['book_status'] = \
             AeonUtil.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
@@ -124,16 +125,38 @@ class AeonSpider(ShowingSpider):
             result_list.append(showing_data_proto)
             return
         else:
-            # TODO
-            return
-            # normal, need to crawl book number on order page
-            url = curr_showing.xpath(
-                './span[@class="purchase-block"]/a/@href').extract_first()
+            # normal, go to showing seat page
+            url = self.generate_showing_url(response=response,
+                                            curr_showing=curr_showing)
             request = scrapy.Request(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
             result_list.append(request)
 
+    def generate_showing_url(self, response, curr_showing):
+        """
+        example url:
+        https://cinema.aeoncinema.com/wm/app?JobID=pc.1.check.agreement&performanceID=1703221024055000605
+        """
+        # extract parameter from javascript action
+        script = curr_showing.xpath('./a/@href')
+        # code example:
+        # javascript:selectPerformance('1703211024055000603',false,true)
+        performance_id, _, _ = script.re(
+            'selectPerformance\(\'(.+)\',(.+),(.+)\)')
+        url = "https://cinema.aeoncinema.com/wm/app?"\
+              "JobID=pc.1.check.agreement&"\
+              "performanceID={performance_id}".format(
+                  performance_id=performance_id)
+        return url
+
     def parse_normal_showing(self, response):
+        print("parse_normal_showing")
+        print(response.headers.getlist('Set-Cookie'))
+        if "接続情報が取得出来ませんでした" in response.text:
+            print("error")
+        else:
+            print("success")
+        return
         result = response.meta["data_proto"]
         info_block = response.xpath(
             '//div[@class="reservationstatus-inner accordion_mobile_inner"]'

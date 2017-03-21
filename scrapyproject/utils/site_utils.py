@@ -164,5 +164,15 @@ class KoronaUtil(object):
 class AeonUtil(object):
     @staticmethod
     def standardize_book_status(book_status):
-        # TODO
-        raise NotImplementedError
+        if book_status == "◎":
+            return "PlentyLeft"
+        elif book_status == "○":
+            return "HalfFull"
+        elif book_status == "△":
+            return "FewSeatsLeft"
+        elif book_status == "×":
+            return "SoldOut"
+        elif book_status == "e席受付終了":
+            return "NotSold"
+        else:
+            return "NotSold"
