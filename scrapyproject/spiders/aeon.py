@@ -124,13 +124,13 @@ class AeonSpider(ShowingSpider):
             return
         else:
             # normal, go to showing seat page
-            url = self.generate_showing_url(response=response,
-                                            curr_showing=curr_showing)
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            url = self.generate_agreement_url(response=response,
+                                              curr_showing=curr_showing)
+            request = scrapy.Request(url, callback=self.parse_agreement)
             request.meta["data_proto"] = showing_data_proto
             result_list.append(request)
 
-    def generate_showing_url(self, response, curr_showing):
+    def generate_agreement_url(self, response, curr_showing):
         """
         example url:
         https://cinema.aeoncinema.com/wm/app?JobID=pc.1.check.agreement&performanceID=1703221024055000605
@@ -147,7 +147,46 @@ class AeonSpider(ShowingSpider):
                   performance_id=performance_id)
         return url
 
+    def parse_agreement(self, response):
+        # extract form action url
+        script_text = response.xpath(
+            '//script[contains(.,"pc.1.selectPerformance")]/text()'
+            ).extract_first()
+        match = re.search(r'\"(.+selectedSiteId=.+)\";', script_text)
+        action = match.group(1)
+        display_id = response.xpath(
+            '//input[@name="displayID"]/@value').extract_first()
+        check_value = response.xpath(
+            '//input[@name="agreement"]/@value').extract_first()
+        request = scrapy.FormRequest.from_response(
+            response, formxpath='//form[@name="form1"]',
+            formdata={
+                'JobID': 'pc.1.selectPerformance',
+                'agreement': check_value
+            }, callback=self.parse_normal_showing)
+        new_url = "https://cinema.aeoncinema.com/wm/" + action
+        request = request.replace(url=new_url)
+        display_id = display_id.encode('utf-8')
+        body = b"agreement=yes&JobID=pc.1.selectPerformance"\
+               b"&displayID=" + display_id
+        request = request.replace(body=body)
+        # TODO
+        print(request.url)
+        print(request.body)
+        yield request
+
+    def generate_showing_url(self, response, action, display_id):
+        return 'https://cinema.aeoncinema.com/wm/{action}'\
+               '&agreement=yes&JobID=pc.1.selectPerformance'\
+               '&displayID={display_id}'.format(
+                   action=action, display_id=display_id)
+
     def parse_normal_showing(self, response):
+        if "adpsp_track" in response.text:
+            print("success")
+        else:
+            print("error")
+        return
         result = response.meta["data_proto"]
         info_block = response.xpath(
             '//div[@class="reservationstatus-inner accordion_mobile_inner"]'
