@@ -57,8 +57,6 @@ class AeonSpider(ShowingSpider):
         yield request
 
     def parse_cinema_schedule(self, response):
-        print("parse_cinema_schedule")
-        print(response.headers.getlist('Set-Cookie'))
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
@@ -150,13 +148,6 @@ class AeonSpider(ShowingSpider):
         return url
 
     def parse_normal_showing(self, response):
-        print("parse_normal_showing")
-        print(response.headers.getlist('Set-Cookie'))
-        if "接続情報が取得出来ませんでした" in response.text:
-            print("error")
-        else:
-            print("success")
-        return
         result = response.meta["data_proto"]
         info_block = response.xpath(
             '//div[@class="reservationstatus-inner accordion_mobile_inner"]'
