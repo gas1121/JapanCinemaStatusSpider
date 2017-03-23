@@ -38,6 +38,8 @@ class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         """
         county_list = response.xpath(self.county_xpath)
         for county in county_list:
+            if not self.is_county_crawl(county):
+                continue
             county_name = county.xpath('.//text()').extract_first()
             county_name = standardize_county_name(county_name)
             url = county.xpath('./@href').extract_first()
@@ -45,6 +47,9 @@ class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
             request = scrapy.Request(url, callback=self.parse_county)
             request.meta['county_name'] = county_name
             yield request
+
+    def is_county_crawl(self, county):
+        return True
 
     def parse_county(self, response):
         """
