@@ -40,17 +40,27 @@ class WalkerplusCinemaSpider(CinemaSpider):
         """
         override as screen text on this site is a bit different
         """
-        screen_raw_text = response.xpath(
-            '//th[text()="座席数"]/../td/text()[2]').extract_first()
-        screen_raw_text = unicodedata.normalize('NFKC', screen_raw_text)
-        screen_raw_text = screen_raw_text.strip()
+        screen_raw_texts = response.xpath(
+            '//th[text()="座席数"]/../td/text()').extract()
+        formatted_raw_texts = []
+        for raw_text in screen_raw_texts:
+            raw_text = unicodedata.normalize('NFKC', raw_text)
+            raw_text = raw_text.strip()
+            if raw_text != "":
+                formatted_raw_texts.append(raw_text)
+        if len(formatted_raw_texts) > 1:
+            # have detail screen data text
+            all_raw_text = formatted_raw_texts[1]
+        else:
+            # only have global screen data text
+            all_raw_text = formatted_raw_texts[0]
         screen = {}
         screen_count = 0
         total_seats = 0
-        match = re.findall(r" ?(.+?)・(\d+)", screen_raw_text)
+        match = re.findall(r"\d*席* ?(.+?)・(\d+)", all_raw_text)
         # if no match found, use pattern for single screen
         if not match:
-            match = re.findall(r"(\d+)", screen_raw_text)
+            match = re.findall(r"(\d+)", all_raw_text)
             if match:
                 match[0] = ("スクリーン", match[0])
         for screen_name, seat_str in match:
