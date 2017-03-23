@@ -156,36 +156,23 @@ class AeonSpider(ShowingSpider):
         action = match.group(1)
         display_id = response.xpath(
             '//input[@name="displayID"]/@value').extract_first()
-        check_value = response.xpath(
-            '//input[@name="agreement"]/@value').extract_first()
-        request = scrapy.FormRequest.from_response(
-            response, formxpath='//form[@name="form1"]',
-            formdata={
-                'JobID': 'pc.1.selectPerformance',
-                'agreement': check_value
-            }, callback=self.parse_normal_showing)
-        new_url = "https://cinema.aeoncinema.com/wm/" + action
-        request = request.replace(url=new_url)
-        display_id = display_id.encode('utf-8')
-        body = b"agreement=yes&JobID=pc.1.selectPerformance"\
-               b"&displayID=" + display_id
-        request = request.replace(body=body)
-        # TODO
-        print(request.url)
-        print(request.body)
+        url = self.generate_showing_url(self, action, display_id)
+        # TODO display is different with brower and lack seat content
+        request = scrapy.Request(
+            url, method='POST', callback=self.parse_normal_showing)
+        request.meta["data_proto"] = response.meta["data_proto"]
         yield request
 
     def generate_showing_url(self, response, action, display_id):
         return 'https://cinema.aeoncinema.com/wm/{action}'\
-               '&agreement=yes&JobID=pc.1.selectPerformance'\
+               '&JobID=pc.1.selectPerformance&agreement=yes'\
                '&displayID={display_id}'.format(
                    action=action, display_id=display_id)
 
     def parse_normal_showing(self, response):
-        if "adpsp_track" in response.text:
-            print("success")
-        else:
-            print("error")
+        # TEST
+        with open('test.html', 'w') as f:
+            f.write(response.text)
         return
         result = response.meta["data_proto"]
         info_block = response.xpath(
