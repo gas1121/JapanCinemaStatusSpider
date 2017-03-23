@@ -156,18 +156,43 @@ class AeonSpider(ShowingSpider):
         action = match.group(1)
         display_id = response.xpath(
             '//input[@name="displayID"]/@value').extract_first()
-        url = self.generate_showing_url(self, action, display_id)
+        url = self.generate_ticket_page_url(self, action, display_id)
         # TODO display is different with brower and lack seat content
         request = scrapy.Request(
-            url, method='POST', callback=self.parse_normal_showing)
+            url, method='POST', callback=self.parse_ticket_page)
         request.meta["data_proto"] = response.meta["data_proto"]
         yield request
 
-    def generate_showing_url(self, response, action, display_id):
+    def generate_ticket_page_url(self, response, action, display_id):
         return 'https://cinema.aeoncinema.com/wm/{action}'\
                '&JobID=pc.1.selectPerformance&agreement=yes'\
                '&displayID={display_id}'.format(
                    action=action, display_id=display_id)
+
+    def parse_ticket_page(self, response):
+        script_text = response.xpath(
+            '//script[contains(.,"searchSeat")]/text()').extract_first()
+        match = re.findall(r"\"(\?.+fromDisp.+)\"", script_text)
+        action = match[0]
+        print(action)
+        job_id = 'pc.1.searchSeat'
+        request = scrapy.FormRequest.from_response(
+            response, formxpath='//form[@name="form1"]',
+            formdata={
+                'JobID': job_id,
+                'pd_0': "1"
+            }, callback=self.parse_normal_showing)
+        print(request.url)
+        new_url = request.url + action
+        request = request.replace(url=new_url)
+        print(request.url)
+        print(request.headers)
+        print(request.body)
+        yield request
+
+    def generate_showing_url(self):
+        return 'https://cinema.aeoncinema.com/wm/app?pageID={page_id}'\
+               '&'
 
     def parse_normal_showing(self, response):
         # TEST
