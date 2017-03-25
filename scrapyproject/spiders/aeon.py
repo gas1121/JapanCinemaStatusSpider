@@ -33,7 +33,7 @@ class AeonSpider(ShowingSpider):
             # specify cinema name on schedule page
             city_name = theater_link.xpath('./text()').extract_first()
             cinema_name = "イオンシネマ"+city_name
-            standardize_cinema_name(cinema_name)
+            cinema_name = standardize_cinema_name(cinema_name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_link.xpath('./@href').extract_first()

@@ -8,54 +8,60 @@ from scrapyproject.items import (Showing, standardize_cinema_name,
 from scrapyproject.utils.site_utils import UnitedUtil
 
 
-class UnitedSpider(ShowingSpider):
+class KinezoSpider(ShowingSpider):
     """
-    united site spider.
+    kinezo site spider.
     """
-    name = "united"
-    allowed_domains = ["www.unitedcinemas.jp"]
+    name = "kinezo"
+    allowed_domains = ['kinezo.jp', 'cinema.109cinemas.net']
     start_urls = [
-        'http://www.unitedcinemas.jp/index.html'
+        'http://kinezo.jp/pc/'
     ]
 
-    cinema_list = ['ユナイテッド・シネマとしまえん']
+    cinema_list = ['109シネマズ湘南']
 
     def parse(self, response):
         """
         crawl theater list data first
         """
-        # TODO proxy encode problem
-        theater_list = response.xpath(
-            '//section[@class="rcol searchTheater"]//a')
+        theater_list = response.xpath('//section[@id="theatres"]//a')
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
                 './@href').extract_first()
-            cinema_name_en = curr_cinema_url.split('/')[-2]
-            # TEST
-            if cinema_name_en != "toshimaen":
+            cinema_name = theater_element.xpath('./text()').extract_first()
+            if cinema_name != "ムービル":
+                cinema_name = "109シネマズ" + cinema_name
+            cinema_name = standardize_cinema_name(cinema_name)
+            # TODO
+            print(cinema_name)
+            if not self.is_cinema_crawl([cinema_name]):
                 continue
+            cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+            request.meta["cinema_name"] = cinema_name
             request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
-            # keep schedule url for later use
-            request.meta["schedule_url"] = schedule_url
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
         """
-        json data url for single cinema, all movies of curr cinema
+        schedule url for single cinema, all movies of curr cinema
         """
-        date = show_day[:4] + '-' + show_day[4:6] + '-' + show_day[6:]
-        url = 'http://www.unitedcinemas.jp/{cinema_name_en}'\
+        url = 'http://109cinemas.net/{cinema_name_en}/schedules/{date}.html'\
               '/daily.php?date={date}'.format(
-                  cinema_name_en=cinema_name_en, date=date)
+                  cinema_name_en=cinema_name_en, date=show_day)
         return url
 
     def parse_cinema(self, response):
+        # TODO
         print('parse_cinema')
+        return
+        schedule_url = response.xpath(
+            '//div[@class="viewport"]//a'
+            '[contains(@href,"' + self.date + '")]').extract_first()
+        schedule_url = response.urljoin(schedule_url)
         cinema_name = response.xpath('//header/h1/a/img/@alt').extract_first()
-        standardize_cinema_name(cinema_name)
         if not self.is_cinema_crawl([cinema_name]):
             return
         data_proto = Showing()
