@@ -176,3 +176,18 @@ class AeonUtil(object):
             return "NotSold"
         else:
             return "NotSold"
+
+
+class UnitedUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        if "icon_15_s" in book_status:
+            return "PlentyLeft"
+        elif "icon_16_s" in book_status:
+            return "FewSeatsLeft"
+        elif "icon_17_s" in book_status:
+            return "SoldOut"
+        elif "icon_18_s" in book_status:
+            return "NotSold"
+        else:
+            return "NotSold"
