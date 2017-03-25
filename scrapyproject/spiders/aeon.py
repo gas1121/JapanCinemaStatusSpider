@@ -170,6 +170,10 @@ class AeonSpider(ShowingSpider):
                    action=action, display_id=display_id)
 
     def parse_ticket_page(self, response):
+        # TEST
+        with open('test.html', 'w') as f:
+            f.write(response.text)
+        return
         script_text = response.xpath(
             '//script[contains(.,"searchSeat")]/text()').extract_first()
         match = re.findall(r"\"(\?.+fromDisp.+)\"", script_text)

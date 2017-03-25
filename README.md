@@ -42,6 +42,6 @@ Just use **scrapy** container instead of **scrapy-vps**
  - [ ] https://movieticket.jp/
 - [ ] run multiple time to ensure all record is crawled
  - [x] database support multiple times
- - [ ] pre filter request for crawled showing
+ - [ ] pre filter request for crawled showing(by cinema crawled showing count)
 - [ ] spider command line bool option problem
 - [ ] filter locked seat data
