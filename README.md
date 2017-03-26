@@ -45,3 +45,4 @@ Just use **scrapy** container instead of **scrapy-vps**
  - [ ] pre filter request for crawled showing(by cinema crawled showing count)
 - [ ] spider command line bool option problem
 - [ ] filter locked seat data
+- [ ] add more stand alone cinema crawler

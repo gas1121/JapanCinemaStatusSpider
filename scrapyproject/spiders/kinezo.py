@@ -13,63 +13,74 @@ class KinezoSpider(ShowingSpider):
     kinezo site spider.
     """
     name = "kinezo"
-    allowed_domains = ['kinezo.jp', 'cinema.109cinemas.net']
+    allowed_domains = ['kinezo.jp']
     start_urls = [
         'http://kinezo.jp/pc/'
     ]
 
-    cinema_list = ['109シネマズ湘南']
+    cinema_list = ['新宿バルト9']
 
     def parse(self, response):
         """
         crawl theater list data first
         """
-        theater_list = response.xpath('//section[@id="theatres"]//a')
+        theater_list = response.xpath(
+            '//footer/p[position()>=2 and position() <=3]//a')
+        # partner cinema is not included
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
                 './@href').extract_first()
             cinema_name = theater_element.xpath('./text()').extract_first()
-            if cinema_name != "ムービル":
-                cinema_name = "109シネマズ" + cinema_name
             cinema_name = standardize_cinema_name(cinema_name)
-            # TODO
-            print(cinema_name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
-            cinema_name_en = curr_cinema_url.split('/')[-2]
-            schedule_url = self.generate_cinema_schedule_url(
-                cinema_name_en, self.date)
-            request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+            cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
+            request = scrapy.Request(
+                curr_cinema_url, callback=self.parse_main_page)
             request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
+            request.meta["cinema_site"] = curr_cinema_url
+            request.meta["cinema_name_en"] = cinema_name_en
+            request.meta["dont_merge_cookies"] = True
             yield request
+
+    def parse_main_page(self, response):
+        """
+        cinema main page
+
+        generate cookie here
+        """
+        cinema_name_en = response.meta["cinema_name_en"]
+        schedule_url = self.generate_cinema_schedule_url(
+            cinema_name_en, self.date)
+        request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+        request.meta["cinema_name"] = response.meta["cinema_name"]
+        request.meta["cinema_site"] = response.meta["cinema_site"]
+        yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
         """
         schedule url for single cinema, all movies of curr cinema
         """
-        url = 'http://109cinemas.net/{cinema_name_en}/schedules/{date}.html'\
-              '/daily.php?date={date}'.format(
-                  cinema_name_en=cinema_name_en, date=show_day)
+        url = 'http://kinezo.jp/pc/{name}/schedule/index/{y}/{m}/{d}'.format(
+                  name=cinema_name_en, y=show_day[:4], m=show_day[4:6],
+                  d=show_day[6:])
         return url
 
     def parse_cinema(self, response):
-        # TODO
+        """
+        cinema home page
+        we have to pass this page to get independent cookie for each cinema
+        """
         print('parse_cinema')
-        return
-        schedule_url = response.xpath(
-            '//div[@class="viewport"]//a'
-            '[contains(@href,"' + self.date + '")]').extract_first()
-        schedule_url = response.urljoin(schedule_url)
-        cinema_name = response.xpath('//header/h1/a/img/@alt').extract_first()
-        if not self.is_cinema_crawl([cinema_name]):
-            return
         data_proto = Showing()
-        data_proto['cinema_name'] = cinema_name
+        data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []
-        movie_section_list = response.xpath('//ul[@id="dailyList"]/li')
-        for curr_movie in movie_section_list:
+        movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
+        movie_section_list = response.xpath('//div[@class="theaterListWrap"]')
+        print(len(movie_title_list))
+        print(len(movie_section_list))
+        for curr_movie in zip(movie_title_list, movie_section_list):
             self.parse_movie(response, curr_movie, data_proto, result_list)
         for result in result_list:
             if result:
@@ -78,21 +89,25 @@ class KinezoSpider(ShowingSpider):
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
         parse movie showing data
+
+        curr_movie is a tuple
         """
         print('parse_movie')
-        title = curr_movie.xpath('./h3/span/a[1]/text()').extract_first()
+        title_section, detail_section = curr_movie
+        title = title_section.xpath('./img/text()').extract_first()
         title_list = [title]
         if not self.is_movie_crawl(title_list):
             return
         movie_data_proto = copy.deepcopy(data_proto)
         movie_data_proto['title'] = title
-        screen_section_list = curr_movie.xpath('./ul/li')
+        screen_section_list = detail_section.xpath('.//table')
         for curr_screen in screen_section_list:
             self.parse_screen(response, curr_screen,
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        print('parse_screen')        
+        print('parse_screen')
+        return
         screen_data_proto = copy.deepcopy(data_proto)
         screen_name = curr_screen.xpath('./p/a/img/@alt').extract_first()
         screen_data_proto['screen'] = standardize_screen_name(
