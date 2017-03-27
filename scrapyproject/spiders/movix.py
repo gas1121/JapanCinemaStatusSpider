@@ -6,7 +6,7 @@ import scrapy
 from scrapyproject.spiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import UnitedUtil
+from scrapyproject.utils.site_utils import MovixUtil
 
 
 class MovieSpider(ShowingSpider):
@@ -127,10 +127,9 @@ class MovieSpider(ShowingSpider):
         print(showing_data_proto['start_time'])
         print(showing_data_proto['end_time'])
         return
-        book_status = curr_showing.xpath(
-            './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
+        book_status = curr_showing.xpath('.//img/@src').extract_first()
         showing_data_proto['book_status'] = \
-            UnitedUtil.standardize_book_status(book_status)
+            MovixUtil.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0

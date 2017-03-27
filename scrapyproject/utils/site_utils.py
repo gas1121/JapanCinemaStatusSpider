@@ -181,6 +181,22 @@ class AeonUtil(object):
 class UnitedUtil(object):
     @staticmethod
     def standardize_book_status(book_status):
+        # TODO sold out status unknown
+        if "05.png" in book_status:
+            return "PlentyLeft"
+        elif "02.png" in book_status:
+            return "FewSeatsLeft"
+        elif "03.png" in book_status:
+            return "NotSold"
+        elif "04.png" in book_status:
+            return "NotSold"
+        else:
+            return "NotSold"
+
+
+class MovixUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
         if "icon_15_s" in book_status:
             return "PlentyLeft"
         elif "icon_16_s" in book_status:
