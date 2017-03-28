@@ -140,6 +140,8 @@ class KinezoSpider(ShowingSpider):
             result_list.append(request)
 
     def parse_normal_showing(self, response):
+        # TODO bug with multi showings maybe cookie problem
+        # TODO bug with multi cinemas
         result = response.meta["data_proto"]
         time_text = response.xpath(
             '//span[@class="screenTime"]/text()').extract_first()
