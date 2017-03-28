@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-from scrapyproject.spiders.cinema_spider import CinemaSpider
+from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
 from scrapyproject.utils.site_utils import do_proxy_request
 
 

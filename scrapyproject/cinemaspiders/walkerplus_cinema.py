@@ -2,7 +2,7 @@
 import unicodedata
 import re
 from scrapyproject.items import standardize_screen_name
-from scrapyproject.spiders.cinema_spider import CinemaSpider
+from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
 from scrapyproject.utils.site_utils import extract_seat_number
 
 

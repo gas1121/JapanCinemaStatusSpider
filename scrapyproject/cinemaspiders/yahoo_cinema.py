@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from scrapyproject.spiders.cinema_spider import CinemaSpider
+from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
 
 
 class YahooCinemaSpider(CinemaSpider):

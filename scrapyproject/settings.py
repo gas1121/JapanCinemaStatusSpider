@@ -13,8 +13,11 @@ import os
 
 BOT_NAME = 'scrapyproject'
 
-SPIDER_MODULES = ['scrapyproject.spiders']
-NEWSPIDER_MODULE = 'scrapyproject.spiders'
+SPIDER_MODULES = [
+    'scrapyproject.cinemaspiders',
+    'scrapyproject.showingspiders'
+]
+NEWSPIDER_MODULE = 'scrapyproject.showingspiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

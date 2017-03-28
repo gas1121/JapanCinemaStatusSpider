@@ -4,7 +4,7 @@ import json
 import copy
 import arrow
 import scrapy
-from scrapyproject.spiders.showing_spider import ShowingSpider
+from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import KoronaUtil
