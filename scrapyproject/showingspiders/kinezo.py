@@ -5,7 +5,7 @@ import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import UnitedUtil
+from scrapyproject.utils.site_utils import KinezoUtil
 
 
 class KinezoSpider(ShowingSpider):
@@ -71,15 +71,12 @@ class KinezoSpider(ShowingSpider):
         cinema home page
         we have to pass this page to get independent cookie for each cinema
         """
-        print('parse_cinema')
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []
         movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
         movie_section_list = response.xpath('//div[@class="theaterListWrap"]')
-        print(len(movie_title_list))
-        print(len(movie_section_list))
         for curr_movie in zip(movie_title_list, movie_section_list):
             self.parse_movie(response, curr_movie, data_proto, result_list)
         for result in result_list:
@@ -92,9 +89,9 @@ class KinezoSpider(ShowingSpider):
 
         curr_movie is a tuple
         """
-        print('parse_movie')
         title_section, detail_section = curr_movie
-        title = title_section.xpath('./img/text()').extract_first()
+        title = ''.join(title_section.xpath('./text()').extract())
+        title = title.strip()
         title_list = [title]
         if not self.is_movie_crawl(title_list):
             return
@@ -106,38 +103,26 @@ class KinezoSpider(ShowingSpider):
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        print('parse_screen')
-        return
         screen_data_proto = copy.deepcopy(data_proto)
-        screen_name = curr_screen.xpath('./p/a/img/@alt').extract_first()
+        screen_name = curr_screen.xpath('./tr/td[1]/text()').extract_first()
         screen_data_proto['screen'] = standardize_screen_name(
             screen_name, screen_data_proto['cinema_name'])
-        show_section_list = curr_screen.xpath('./ol/li')
+        show_section_list = curr_screen.xpath('./tr/td[2]/a')
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,
                                screen_data_proto, result_list)
 
     def parse_showing(self, response, curr_showing, data_proto, result_list):
-        def parse_time(time_str):
-            time = time_str.split(":")
-            return (int(time[0]), int(time[1]))
-        print('parse_showing')
-
         showing_data_proto = copy.deepcopy(data_proto)
         start_time = curr_showing.xpath(
-            './div/ol/li[@class="startTime"]/text()').extract_first()
-        start_hour, start_minute = parse_time(start_time)
+            './div/text()').extract_first()[:-1]
+        start_hour, start_minute = self.parse_time(start_time)
         showing_data_proto['start_time'] = self.get_time_from_text(
             start_hour, start_minute)
-        end_time = curr_showing.xpath(
-            './div/ol/li[@class="endTime"]/text()').extract_first()[1:]
-        end_hour, end_minute = parse_time(end_time)
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
-        book_status = curr_showing.xpath(
-            './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
+        # end time not displayed in schedule page
+        book_status = curr_showing.xpath('./div/@class').extract_first()
         showing_data_proto['book_status'] = \
-            UnitedUtil.standardize_book_status(book_status)
+            KinezoUtil.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
@@ -148,49 +133,38 @@ class KinezoSpider(ShowingSpider):
             return
         else:
             # normal, need to crawl book number on order page
-            # we will visit schedule page again to generate independent cookie
-            # as same cookie will lead to confirm page
-            url = curr_showing.xpath(
-                './div/ul/li[@class="uolIcon"]/a/@href').extract_first()
-            schedule_url = response.meta['schedule_url']
-            request = scrapy.Request(
-                schedule_url, dont_filter=True, callback=self.refresh_cookie)
+            url = curr_showing.xpath('./@href').extract_first()
+            url = response.urljoin(url)
+            request = scrapy.Request(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
-            request.meta["url"] = url
-            request.meta["dont_merge_cookies"] = True
             result_list.append(request)
 
-    def refresh_cookie(self, response):
-        """
-        generate new cookie for each showing to avoid conflict
-        """
-        # TODO remove this function and put request in list to avoid cookie 
-        # conflict 
-        print('refresh_cookie')
-        print(response.headers.getlist('Set-Cookie'))
-        url = response.meta["url"]
-        # determine if next page is 4dx confirm page by title
-        if '4DX' in response.meta['data_proto']['title']:
-            request = scrapy.Request(url, callback=self.parse_4dx_confirm_page)
-        else:
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
-        request.meta["data_proto"] = response.meta['data_proto']
-        yield request
-
-    def parse_4dx_confirm_page(self, response):
-        # TODO pass confirm page
-        print('parse_4dx_confirm_page')
-        pass
-
     def parse_normal_showing(self, response):
-        print('parse_normal_showing')
-        print(response.meta['data_proto']['title'])
         result = response.meta["data_proto"]
-        total_seat_count = int(response.xpath(
-            '//span[@class="seat"]/text()').extract_first())
-        result['book_seat_count'] = len(response.xpath(
-            '//img[contains(@src,"lb_non_selected")]'))
-        result['total_seat_count'] = total_seat_count
+        time_text = response.xpath(
+            '//span[@class="screenTime"]/text()').extract_first()
+        time_list = time_text.split('-')
+        start_time = time_list[0].strip()
+        start_hour, start_minute = self.parse_time(start_time)
+        result['start_time'] = self.get_time_from_text(
+            start_hour, start_minute)
+        end_time = time_list[1].strip()
+        end_hour, end_minute = self.parse_time(end_time)
+        result['end_time'] = self.get_time_from_text(end_hour, end_minute)
+
+        empty_seat_count = len(response.xpath(
+            '//li[@class="seatSell seatOn"]'))
+        booked_seat_count = len(response.xpath(
+            '//li[@class="seatSell seatOff"]'))
+        chair_seat_count = len(response.xpath(
+            '//li[@class="seatSell unSelect wheelchair"]'))
+        result['book_seat_count'] = booked_seat_count
+        result['total_seat_count'] = (empty_seat_count + booked_seat_count
+                                      + chair_seat_count)
         result['record_time'] = arrow.now()
         result['source'] = self.name
         yield result
+
+    def parse_time(self, time_str):
+        time = time_str.split(":")
+        return (int(time[0]), int(time[1]))

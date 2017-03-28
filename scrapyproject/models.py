@@ -122,7 +122,7 @@ class Showings(DeclarativeBase):
     title = Column('title', String, nullable=False)
     title_en = Column('title_en', String)
     start_time = Column('start_time', ArrowType, nullable=False)
-    end_time = Column('end_time', ArrowType, nullable=False)
+    end_time = Column('end_time', ArrowType)
     cinema_name = Column('cinema_name', String, nullable=False)
     cinema_site = Column('cinema_site', String, nullable=False)
     screen = Column('screen', String, nullable=False)

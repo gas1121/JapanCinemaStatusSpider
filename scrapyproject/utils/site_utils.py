@@ -207,3 +207,24 @@ class MovixUtil(object):
             return "NotSold"
         else:
             return "NotSold"
+
+
+class KinezoUtil(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        if "scType01" in book_status:
+            return "PlentyLeft"
+        elif "scType02" in book_status:
+            return "HalfFull"
+        elif "scType03" in book_status:
+            return "FewSeatsLeft"
+        elif "scType04" in book_status:
+            return "NotSold"
+        elif "scType05" in book_status:
+            return "SoldOut"
+        elif "scType06" in book_status:
+            return "NotSold"
+        elif "scType07" in book_status:
+            return "NotSold"
+        else:
+            return "NotSold"
