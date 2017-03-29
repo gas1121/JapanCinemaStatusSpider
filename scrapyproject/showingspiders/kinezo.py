@@ -17,6 +17,10 @@ class KinezoSpider(ShowingSpider):
     start_urls = [
         'http://kinezo.jp/pc/'
     ]
+    # disallow concurrent requests to avoid cookie expiring
+    custom_settings = {
+        'CONCURRENT_REQUESTS': 1
+    }
 
     cinema_list = ['新宿バルト9']
 
@@ -140,8 +144,6 @@ class KinezoSpider(ShowingSpider):
             result_list.append(request)
 
     def parse_normal_showing(self, response):
-        # TODO bug with multi showings maybe cookie problem
-        # TODO bug with multi cinemas
         result = response.meta["data_proto"]
         time_text = response.xpath(
             '//span[@class="screenTime"]/text()').extract_first()
