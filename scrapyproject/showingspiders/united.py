@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+import re
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
@@ -26,18 +27,28 @@ class UnitedSpider(ShowingSpider):
         """
         # TODO proxy encode problem
         theater_list = response.xpath(
-            '//section[@class="rcol searchTheater"]//a')
+            '//section[@class="rcol searchTheater"]//li')
         for theater_element in theater_list:
-            curr_cinema_url = theater_element.xpath(
-                './@href').extract_first()
-            cinema_name_en = curr_cinema_url.split('/')[-2]
-            # TEST
-            if cinema_name_en != "toshimaen":
+            if theater_element.xpath('./@class').extract_first() == "area":
                 continue
+            curr_cinema_url = theater_element.xpath(
+                './a/@href').extract_first()
+            cinema_img = theater_element.xpath('./img/@src').extract_first()
+            cinema_name = theater_element.xpath('./a/img/@alt').extract_first()
+            if cinema_img is not None:
+                if "icon_uc_ss.gif" in cinema_img:
+                    cinema_name = "ユナイテッド・シネマ" + cinema_name
+                elif "icon_cpx_ss.gif" in cinema_img:
+                    cinema_name = "シネプレックス" + cinema_name
+            standardize_cinema_name(cinema_name)
+            if not self.is_cinema_crawl([cinema_name]):
+                continue
+            cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
             request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
+            request.meta["cinema_name"] = cinema_name
             # keep schedule url for later use
             request.meta["schedule_url"] = schedule_url
             yield request
@@ -54,12 +65,8 @@ class UnitedSpider(ShowingSpider):
 
     def parse_cinema(self, response):
         print('parse_cinema')
-        cinema_name = response.xpath('//header/h1/a/img/@alt').extract_first()
-        standardize_cinema_name(cinema_name)
-        if not self.is_cinema_crawl([cinema_name]):
-            return
         data_proto = Showing()
-        data_proto['cinema_name'] = cinema_name
+        data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []
         movie_section_list = response.xpath('//ul[@id="dailyList"]/li')
@@ -86,9 +93,10 @@ class UnitedSpider(ShowingSpider):
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        print('parse_screen')        
+        print('parse_screen')
         screen_data_proto = copy.deepcopy(data_proto)
         screen_name = curr_screen.xpath('./p/a/img/@alt').extract_first()
+        screen_name = 'screen' + re.findall(r'\d+', screen_name)[0]
         screen_data_proto['screen'] = standardize_screen_name(
             screen_name, screen_data_proto['cinema_name'])
         show_section_list = curr_screen.xpath('./ol/li')
@@ -143,8 +151,7 @@ class UnitedSpider(ShowingSpider):
         """
         generate new cookie for each showing to avoid conflict
         """
-        # TODO remove this function and put request in list to avoid cookie 
-        # conflict 
+        # TODO multi cinema conflict
         print('refresh_cookie')
         print(response.headers.getlist('Set-Cookie'))
         url = response.meta["url"]
@@ -157,9 +164,13 @@ class UnitedSpider(ShowingSpider):
         yield request
 
     def parse_4dx_confirm_page(self, response):
-        # TODO pass confirm page
         print('parse_4dx_confirm_page')
-        pass
+        url = response.xpath('//form/@action').extract_first()
+        url = response.urljoin(url)
+        request = scrapy.Request(url, method='POST',
+                                 callback=self.parse_normal_showing)
+        request.meta["data_proto"] = response.meta['data_proto']
+        yield request
 
     def parse_normal_showing(self, response):
         print('parse_normal_showing')
