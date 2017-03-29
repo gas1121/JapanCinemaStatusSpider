@@ -228,3 +228,18 @@ class KinezoUtil(object):
             return "NotSold"
         else:
             return "NotSold"
+
+
+class Site109Util(object):
+    @staticmethod
+    def standardize_book_status(book_status):
+        if "available" in book_status:
+            return "PlentyLeft"
+        elif "remaining" in book_status:
+            return "HalfFull"
+        elif "soldout" in book_status:
+            return "SoldOut"
+        elif "close" in book_status:
+            return "NotSold"
+        else:
+            return "NotSold"

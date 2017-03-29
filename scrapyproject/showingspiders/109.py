@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import re
 import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import UnitedUtil
+from scrapyproject.utils.site_utils import Site109Util
 
 
 class Site109Spider(ShowingSpider):
@@ -32,8 +33,6 @@ class Site109Spider(ShowingSpider):
             if cinema_name != "ムービル":
                 cinema_name = "109シネマズ" + cinema_name
             cinema_name = standardize_cinema_name(cinema_name)
-            # TODO
-            print(cinema_name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             cinema_name_en = curr_cinema_url.split('/')[-2]
@@ -54,21 +53,11 @@ class Site109Spider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        # TODO
-        print('parse_cinema')
-        return
-        schedule_url = response.xpath(
-            '//div[@class="viewport"]//a'
-            '[contains(@href,"' + self.date + '")]').extract_first()
-        schedule_url = response.urljoin(schedule_url)
-        cinema_name = response.xpath('//header/h1/a/img/@alt').extract_first()
-        if not self.is_cinema_crawl([cinema_name]):
-            return
         data_proto = Showing()
-        data_proto['cinema_name'] = cinema_name
+        data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []
-        movie_section_list = response.xpath('//ul[@id="dailyList"]/li')
+        movie_section_list = response.xpath('//div[@id="timetable"]/article')
         for curr_movie in movie_section_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
         for result in result_list:
@@ -79,25 +68,26 @@ class Site109Spider(ShowingSpider):
         """
         parse movie showing data
         """
-        print('parse_movie')
-        title = curr_movie.xpath('./h3/span/a[1]/text()').extract_first()
-        title_list = [title]
+        title = curr_movie.xpath('./header/a/h2/text()').extract_first()
+        title_en = curr_movie.xpath('./header/a/p/text()').extract_first()
+        title_list = [title, title_en]
         if not self.is_movie_crawl(title_list):
             return
         movie_data_proto = copy.deepcopy(data_proto)
         movie_data_proto['title'] = title
-        screen_section_list = curr_movie.xpath('./ul/li')
+        movie_data_proto['title_en'] = title_en
+        screen_section_list = curr_movie.xpath('./ul')
         for curr_screen in screen_section_list:
             self.parse_screen(response, curr_screen,
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        print('parse_screen')        
         screen_data_proto = copy.deepcopy(data_proto)
-        screen_name = curr_screen.xpath('./p/a/img/@alt').extract_first()
+        screen_name = ''.join(curr_screen.xpath(
+            './li[@class="theatre"]/a//text()').extract())
         screen_data_proto['screen'] = standardize_screen_name(
             screen_name, screen_data_proto['cinema_name'])
-        show_section_list = curr_screen.xpath('./ol/li')
+        show_section_list = curr_screen.xpath('./li')[1:]
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,
                                screen_data_proto, result_list)
@@ -106,23 +96,22 @@ class Site109Spider(ShowingSpider):
         def parse_time(time_str):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
-        print('parse_showing')
 
         showing_data_proto = copy.deepcopy(data_proto)
         start_time = curr_showing.xpath(
-            './div/ol/li[@class="startTime"]/text()').extract_first()
+            './/time[@class="start"]/text()').extract_first()
         start_hour, start_minute = parse_time(start_time)
         showing_data_proto['start_time'] = self.get_time_from_text(
             start_hour, start_minute)
         end_time = curr_showing.xpath(
-            './div/ol/li[@class="endTime"]/text()').extract_first()[1:]
+            './/time[@class="end"]/text()').extract_first()
         end_hour, end_minute = parse_time(end_time)
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
         book_status = curr_showing.xpath(
-            './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
+            './a/div/@class').extract_first()
         showing_data_proto['book_status'] = \
-            UnitedUtil.standardize_book_status(book_status)
+            Site109Util.standardize_book_status(book_status)
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
@@ -133,49 +122,52 @@ class Site109Spider(ShowingSpider):
             return
         else:
             # normal, need to crawl book number on order page
-            # we will visit schedule page again to generate independent cookie
-            # as same cookie will lead to confirm page
-            url = curr_showing.xpath(
-                './div/ul/li[@class="uolIcon"]/a/@href').extract_first()
-            schedule_url = response.meta['schedule_url']
-            request = scrapy.Request(
-                schedule_url, dont_filter=True, callback=self.refresh_cookie)
+            url = curr_showing.xpath('./a/@href').extract_first()
+            request = scrapy.Request(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
-            request.meta["url"] = url
-            request.meta["dont_merge_cookies"] = True
             result_list.append(request)
 
-    def refresh_cookie(self, response):
+    def parse_normal_showing(self, response):
         """
-        generate new cookie for each showing to avoid conflict
+        parse seat order page
         """
-        # TODO remove this function and put request in list to avoid cookie 
-        # conflict 
-        print('refresh_cookie')
-        print(response.headers.getlist('Set-Cookie'))
-        url = response.meta["url"]
-        # determine if next page is 4dx confirm page by title
-        if '4DX' in response.meta['data_proto']['title']:
-            request = scrapy.Request(url, callback=self.parse_4dx_confirm_page)
-        else:
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+        # extract seat json api from javascript
+        script_text = response.xpath(
+            '//script[contains(.,"get seatmap data")]/text()').extract_first()
+        post_json_data = re.findall(r'ajax\(({.+resv_screen_ppt.+?})\)',
+                                    script_text, re.DOTALL)[0]
+        post_json_data = re.sub('\s+', '', post_json_data)
+        url = re.findall(r'url:\'(.+?)\'', post_json_data)[0]
+        crt = re.findall(r'crt:\'(.+?)\'', post_json_data)[0]
+        konyu_su = re.findall(r'konyu_su:\'(.+?)\'', post_json_data)[0]
+        url = (url + '?crt=' + crt + '&konyu_su=' + konyu_su + '&mit=')
+        request = scrapy.Request(url, method='POST',
+                                 callback=self.parse_seat_json_api)
         request.meta["data_proto"] = response.meta['data_proto']
         yield request
 
-    def parse_4dx_confirm_page(self, response):
-        # TODO pass confirm page
-        print('parse_4dx_confirm_page')
-        pass
-
-    def parse_normal_showing(self, response):
-        print('parse_normal_showing')
-        print(response.meta['data_proto']['title'])
+    def parse_seat_json_api(self, response):
         result = response.meta["data_proto"]
-        total_seat_count = int(response.xpath(
-            '//span[@class="seat"]/text()').extract_first())
-        result['book_seat_count'] = len(response.xpath(
-            '//img[contains(@src,"lb_non_selected")]'))
-        result['total_seat_count'] = total_seat_count
+        empty_normal_seat_count = len(response.xpath(
+            '//a[@class="seat seat-empty"]'))
+        empty_wheelseat_count = len(response.xpath(
+            '//a[@class="seat wheelseat-empty"]'))
+        empty_executive_seat_count = len(response.xpath(
+            '//a[@class="seat executive-empty"]'))
+        booked_normal_seat_count = len(response.xpath(
+            '//a[@class="seat seat-none"]'))
+        booked_wheelseat_count = len(response.xpath(
+            '//a[@class="seat wheelseat-none"]'))
+        booked_executive_seat_count = len(response.xpath(
+            '//a[@class="seat executive-none"]'))
+        booked_seat_count = (
+            booked_normal_seat_count + booked_wheelseat_count +
+            booked_executive_seat_count)
+        empty_seat_count = (
+            empty_normal_seat_count + empty_wheelseat_count +
+            empty_executive_seat_count)
+        result['book_seat_count'] = booked_seat_count
+        result['total_seat_count'] = (empty_seat_count + booked_seat_count)
         result['record_time'] = arrow.now()
         result['source'] = self.name
         yield result
