@@ -124,6 +124,8 @@ class KinezoSpider(ShowingSpider):
         showing_data_proto['start_time'] = self.get_time_from_text(
             start_hour, start_minute)
         # end time not displayed in schedule page
+
+        showing_data_proto['seat_type'] = 'NormalSeat'
         book_status = curr_showing.xpath('./div/@class').extract_first()
         showing_data_proto['book_status'] = \
             KinezoUtil.standardize_book_status(book_status)

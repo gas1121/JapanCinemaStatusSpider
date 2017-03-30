@@ -129,6 +129,7 @@ class Showing(scrapy.Item):
     cinema_site = scrapy.Field()
     screen = scrapy.Field()
     book_status = scrapy.Field()
+    seat_type = scrapy.Field()
     book_seat_count = scrapy.Field()
     total_seat_count = scrapy.Field()
     record_time = scrapy.Field()

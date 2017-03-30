@@ -7,6 +7,7 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import UnitedUtil
+from scrapyproject.utils.test_utils import TestUtility
 
 
 class UnitedSpider(ShowingSpider):
@@ -20,6 +21,10 @@ class UnitedSpider(ShowingSpider):
     ]
 
     cinema_list = ['ユナイテッド・シネマとしまえん']
+
+    custom_settings = {
+        'COOKIES_DEBUG': True
+    }
 
     def parse(self, response):
         """
@@ -49,8 +54,6 @@ class UnitedSpider(ShowingSpider):
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
             request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
             request.meta["cinema_name"] = cinema_name
-            # keep schedule url for later use
-            request.meta["schedule_url"] = schedule_url
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
@@ -64,7 +67,6 @@ class UnitedSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        print('parse_cinema')
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
@@ -80,7 +82,6 @@ class UnitedSpider(ShowingSpider):
         """
         parse movie showing data
         """
-        print('parse_movie')
         title = curr_movie.xpath('./h3/span/a[1]/text()').extract_first()
         title_list = [title]
         if not self.is_movie_crawl(title_list):
@@ -93,7 +94,6 @@ class UnitedSpider(ShowingSpider):
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        print('parse_screen')
         screen_data_proto = copy.deepcopy(data_proto)
         screen_name = curr_screen.xpath('./p/a/img/@alt').extract_first()
         screen_name = 'screen' + re.findall(r'\d+', screen_name)[0]
@@ -108,7 +108,6 @@ class UnitedSpider(ShowingSpider):
         def parse_time(time_str):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
-        print('parse_showing')
 
         showing_data_proto = copy.deepcopy(data_proto)
         start_time = curr_showing.xpath(
@@ -121,11 +120,17 @@ class UnitedSpider(ShowingSpider):
         end_hour, end_minute = parse_time(end_time)
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
+        # handle free order seat type showings
+        seat_type = curr_showing.xpath(
+            './div/ul/li[@class="seatIcon"]/img/@src').extract_first()
+        showing_data_proto['seat_type'] = \
+            UnitedUtil.standardize_seat_type(seat_type)
         book_status = curr_showing.xpath(
             './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
         showing_data_proto['book_status'] = \
             UnitedUtil.standardize_book_status(book_status)
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        if (showing_data_proto['seat_type'] == 'FreeSeat' or
+                showing_data_proto['book_status'] in ['SoldOut', 'NotSold']):
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
             showing_data_proto['total_seat_count'] = 0
@@ -139,32 +144,19 @@ class UnitedSpider(ShowingSpider):
             # as same cookie will lead to confirm page
             url = curr_showing.xpath(
                 './div/ul/li[@class="uolIcon"]/a/@href').extract_first()
-            schedule_url = response.meta['schedule_url']
-            request = scrapy.Request(
-                schedule_url, dont_filter=True, callback=self.refresh_cookie)
+            # determine if next page is 4dx confirm page by title
+            if '4DX' in showing_data_proto['title']:
+                request = scrapy.Request(
+                    url, callback=self.parse_4dx_confirm_page)
+            else:
+                request = scrapy.Request(
+                    url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = showing_data_proto
-            request.meta["url"] = url
-            request.meta["dont_merge_cookies"] = True
+            # use independent cookie to avoid affecting each other
+            request.meta["cookiejar"] = url
             result_list.append(request)
 
-    def refresh_cookie(self, response):
-        """
-        generate new cookie for each showing to avoid conflict
-        """
-        # TODO multi cinema conflict
-        print('refresh_cookie')
-        print(response.headers.getlist('Set-Cookie'))
-        url = response.meta["url"]
-        # determine if next page is 4dx confirm page by title
-        if '4DX' in response.meta['data_proto']['title']:
-            request = scrapy.Request(url, callback=self.parse_4dx_confirm_page)
-        else:
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
-        request.meta["data_proto"] = response.meta['data_proto']
-        yield request
-
     def parse_4dx_confirm_page(self, response):
-        print('parse_4dx_confirm_page')
         url = response.xpath('//form/@action').extract_first()
         url = response.urljoin(url)
         request = scrapy.Request(url, method='POST',
@@ -173,8 +165,7 @@ class UnitedSpider(ShowingSpider):
         yield request
 
     def parse_normal_showing(self, response):
-        print('parse_normal_showing')
-        print(response.meta['data_proto']['title'])
+        TestUtility.write_to_unique_html(response.text)
         result = response.meta["data_proto"]
         total_seat_count = int(response.xpath(
             '//span[@class="seat"]/text()').extract_first())

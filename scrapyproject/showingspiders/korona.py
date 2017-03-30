@@ -99,6 +99,7 @@ class KoronaSpider(ShowingSpider):
         end_hour, end_minute = parse_time(end_time)
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
+        showing_data_proto['seat_type'] = 'NormalSeat'
         book_status = curr_showing.xpath(
             './/img[contains(@src,"icon_seat_vacant")]/@alt').extract_first()
         showing_data_proto['book_status'] = \

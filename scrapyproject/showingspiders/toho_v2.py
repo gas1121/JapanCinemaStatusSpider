@@ -185,6 +185,7 @@ class TohoV2Spider(ShowingSpider):
         end_hour, end_minute = parse_time(curr_showing['showingEnd'])
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
+        showing_data_proto['seat_type'] = 'NormalSeat'
         showing_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:

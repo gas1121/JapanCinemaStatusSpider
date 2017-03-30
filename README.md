@@ -46,3 +46,4 @@ Just use **scrapy** container instead of **scrapy-vps**
 - [ ] spider command line bool option problem
 - [ ] filter locked seat data
 - [ ] add more stand alone cinema crawler
+- [ ] handle free seat type showings

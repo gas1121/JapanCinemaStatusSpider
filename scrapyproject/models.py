@@ -127,6 +127,7 @@ class Showings(DeclarativeBase):
     cinema_site = Column('cinema_site', String, nullable=False)
     screen = Column('screen', String, nullable=False)
     book_status = Column('book_status', String, nullable=False)
+    seat_type = Column('seat_type', String, nullable=False)
     book_seat_count = Column('book_seat_count', Integer, default=0,
                              nullable=False)
     total_seat_count = Column('total_seat_count', Integer, default=0,

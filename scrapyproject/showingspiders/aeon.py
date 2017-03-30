@@ -111,6 +111,7 @@ class AeonSpider(ShowingSpider):
             end_hour, end_minute)
         screen_name = curr_showing.xpath('./div[@class="screen"]/a/text()')
         showing_data_proto['screen'] = screen_name
+        showing_data_proto['seat_type'] = 'NormalSeat'
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
         showing_data_proto['book_status'] = \
             AeonUtil.standardize_book_status(book_status)

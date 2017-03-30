@@ -180,6 +180,13 @@ class AeonUtil(object):
 
 class UnitedUtil(object):
     @staticmethod
+    def standardize_seat_type(seat_type):
+        if "icon_09.gif" in seat_type:
+            return "FreeSeat"
+        else:
+            return "NormalSeat"
+
+    @staticmethod
     def standardize_book_status(book_status):
         if "icon_15_s" in book_status:
             return "PlentyLeft"
@@ -196,7 +203,7 @@ class UnitedUtil(object):
 class MovixUtil(object):
     @staticmethod
     def standardize_book_status(book_status):
-        # TODO sold out status unknown
+        # TODO sold out status can only be judged with date and time
         if "01.png" in book_status:
             return "PlentyLeft"
         elif "02.png" in book_status:

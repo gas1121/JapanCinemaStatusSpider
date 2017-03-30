@@ -105,6 +105,7 @@ class ForumSpider(ShowingSpider):
         if cinema_name:
             standardize_cinema_name(cinema_name)
             showing_data_proto['cinema_name'] = cinema_name
+        showing_data_proto['seat_type'] = 'NormalSeat'
         book_status = curr_showing.xpath(
             './span[@class="purchase-block"]/a/@class').extract_first()
         showing_data_proto['book_status'] = \
