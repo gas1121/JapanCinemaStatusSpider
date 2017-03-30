@@ -79,7 +79,7 @@ def do_proxy_request(url=None, method="GET", data=None, **kwargs):
     # fix encoding problem in requests
     # python does not support "Windows-31J"
     if r.encoding and r.encoding.lower() in [
-            x.lower() for x in ["ISO-8859-1", "Windows-31J"]]:
+            x.lower() for x in ["no value", "ISO-8859-1", "Windows-31J"]]:
         r.encoding = r.apparent_encoding
     return r
 

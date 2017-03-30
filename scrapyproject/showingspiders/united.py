@@ -67,6 +67,7 @@ class UnitedSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
+        TestUtility.write_to_unique_html(response.text)
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
@@ -165,7 +166,6 @@ class UnitedSpider(ShowingSpider):
         yield request
 
     def parse_normal_showing(self, response):
-        TestUtility.write_to_unique_html(response.text)
         result = response.meta["data_proto"]
         total_seat_count = int(response.xpath(
             '//span[@class="seat"]/text()').extract_first())
