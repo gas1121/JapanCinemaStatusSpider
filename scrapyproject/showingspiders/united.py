@@ -30,7 +30,6 @@ class UnitedSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        # TODO proxy encode problem
         theater_list = response.xpath(
             '//section[@class="rcol searchTheater"]//li')
         for theater_element in theater_list:
