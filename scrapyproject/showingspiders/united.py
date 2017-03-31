@@ -66,7 +66,6 @@ class UnitedSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        TestUtility.write_to_unique_html(response.text)
         data_proto = Showing()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
