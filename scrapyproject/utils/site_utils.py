@@ -74,8 +74,8 @@ def do_proxy_request(url=None, method="GET", data=None, **kwargs):
         'http': proxy_str,
         'https': proxy_str
     }
-    r = requests.request(method=method, url=url,
-                         data=data, proxies=proxies, **kwargs)
+    r = requests.request(
+        method=method, url=url, data=data, proxies=proxies, **kwargs)
     # fix encoding problem in requests
     # python does not support "Windows-31J"
     if r.encoding and r.encoding.lower() in [
@@ -135,7 +135,7 @@ class ForumUtil(object):
     def standardize_book_status(book_status):
         # use css to judge book status
         # seems css "soldout" is used for not sold...
-        # we still don't know how sold out is presented
+        # TODO we still don't know how sold out is presented
         if book_status == "purchase vacancy":
             return "PlentyLeft"
         if book_status == "purchase little":
@@ -150,7 +150,7 @@ class KoronaUtil(object):
     @staticmethod
     def standardize_book_status(book_status):
         # use image alt attribute to determine book status
-        # we don't know how sold out is presented
+        # TODO we don't know how sold out is presented, maybe should use time
         if book_status == "空席90％以上":
             return "PlentyLeft"
         elif book_status == "空席90％未満":
