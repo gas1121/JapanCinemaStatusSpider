@@ -5,6 +5,7 @@ cffi==1.9.1
 constantly==15.1.0
 cryptography==1.7.2
 cssselect==1.0.1
+demjson==2.2.4
 idna==2.2
 incremental==16.10.1
 lxml==3.7.2

@@ -118,6 +118,11 @@ class AeonSpider(ShowingSpider):
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
         showing_data_proto['book_status'] = \
             AeonUtil.standardize_book_status(book_status)
+        # when site ordering is stopped stop crawling
+        site_status = curr_showing.xpath(
+            './a/span[2]/text()').extract_first()
+        if site_status == '予約停止中':
+            return
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
@@ -133,8 +138,8 @@ class AeonSpider(ShowingSpider):
             request.meta["data_proto"] = showing_data_proto
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
-            # TODO write custom middleware to allow
-            # copy cookie from pre request
+            # copy exist cookie to independent cookiejar
+            request.meta['copied_cookiejar'] = None
             request.meta["cookiejar"] = performance_id
             result_list.append(request)
 
@@ -199,6 +204,7 @@ class AeonSpider(ShowingSpider):
         request = scrapy.Request(
             url, method='POST', callback=self.parse_normal_showing)
         request.meta["data_proto"] = response.meta["data_proto"]
+        request.meta["cookiejar"] = response.meta["cookiejar"]
         yield request
 
     def generate_ticket_page_url(self, response, action, display_id):
@@ -217,6 +223,7 @@ class AeonSpider(ShowingSpider):
         url = response.urljoin(url)
         request = scrapy.Request(url, callback=self.parse_showing_json)
         request.meta["data_proto"] = response.meta["data_proto"]
+        request.meta["cookiejar"] = response.meta["cookiejar"]
         yield request
 
     def parse_showing_json(self, response):
