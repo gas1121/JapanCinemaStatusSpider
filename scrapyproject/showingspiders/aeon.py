@@ -131,18 +131,30 @@ class AeonSpider(ShowingSpider):
             request = self.generate_agreement_request(
                 response=response, curr_showing=curr_showing)
             request.meta["data_proto"] = showing_data_proto
+            (performance_id, _, _) = self.extract_showing_parameters(
+                curr_showing)
+            # TODO write custom middleware to allow
+            # copy cookie from pre request
+            request.meta["cookiejar"] = performance_id
             result_list.append(request)
+
+    def extract_showing_parameters(self, curr_showing):
+        """
+        extract parameter from javascript action
+        """
+        # code example:
+        # javascript:selectPerformance('1703211024055000603',false,true)
+        script = curr_showing.xpath('./a/@href')
+        performance_id, is_special, is_reserved = script.re(
+            'selectPerformance\(\'(.+)\',(.+),(.+)\)')
+        return (performance_id, is_special, is_reserved)
 
     def generate_agreement_request(self, response, curr_showing):
         """
         generate post request to agreement page
         """
-        # extract parameter from javascript action
-        script = curr_showing.xpath('./a/@href')
-        # code example:
-        # javascript:selectPerformance('1703211024055000603',false,true)
-        performance_id, is_special, is_reserved = script.re(
-            'selectPerformance\(\'(.+)\',(.+),(.+)\)')
+        (performance_id, is_special,
+         is_reserved) = self.extract_showing_parameters(curr_showing)
         is_special = "1" if is_special == "true" else "0"
         is_reserved = "1" if is_reserved == "true" else "0"
         # extract parameter from form
