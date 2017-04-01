@@ -9,6 +9,7 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import AeonUtil
+from scrapyproject.utils.test_utils import TestUtil
 
 
 class AeonSpider(ShowingSpider):
@@ -20,6 +21,11 @@ class AeonSpider(ShowingSpider):
     start_urls = [
         'http://www.aeoncinema.com/theater/'
     ]
+
+    custom_settings = {
+        'CONCURRENT_REQUESTS': 1,
+        'COOKIES_DEBUG': True
+    }
 
     cinema_list = ['イオンシネマ板橋']
 
@@ -94,6 +100,7 @@ class AeonSpider(ShowingSpider):
         def parse_time(time_str):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
+        print("parse_showing")
 
         # showing section passed in may be unusable and need to be filtered
         time_section = curr_showing.xpath('./div[@class="time"]')
@@ -217,6 +224,7 @@ class AeonSpider(ShowingSpider):
         """
         go to json data url
         """
+        TestUtil.write_to_unique_html(response.text)
         url = response.xpath(
             '//script[contains(@src,"pc.2.pinpoint.jsondata")]/@src'
         ).extract_first()

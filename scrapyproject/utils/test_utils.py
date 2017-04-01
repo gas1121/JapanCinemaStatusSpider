@@ -1,7 +1,7 @@
 import arrow
 
 
-class TestUtility(object):
+class TestUtil(object):
     def write_to_unique_html(text):
         """
         write content to unique html file

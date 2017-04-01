@@ -7,7 +7,6 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import UnitedUtil
-from scrapyproject.utils.test_utils import TestUtility
 
 
 class UnitedSpider(ShowingSpider):
