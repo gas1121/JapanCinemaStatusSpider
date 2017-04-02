@@ -9,7 +9,6 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (Showing, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import AeonUtil
-from scrapyproject.utils.test_utils import TestUtil
 
 
 class AeonSpider(ShowingSpider):
@@ -55,8 +54,11 @@ class AeonSpider(ShowingSpider):
         """
         get schedule page from cinema site
         """
+        # get schedule url and replace date string
         schedule_url = response.xpath(
-            '//a[contains(@href,"' + self.date + '")]/@href').extract_first()
+            '//a[contains(@href,"dt=")]/@href').extract_first()
+        schedule_url = re.sub(
+            r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
         request = scrapy.Request(schedule_url,
                                  callback=self.parse_cinema_schedule)
         request.meta["cinema_name"] = response.meta['cinema_name']
