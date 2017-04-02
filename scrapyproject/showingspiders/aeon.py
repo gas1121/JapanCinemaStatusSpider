@@ -55,6 +55,7 @@ class AeonSpider(ShowingSpider):
                                  callback=self.parse_cinema_schedule)
         request.meta["cinema_name"] = response.meta['cinema_name']
         request.meta["cinema_site"] = response.meta['cinema_site']
+        request.meta["schedule_url"] = schedule_url
         yield request
 
     def parse_cinema_schedule(self, response):
@@ -132,14 +133,18 @@ class AeonSpider(ShowingSpider):
             result_list.append(showing_data_proto)
             return
         else:
-            # normal, go to showing seat page
-            request = self.generate_agreement_request(
+            # normal, generate request to showing page
+            showing_request = self.generate_agreement_request(
                 response=response, curr_showing=curr_showing)
+            # go to shchedule page again to generate independent cookie
+            # for each showing
+            schedule_url = response.meta['schedule_url']
+            request = scrapy.Request(
+                schedule_url, dont_filter=True, callback=self.parse_new_cookie)
             request.meta["data_proto"] = showing_data_proto
+            request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
-            # copy exist cookie to independent cookiejar
-            request.meta['copied_cookiejar'] = None
             request.meta["cookiejar"] = performance_id
             result_list.append(request)
 
@@ -171,7 +176,7 @@ class AeonSpider(ShowingSpider):
         ).extract_first()
 
         request = scrapy.FormRequest.from_response(
-            response, formxpath='//form[@name="form2"]',
+            response, dont_filter=True, formxpath='//form[@name="form2"]',
             formdata={
                 'JobID': 'pc.1.check.agreement',
                 'performanceID': performance_id,
@@ -191,6 +196,15 @@ class AeonSpider(ShowingSpider):
         request = request.replace(url=url)
         return request
 
+    def parse_new_cookie(self, response):
+        """
+        generate cookie for showing page to use
+        """
+        request = response.meta['showing_request']
+        request.meta["data_proto"] = response.meta['data_proto']
+        request.meta["cookiejar"] = response.meta["cookiejar"]
+        yield request
+
     def parse_agreement(self, response):
         # extract form action url
         script_text = response.xpath(
@@ -201,8 +215,8 @@ class AeonSpider(ShowingSpider):
         display_id = response.xpath(
             '//input[@name="displayID"]/@value').extract_first()
         url = self.generate_ticket_page_url(self, action, display_id)
-        request = scrapy.Request(
-            url, method='POST', callback=self.parse_normal_showing)
+        request = scrapy.Request(url, method='POST', dont_filter=True,
+                                 callback=self.parse_normal_showing)
         request.meta["data_proto"] = response.meta["data_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         yield request
