@@ -28,7 +28,7 @@ class AeonSpider(ShowingSpider):
         crawl theater list data first
         """
         theater_link_list = response.xpath(
-            '//div[@class="bot clearfix"]//a')
+            '//div[contains(@class,"area")]//dd//a')
         for theater_link in theater_link_list:
             # forum site have multiple cinema on one site, so we need to
             # specify cinema name on schedule page
