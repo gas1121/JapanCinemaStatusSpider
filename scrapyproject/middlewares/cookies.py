@@ -43,6 +43,10 @@ class CustomCookiesMiddleware(object):
             # Perform deepcopy
             self._jars[request.meta['cookiejar']] = \
                 deepcopy(self._jars[copied_cookiejar_key])
+            print(request.meta['cookiejar'])
+            print(request.meta['copied_cookiejar'])
+            print(self._jars[request.meta['cookiejar']])
+            print(self._jars[request.meta['copied_cookiejar']])
 
         self._cookies_middleware.process_request(request, spider)
 
