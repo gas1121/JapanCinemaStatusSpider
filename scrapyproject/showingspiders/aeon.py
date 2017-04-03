@@ -103,7 +103,6 @@ class AeonSpider(ShowingSpider):
         def parse_time(time_str):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
-        print("parse_showing")
 
         # showing section passed in may be unusable and need to be filtered
         time_section = curr_showing.xpath('./div[@class="time"]')
@@ -124,16 +123,21 @@ class AeonSpider(ShowingSpider):
             './div[@class="screen"]/a/text()').extract_first()
         screen_name = standardize_screen_name(screen_name,  showing_data_proto)
         showing_data_proto['screen'] = screen_name
-        showing_data_proto['seat_type'] = 'NormalSeat'
-        book_status = curr_showing.xpath('./a/span/text()').extract_first()
-        showing_data_proto['book_status'] = \
-            AeonUtil.standardize_book_status(book_status)
         # when site ordering is stopped stop crawling
         site_status = curr_showing.xpath(
             './a/span[2]/text()').extract_first()
         if site_status == '予約停止中':
             return
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        # handle free order seat type showings
+        seat_type = curr_showing.xpath(
+            './div[@class="icon"]//img/@alt').extract_first()
+        showing_data_proto['seat_type'] = \
+            AeonUtil.standardize_seat_type(seat_type)
+        book_status = curr_showing.xpath('./a/span/text()').extract_first()
+        showing_data_proto['book_status'] = \
+            AeonUtil.standardize_book_status(book_status)
+        if (showing_data_proto['seat_type'] == 'FreeSeat' or
+                showing_data_proto['book_status'] in ['SoldOut', 'NotSold']):
             # sold out or not sold, seat set to 0
             showing_data_proto['book_seat_count'] = 0
             showing_data_proto['total_seat_count'] = 0
@@ -240,7 +244,6 @@ class AeonSpider(ShowingSpider):
         """
         go to json data url
         """
-        TestUtil.write_to_unique_html(response.text)
         url = response.xpath(
             '//script[contains(@src,"pc.2.pinpoint.jsondata")]/@src'
         ).extract_first()

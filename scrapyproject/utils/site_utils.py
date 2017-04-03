@@ -163,6 +163,13 @@ class KoronaUtil(object):
 
 class AeonUtil(object):
     @staticmethod
+    def standardize_seat_type(seat_type):
+        if "自由席" in seat_type:
+            return "FreeSeat"
+        else:
+            return "NormalSeat"
+
+    @staticmethod
     def standardize_book_status(book_status):
         if book_status == "◎":
             return "PlentyLeft"
