@@ -12,8 +12,14 @@ def crawl_job():
     @defer.inlineCallbacks
     def crawl(runner):
         yield runner.crawl('toho_v2')
-        yield runner.crawl('toho_v2', cinema_list="ＴＯＨＯシネマズ光の森",
-                           keep_old_data=True)
+        yield runner.crawl('movix', keep_old_data=True)
+        yield runner.crawl('aeon', keep_old_data=True)
+        yield runner.crawl('united', keep_old_data=True)
+        yield runner.crawl('kinezo', keep_old_data=True)
+        yield runner.crawl('site109', keep_old_data=True)
+        yield runner.crawl('cinemasunshine', keep_old_data=True)
+        yield runner.crawl('forum', keep_old_data=True)
+        yield runner.crawl('korona', keep_old_data=True)
         reactor.stop()
     configure_logging()
     runner = CrawlerRunner(get_project_settings())
@@ -23,11 +29,7 @@ def crawl_job():
 
 
 if __name__ == '__main__':
-    def test():
-        print("test")
-    # schedule.every().day.at('11:54').do(crawl_job)
-    schedule.every().minutes.do(crawl_job)
-    schedule.every().minutes.do(test)
+    schedule.every().day.at('13:00').do(crawl_job)
     while True:
         schedule.run_pending()
         time.sleep(1)
