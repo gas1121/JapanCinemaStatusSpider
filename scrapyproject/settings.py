@@ -10,6 +10,7 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
 import os
+import arrow
 
 BOT_NAME = 'scrapyproject'
 
@@ -104,8 +105,15 @@ ITEM_PIPELINES = {
     'scrapyproject.pipelines.DataBasePipeline': 300,
 }
 
+
 # log configuration
-LOG_FILE = "srapy.log"
+def check_log_folder(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+
+check_log_folder("log")
+LOG_FILE = "log/" + str(arrow.now().format('YYYYMMDD HH mm ss')) + ".log"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

@@ -1,4 +1,4 @@
-#JapanCinemaStatusSpider
+# JapanCinemaStatusSpider
 A spider to crawl movie booking data from several cinema company chains.
 
 ## Feature
