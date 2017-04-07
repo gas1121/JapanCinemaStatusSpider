@@ -29,6 +29,7 @@ def crawl_job():
 
 
 if __name__ == '__main__':
+    print('schedule start')
     schedule.every().day.at('12:00').do(crawl_job)
     while True:
         schedule.run_pending()

@@ -55,6 +55,7 @@ services:
       - phantomjs
       - postgres
       - redis
+    command: python run.py
   phantomjs-vps:
     image: wernight/phantomjs:2
     expose:
@@ -80,6 +81,7 @@ services:
       - phantomjs-vps
       - postgres
       - redis
+    command: python run.py
 volumes:
   pgdata:
   redisdata:
