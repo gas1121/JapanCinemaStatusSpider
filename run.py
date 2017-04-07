@@ -13,15 +13,15 @@ def crawl_job():
     configure_logging(settings=settings)
     runner = CrawlerRunner(settings)
 
-    runner.crawl('toho_v2', keep_old_data=True)
-    runner.crawl('movix', keep_old_data=True)
-    runner.crawl('aeon', keep_old_data=True)
-    runner.crawl('united', keep_old_data=True)
-    runner.crawl('kinezo', keep_old_data=True)
-    runner.crawl('site109', keep_old_data=True)
-    runner.crawl('cinemasunshine', keep_old_data=True)
-    runner.crawl('forum', keep_old_data=True)
-    runner.crawl('korona', keep_old_data=True)
+    runner.crawl('toho_v2', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('movix', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('aeon', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('united', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('kinezo', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('site109', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('cinemasunshine', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('forum', keep_old_data=True, crawl_all_cinemas=True)
+    runner.crawl('korona', keep_old_data=True, crawl_all_cinemas=True)
     d = runner.join()
     d.addBoth(lambda _: reactor.stop())
 
@@ -29,7 +29,7 @@ def crawl_job():
 
 
 if __name__ == '__main__':
-    schedule.every().day.at('02:09').do(crawl_job)
+    schedule.every().day.at('12:00').do(crawl_job)
     while True:
         schedule.run_pending()
         time.sleep(1)
