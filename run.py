@@ -9,7 +9,6 @@ from scrapy.utils.project import get_project_settings
 
 
 def crawl_job():
-    print("crawl_job")
     settings = get_project_settings()
     configure_logging(settings=settings)
     runner = CrawlerRunner(settings)
@@ -30,7 +29,6 @@ def crawl_job():
 
 
 if __name__ == '__main__':
-    print("__main__")
     schedule.every().day.at('02:09').do(crawl_job)
     while True:
         schedule.run_pending()
