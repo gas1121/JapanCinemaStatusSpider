@@ -18,6 +18,7 @@ class DataBasePipeline(object):
     """
     def __init__(self, database):
         self.database = database
+        # TODO modify as table changed
         self.sold_out_showing_bookings = []
         # screen seat cache for counting sold out showing's data
         self.screen_cache = {}
@@ -103,6 +104,7 @@ class DataBasePipeline(object):
         return item
 
     def process_showing_item(self, item, spider):
+        # TODO modify as table changed
         showing_booking = ShowingBooking(**item)
         # sold out item will pass by now and handle when spider finish
         if item['book_status'] == 'SoldOut':

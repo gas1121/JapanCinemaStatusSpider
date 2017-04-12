@@ -33,16 +33,19 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] http://cinema.co.jp/theater/list
  - [ ] https://movie.jorudan.co.jp/theater/
  - [ ] https://movieticket.jp/
-- cinema company chains:
- - [x] Aeon
- - [x] Toho
- - [x] United/Cineplex
- - [x] Movix
- - [x] 109
- - [x] kinezo
- - [x] korona
- - [x] forum
- - [x] cinemasunshine
+- total seat counts(from walkerplus 20170412) 616119
+- cinema company chains have total seats over 5000:
+ - [x] Aeon 140138
+ - [x] Toho 114395+2705
+ - [x] United/Cineplex 67377-2383
+ - [x] Movix 47996+2141+2564
+ - [x] 109 31544
+ - [x] kinezo 28051+1324+1986
+ - [x] korona 17688
+ - [x] cinemasunshine 17477
+ - [ ] cinemax 8618
+ - [x] forum 6500
+ - [ ] humax 5064
 
 ## TODO list
 - [x] Better command line support for spider

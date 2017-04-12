@@ -189,7 +189,7 @@ class TohoV2Spider(ShowingSpider):
         showing_data_proto['seat_type'] = 'NormalSeat'
 
         # check whether need to continue crawl booking data or stop now
-        if True:
+        if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
             return
         # TODO divide into ShowingBooking table
