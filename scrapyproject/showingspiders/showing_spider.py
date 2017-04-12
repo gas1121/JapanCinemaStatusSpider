@@ -30,6 +30,9 @@ class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
             self.cinema_list[idx] = unicodedata.normalize('NFKC', item)
         self.crawl_all_cinemas = (
             True if hasattr(self, 'crawl_all_cinemas') else False)
+        # is spider crawl showing info only or as well as booking data
+        self.crawl_booking_data = (
+            True if hasattr(self, 'crawl_booking_data') else False)
         # date: default tomorrow(UTC+9 timezone)
         if not hasattr(self, 'date'):
             tomorrow = arrow.now('UTC+9').shift(days=+1)

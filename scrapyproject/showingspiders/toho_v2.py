@@ -5,7 +5,8 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (Showing, standardize_cinema_name,
+from scrapyproject.items import (Showing, ShowingBooking,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import TohoUtil
 
@@ -186,6 +187,12 @@ class TohoV2Spider(ShowingSpider):
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
+
+        # check whether need to continue crawl booking data or stop now
+        if True:
+            result_list.append(showing_data_proto)
+            return
+        # TODO divide into ShowingBooking table
         showing_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:

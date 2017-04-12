@@ -7,7 +7,6 @@
 
 import re
 import unicodedata
-import scrapy
 
 
 # LEGACY
@@ -107,30 +106,3 @@ def convert_special_screen_name(screen_name, cinema):
                 screen_name = re.sub(
                     key, special_cinema[name][key], screen_name)
     return screen_name
-
-
-class Cinema(scrapy.Item):
-    names = scrapy.Field()
-    county = scrapy.Field()
-    company = scrapy.Field()
-    site = scrapy.Field()
-    screens = scrapy.Field()
-    screen_count = scrapy.Field()
-    total_seats = scrapy.Field()
-    source = scrapy.Field()
-
-
-class Showing(scrapy.Item):
-    title = scrapy.Field()
-    title_en = scrapy.Field()
-    start_time = scrapy.Field()
-    end_time = scrapy.Field()
-    cinema_name = scrapy.Field()
-    cinema_site = scrapy.Field()
-    screen = scrapy.Field()
-    book_status = scrapy.Field()
-    seat_type = scrapy.Field()
-    book_seat_count = scrapy.Field()
-    total_seat_count = scrapy.Field()
-    record_time = scrapy.Field()
-    source = scrapy.Field()

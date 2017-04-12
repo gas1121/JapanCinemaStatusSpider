@@ -1,39 +1,13 @@
 from enum import Enum
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
-from sqlalchemy.engine.url import URL
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_utils import database_exists, create_database, ArrowType
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import exists, and_, or_, cast
-from scrapyproject import settings
+from sqlalchemy import and_, or_, cast
+from scrapyproject.models.models import DeclarativeBase, db_connect
 
 
-DeclarativeBase = declarative_base()
-
-
-def create_table(engine):
-    DeclarativeBase.metadata.create_all(engine)
-
-
-def drop_table_if_exist(engine, TableClass):
-    if engine.dialect.has_table(engine, TableClass.__table__):
-        TableClass.__table__.drop(engine)
-
-
-def db_connect():
-    """
-    Connect to database described in settings
-    if database is not yet exist,will create first
-    """
-    engine = create_engine(URL(**settings.DATABASE))
-    if not database_exists(engine.url):
-        create_database(engine.url)
-    return engine
-
-
-class Cinemas(DeclarativeBase):
-    __tablename__ = "cinemas"
+class Cinema(DeclarativeBase):
+    __tablename__ = "cinema"
 
     id = Column(Integer, primary_key=True)
     # name may differ depends on crawled site, so we collect all names
@@ -66,10 +40,10 @@ class Cinemas(DeclarativeBase):
         """
         engine = db_connect()
         session = sessionmaker(bind=engine)()
-        query = session.query(Cinemas).filter(and_(
-            Cinemas.county == item.county, or_(
-                and_(item.site is not None, Cinemas.site == item.site),
-                and_(item.names is not None, Cinemas.names.overlap(
+        query = session.query(Cinema).filter(and_(
+            Cinema.county == item.county, or_(
+                and_(item.site is not None, Cinema.site == item.site),
+                and_(item.names is not None, Cinema.names.overlap(
                     cast(item.names, ARRAY(String))))
             )))
         result = query.first()
@@ -80,8 +54,8 @@ class Cinemas(DeclarativeBase):
     def get_by_name(cinema_name):
         engine = db_connect()
         session = sessionmaker(bind=engine)()
-        query = session.query(Cinemas).filter(
-            Cinemas.names.any(cinema_name)
+        query = session.query(Cinema).filter(
+            Cinema.names.any(cinema_name)
         )
         cinema = query.first()
         session.close()
@@ -113,43 +87,3 @@ class Cinemas(DeclarativeBase):
         else:
             new_cinema.id = self.id
             self = new_cinema
-
-
-class Showings(DeclarativeBase):
-    __tablename__ = "showings"
-
-    id = Column(Integer, primary_key=True)
-    title = Column('title', String, nullable=False)
-    title_en = Column('title_en', String)
-    start_time = Column('start_time', ArrowType, nullable=False)
-    end_time = Column('end_time', ArrowType)
-    cinema_name = Column('cinema_name', String, nullable=False)
-    cinema_site = Column('cinema_site', String, nullable=False)
-    screen = Column('screen', String, nullable=False)
-    book_status = Column('book_status', String, nullable=False)
-    seat_type = Column('seat_type', String, nullable=False)
-    book_seat_count = Column('book_seat_count', Integer, default=0,
-                             nullable=False)
-    total_seat_count = Column('total_seat_count', Integer, default=0,
-                              nullable=False)
-    record_time = Column('record_time', ArrowType, nullable=False)
-    # site that data crawled from
-    source = Column('source', String, nullable=False)
-
-    @staticmethod
-    def is_showing_exist(item):
-        """
-        Check if showing exist by cinema site, screen and start time
-        """
-        engine = db_connect()
-        session = sessionmaker(bind=engine)()
-        pre_start_time = item.start_time.shift(minutes=-1)
-        post_start_time = item.start_time.shift(minutes=+1)
-        query = session.query(exists().where(
-            Showings.screen == item.screen).where(
-                Showings.cinema_site == item.cinema_site).where(
-                    Showings.start_time > pre_start_time).where(
-                        Showings.start_time < post_start_time))
-        result = query.scalar()
-        session.close()
-        return result

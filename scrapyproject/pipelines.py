@@ -5,7 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from sqlalchemy.orm import sessionmaker
-from scrapyproject.models import (Cinemas, Showings, db_connect,
+from scrapyproject.models import (Cinema, Showing, ShowingBooking, db_connect,
                                   drop_table_if_exist, create_table)
 from scrapyproject.utils.spider_helper import (use_cinemas_database,
                                                use_showings_database)
@@ -18,7 +18,7 @@ class DataBasePipeline(object):
     """
     def __init__(self, database):
         self.database = database
-        self.sold_out_showings = []
+        self.sold_out_showing_bookings = []
         # screen seat cache for counting sold out showing's data
         self.screen_cache = {}
 
@@ -33,31 +33,34 @@ class DataBasePipeline(object):
         if not self.keep_old_data:
             # drop data
             if use_showings_database(spider):
-                drop_table_if_exist(engine, Showings)
+                drop_table_if_exist(engine, Showing)
+                drop_table_if_exist(engine, ShowingBooking)
             elif use_cinemas_database(spider):
-                drop_table_if_exist(engine, Cinemas)
+                drop_table_if_exist(engine, Cinema)
         create_table(engine)
         self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
         # For showing spider, sold out showing may exist, so we need
         # to fix data for these showings.
-        if use_showings_database(spider) and self.sold_out_showings:
-            for showing in self.sold_out_showings:
-                cinema_name = showing.cinema_name
-                screen = showing.screen
+        if use_showings_database(spider) and self.sold_out_showing_bookings:
+            for showing_booking in self.sold_out_showing_bookings:
+                cinema_name = showing_booking.showing.cinema_name
+                screen = showing_booking.showing.screen
                 if (cinema_name in self.screen_cache and
                         screen in self.screen_cache[cinema_name]):
-                    showing.book_seat_count = self.screen_cache[
+                    showing_booking.book_seat_count = self.screen_cache[
                         cinema_name][screen]
-                    showing.total_seat_count = self.screen_cache[
-                        cinema_name][screen]
+                    showing_booking.showing.total_seat_count = \
+                        self.screen_cache[cinema_name][screen]
                 else:
-                    cinema = Cinemas.get_by_name(showing.cinema_name)
+                    cinema = Cinema.get_by_name(cinema_name)
                     if cinema and screen in cinema.screens:
-                        showing.book_seat_count = cinema.screens[screen]
-                        showing.total_seat_count = cinema.screens[screen]
-                self.add_item_to_database(showing)
+                        showing_booking.book_seat_count = \
+                            cinema.screens[screen]
+                        showing_booking.showing.total_seat_count = \
+                            cinema.screens[screen]
+                self.add_item_to_database(showing_booking)
 
     def process_item(self, item, spider):
         """
@@ -71,8 +74,8 @@ class DataBasePipeline(object):
             return self.process_showing_item(item, spider)
 
     def process_cinema_item(self, item, spider):
-        cinema = Cinemas(**item)
-        exist_cinema = Cinemas.get_cinema_if_exist(cinema)
+        cinema = Cinema(**item)
+        exist_cinema = Cinema.get_cinema_if_exist(cinema)
         if not exist_cinema:
             # if data do not exist in database, add it
             self.add_item_to_database(cinema)
@@ -88,22 +91,22 @@ class DataBasePipeline(object):
                 # replace when new cinema data crawled more screens
                 if cinema.screen_count > exist_cinema.screen_count:
                     exist_cinema.merge(
-                        cinema, merge_method=Cinemas.MergeMethod.replace)
+                        cinema, merge_method=Cinema.MergeMethod.replace)
                 else:
                     exist_cinema.merge(
-                        cinema, merge_method=Cinemas.MergeMethod.info_only)
+                        cinema, merge_method=Cinema.MergeMethod.info_only)
                 self.add_item_to_database(exist_cinema)
             elif cinema.site:
                 exist_cinema.merge(
-                    cinema, merge_method=Cinemas.MergeMethod.update_count)
+                    cinema, merge_method=Cinema.MergeMethod.update_count)
                 self.add_item_to_database(exist_cinema)
         return item
 
     def process_showing_item(self, item, spider):
-        showing = Showings(**item)
+        showing_booking = ShowingBooking(**item)
         # sold out item will pass by now and handle when spider finish
         if item['book_status'] == 'SoldOut':
-            self.sold_out_showings.append(showing)
+            self.sold_out_showing_bookings.append(showing)
             return item
         # cache screen data for later use
         cinema_name = showing.cinema_name
