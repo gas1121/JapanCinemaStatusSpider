@@ -4,9 +4,6 @@ import unicodedata
 from scrapyproject import models
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
-# TEST
-from sqlalchemy import exists
-import arrow
 
 
 def main():
@@ -22,17 +19,18 @@ def main():
     # firgure out movie booking status
     engine = models.db_connect()
     session = sessionmaker(bind=engine)()
-    # TODO
     book_count_label = func.sum(
-        models.Showings.book_seat_count).label("book_count")
+        models.ShowingBooking.book_seat_count).label("book_count")
     query = session.query(
-        models.Showings.title,
+        models.Showing.title,
         book_count_label,
-        func.sum(models.Showings.total_seat_count),
-        func.count(models.Showings.id)
-        ).group_by(models.Showings.title).order_by(book_count_label.desc())
+        func.sum(models.Showing.total_seat_count),
+        func.count(models.Showing.id)
+        ).filter(
+            models.ShowingBooking.showing_id == models.Showing.id
+        ).group_by(models.Showing.title).order_by(book_count_label.desc())
     if args.cinema is not None:
-        query = query.filter(models.Showings.cinema_name == args.cinema)
+        query = query.filter(models.Showing.cinema_name == args.cinema)
     result = {}
     for (title, book_seat_count, total_seat_count, count) in query.all():
         title = unicodedata.normalize('NFKC', title)
