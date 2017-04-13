@@ -69,7 +69,6 @@ class TohoV2Spider(ShowingSpider):
             if not self.is_cinema_crawl(cinema_name_list):
                 continue
             site_cd = curr_cinema['VIT_GROUP_CD']
-            # TODO pre crawl for screen number on late date
             show_day = self.date
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
