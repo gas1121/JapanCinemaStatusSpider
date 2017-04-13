@@ -5,7 +5,7 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (Showing, ShowingBooking,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
                                  standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import TohoUtil
@@ -125,10 +125,11 @@ class TohoV2Spider(ShowingSpider):
         showing_url_parameter['site_cd'] = site_cd
         cinema_name = sub_cinema['name']
         cinema_name = standardize_cinema_name(cinema_name)
-        data_proto = Showing()
+        data_proto = ShowingItem()
         data_proto['cinema_name'] = cinema_name
         data_proto["cinema_site"] = TohoUtil.generate_cinema_homepage_url(
             site_cd)
+        data_proto['source'] = self.name
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, showing_url_parameter,
                              data_proto, result_list)
@@ -188,19 +189,19 @@ class TohoV2Spider(ShowingSpider):
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
 
+        # TODO query screen number from database
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
             return
-        # TODO divide into ShowingBooking table
-        showing_data_proto['book_status'] = TohoUtil.standardize_book_status(
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
+            booking_data_proto['book_seat_count'] = 0
+            booking_data_proto['record_time'] = arrow.now()
             result_list.append(showing_data_proto)
             return
         else:
@@ -208,7 +209,7 @@ class TohoV2Spider(ShowingSpider):
             url = self.generate_showing_url(**showing_url_parameter)
             request = scrapy.Request(url,
                                      callback=self.parse_normal_showing)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             result_list.append(request)
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
@@ -240,7 +241,6 @@ class TohoV2Spider(ShowingSpider):
         total_seat_count = empty_seat_count + booked_seat_count
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
-        result['total_seat_count'] = total_seat_count
+        result['showing']['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
         yield result

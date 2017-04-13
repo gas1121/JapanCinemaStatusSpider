@@ -5,7 +5,7 @@ very similar, like: county->cinema->(detailed page)
 import re
 import unicodedata
 import scrapy
-from scrapyproject.items import (Cinema, standardize_cinema_name,
+from scrapyproject.items import (CinemaItem, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 from scrapyproject.utils.site_utils import (standardize_county_name,
@@ -76,7 +76,7 @@ class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         """
         parse cinema's info
         """
-        cinema = Cinema()
+        cinema = CinemaItem()
         cinema['names'] = [response.meta['cinema_name']]
         cinema['county'] = response.meta['county_name']
         site = response.xpath(self.cinema_site_xpath).extract_first()

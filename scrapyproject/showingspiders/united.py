@@ -4,7 +4,7 @@ import re
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (Showing, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.site_utils import UnitedUtil
 
@@ -65,7 +65,7 @@ class UnitedSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        data_proto = Showing()
+        data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
         result_list = []

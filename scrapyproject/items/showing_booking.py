@@ -4,7 +4,7 @@ from scrapyproject.items.showing import Showing
 
 
 class ShowingBooking(scrapy.Item):
-    showing = Showing()
+    showing = scrapy.Field(serializer=Showing)
     book_status = scrapy.Field()
     book_seat_count = scrapy.Field()
     record_time = scrapy.Field()

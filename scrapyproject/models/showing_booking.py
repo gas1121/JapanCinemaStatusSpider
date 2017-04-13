@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy_utils import ArrowType
 from sqlalchemy.orm import relationship
 from scrapyproject.models.models import DeclarativeBase
+from scrapyproject.models.showing import Showing
 
 
 class ShowingBooking(DeclarativeBase):
@@ -14,3 +15,9 @@ class ShowingBooking(DeclarativeBase):
     book_seat_count = Column('book_seat_count', Integer, default=0,
                              nullable=False)
     record_time = Column('record_time', ArrowType, nullable=False)
+
+    def from_item(self, item):
+        self.book_status = item['book_status']
+        self.book_seat_count = item['book_seat_count']
+        self.record_time = item['record_time']
+        self.showing = Showing(**(item['showing']))

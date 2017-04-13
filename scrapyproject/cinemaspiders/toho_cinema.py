@@ -2,7 +2,7 @@
 import re
 import copy
 import scrapy
-from scrapyproject.items import (Cinema, standardize_cinema_name,
+from scrapyproject.items import (CinemaItem, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
 from scrapyproject.utils.site_utils import TohoUtil
@@ -43,7 +43,7 @@ class TohoCinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         cinema_name = response.xpath(
             '//h1[@class="c-page_heading is-lv-01"]'
             '/span/text()').extract_first()
-        cinema = Cinema()
+        cinema = CinemaItem()
         cinema['names'] = [standardize_cinema_name(cinema_name)]
         cinema['screens'] = {}
         cinema['county'] = response.meta['county']

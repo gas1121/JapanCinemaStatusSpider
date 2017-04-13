@@ -44,6 +44,7 @@ Here is a list of useful site and some of them is used by this spider
  - [x] korona 17688
  - [x] cinemasunshine 17477
  - [ ] cinemax 8618
+ - [ ] startheaters 6650
  - [x] forum 6500
  - [ ] humax 5064
 

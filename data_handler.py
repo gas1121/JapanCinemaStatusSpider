@@ -4,6 +4,9 @@ import unicodedata
 from scrapyproject import models
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
+# TEST
+from sqlalchemy import exists
+import arrow
 
 
 def main():
@@ -19,6 +22,7 @@ def main():
     # firgure out movie booking status
     engine = models.db_connect()
     session = sessionmaker(bind=engine)()
+    # TODO
     book_count_label = func.sum(
         models.Showings.book_seat_count).label("book_count")
     query = session.query(
