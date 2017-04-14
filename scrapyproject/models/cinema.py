@@ -82,6 +82,10 @@ class Cinema(DeclarativeBase):
             screens, cinema_name, screen)
         if screen_seat_count:
             return screen_seat_count
+        screen_seat_count = ScreenUtils.get_seat_count_by_special_name(
+            screens, cinema_name, screen)
+        if screen_seat_count:
+            return screen_seat_count
         return 0
 
     class MergeMethod(Enum):
