@@ -59,8 +59,11 @@ class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
         if self.crawl_all_movies:
             return True
         for target_name in self.movie_list:
-            if target_name in movie_names:
-                return True
+            if not target_name:
+                continue
+            for compare_name in movie_names:
+                if target_name in compare_name:
+                    return True
         return False
 
     def get_time_from_text(self, hours, minutes):

@@ -189,6 +189,7 @@ class TohoV2Spider(ShowingSpider):
         showing_data_proto['seat_type'] = 'NormalSeat'
 
         # TODO query screen number from database
+        showing_data_proto['total_seat_count'] = 0
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
@@ -199,9 +200,12 @@ class TohoV2Spider(ShowingSpider):
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
             # sold out or not sold, seat set to 0
-            booking_data_proto['book_seat_count'] = 0
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
             booking_data_proto['record_time'] = arrow.now()
-            result_list.append(showing_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page

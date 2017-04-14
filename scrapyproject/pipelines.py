@@ -86,7 +86,7 @@ class DataBasePipeline(object):
     def process_showing_item(self, item, spider):
         showing = Showing(**item)
         # if data do not exist in database, add it
-        if not Showing.is_showing_exist(showing):
+        if not Showing.get_cinema_if_exist(showing):
             self.add_item_to_database(showing)
         return item
 
