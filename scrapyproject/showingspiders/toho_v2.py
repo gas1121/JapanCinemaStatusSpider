@@ -8,6 +8,7 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingItem, ShowingBookingItem,
                                  standardize_cinema_name,
                                  standardize_screen_name)
+from scrapyproject.models import Cinema
 from scrapyproject.utils.site_utils import TohoUtil
 
 
@@ -188,8 +189,12 @@ class TohoV2Spider(ShowingSpider):
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
 
-        # TODO query screen number from database
-        showing_data_proto['total_seat_count'] = 0
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            Cinema.get_screen_seat_count(
+                cinema_name=showing_data_proto['cinema_name'],
+                cinema_site=showing_data_proto['cinema_site'],
+                screen=showing_data_proto['screen'])
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)

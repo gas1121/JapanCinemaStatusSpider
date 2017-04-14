@@ -4,6 +4,7 @@ from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_, or_, cast
 from scrapyproject.models.models import DeclarativeBase, db_connect
+from scrapyproject.utils.screen_utils import ScreenUtils
 
 
 class Cinema(DeclarativeBase):
@@ -60,6 +61,28 @@ class Cinema(DeclarativeBase):
         cinema = query.first()
         session.close()
         return cinema
+
+    @staticmethod
+    def get_screen_seat_count(cinema_name, cinema_site, screen):
+        engine = db_connect()
+        session = sessionmaker(bind=engine)()
+        query = session.query(Cinema).filter(or_(
+                and_(cinema_site is not None, Cinema.site == cinema_site),
+                and_(cinema_name is not None, Cinema.names.overlap(
+                    cast([cinema_name], ARRAY(String))))
+            ))
+        cinema = query.first()
+        session.close()
+        if not cinema:
+            return 0
+        screens = cinema.screens
+        # get screen data from cinema data in database.
+        # this is a bit difficult as there is no standard screen name exist.
+        screen_seat_count = ScreenUtils.get_seat_count_by_number(
+            screens, cinema_name, screen)
+        if screen_seat_count:
+            return screen_seat_count
+        return 0
 
     class MergeMethod(Enum):
         info_only = 1  # update names and screens only

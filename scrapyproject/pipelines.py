@@ -97,10 +97,13 @@ class DataBasePipeline(object):
         # if showing exists use its id in database
         exist_showing = Showing.get_cinema_if_exist(showing_booking.showing)
         if exist_showing:
+            # update showing total seat by showing_booking result
+            # TODO some site like movix should use database
+            new_total_seat_count = showing_booking.showing.total_seat_count
             showing_booking.showing = exist_showing
+            showing_booking.showing.total_seat_count = new_total_seat_count
         # then add self
         self.add_item_to_database(showing_booking)
-        # TODO update showing total seat by showing_booking result
         return item
 
     def add_item_to_database(self, db_item):
