@@ -257,6 +257,7 @@ class AeonSpider(ShowingSpider):
         """
         extract showing info from json data
         """
+        # TODO D-Box seat need check if handled right
         script_text = copy.deepcopy(response.text)
         script_text = re.sub(r'[\t\r\n]', '', script_text, re.DOTALL)
         script_text = re.sub(

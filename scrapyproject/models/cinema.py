@@ -78,15 +78,7 @@ class Cinema(DeclarativeBase):
         screens = cinema.screens
         # get screen data from cinema data in database.
         # this is a bit difficult as there is no standard screen name exist.
-        screen_seat_count = ScreenUtils.get_seat_count_by_number(
-            screens, cinema_name, screen)
-        if screen_seat_count:
-            return screen_seat_count
-        screen_seat_count = ScreenUtils.get_seat_count_by_special_name(
-            screens, cinema_name, screen)
-        if screen_seat_count:
-            return screen_seat_count
-        return 0
+        return ScreenUtils.get_seat_count(screens, cinema_name, screen)
 
     class MergeMethod(Enum):
         info_only = 1  # update names and screens only
