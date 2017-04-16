@@ -82,7 +82,8 @@ class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         site = response.xpath(self.cinema_site_xpath).extract_first()
         if site:
             site = self.adjust_cinema_site(response, site)
-            cinema['site'] = standardize_site_url(site, cinema)
+            cinema['site'] = standardize_site_url(
+                site, response.meta['cinema_name'])
         (cinema['screens'], cinema['screen_count'],
          cinema['total_seats']) = self.parse_screen_data(response, cinema)
         cinema['source'] = self.name

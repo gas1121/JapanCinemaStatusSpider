@@ -25,27 +25,37 @@ def standardize_county_name(county_name):
         return county_name
 
 
-def standardize_site_url(url, cinema):
+def standardize_site_url(url, cinema_name):
     """
     change crawled cinema site url as some data are wrong
     """
-    if "ジストシネマ和歌山" in cinema['names']:
-        return "http://www.o-entertainment.co.jp"\
+    # special case for ジストシネマ
+    if "ジストシネマ和歌山" in cinema_name:
+        return "www.o-entertainment.co.jp"\
                "/xyst_cinema/wakayama/information.html"
-    elif "ジストシネマ御坊" in cinema['names']:
-        return "http://www.o-entertainment.co.jp"\
+    elif "ジストシネマ御坊" in cinema_name:
+        return "www.o-entertainment.co.jp"\
                "/xyst_cinema/gobo/information.html"
-    elif "ジストシネマ田辺" in cinema['names']:
-        return "http://www.o-entertainment.co.jp"\
+    elif "ジストシネマ田辺" in cinema_name:
+        return "www.o-entertainment.co.jp"\
                "/xyst_cinema/tanabe/information.html"
-    elif "ジストシネマ南紀" in cinema['names']:
-        return "http://www.o-entertainment.co.jp"\
+    elif "ジストシネマ南紀" in cinema_name:
+        return "www.o-entertainment.co.jp"\
                "/xyst_cinema/nanki/information.html"
-    elif "ジストシネマ伊賀上野" in cinema['names']:
-        return "http://www.o-entertainment.co.jp"\
+    elif "ジストシネマ伊賀上野" in cinema_name:
+        return "www.o-entertainment.co.jp"\
                "/xyst_cinema/igaueno/information.html"
-    else:
-        return url
+
+    # change url to lower case
+    url = url.lower()
+    # remove tail slash and scheme part
+    if url[-1] == "/":
+        url = url[:-1]
+    if "http://" in url:
+        url = url.replace("http://", "")
+    if "https://" in url:
+        url = url.replace("https://", "")
+    return url
 
 
 def extract_seat_number(seat_str):

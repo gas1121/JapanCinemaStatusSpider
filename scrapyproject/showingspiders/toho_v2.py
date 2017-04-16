@@ -9,7 +9,7 @@ from scrapyproject.items import (ShowingItem, ShowingBookingItem,
                                  standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.models import Cinema
-from scrapyproject.utils.site_utils import TohoUtil
+from scrapyproject.utils import standardize_site_url, TohoUtil
 
 
 class TohoV2Spider(ShowingSpider):
@@ -127,8 +127,9 @@ class TohoV2Spider(ShowingSpider):
         cinema_name = standardize_cinema_name(cinema_name)
         data_proto = ShowingItem()
         data_proto['cinema_name'] = cinema_name
-        data_proto["cinema_site"] = TohoUtil.generate_cinema_homepage_url(
-            site_cd)
+        cinema_site = TohoUtil.generate_cinema_homepage_url(site_cd)
+        data_proto["cinema_site"] = standardize_site_url(
+            cinema_site, cinema_name)
         data_proto['source'] = self.name
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, showing_url_parameter,
