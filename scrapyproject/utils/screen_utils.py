@@ -57,18 +57,31 @@ class ScreenUtils(object):
         get screen seat count by special name like:
         "PREMIER" "SELECT" "プレミア" "セレクト"
         """
-        used_name_list = None
+        used_name_list = []
         for curr_name_list in ScreenUtils.special_name_list:
             for curr_name in curr_name_list:
                 if curr_name in target_screen:
-                    used_name_list = curr_name_list
+                    used_name_list.append(curr_name_list)
+                    break
+        # if not have special name, filter all special screens
+        result_screens = {}
+        filter_special_screens = False
         if not used_name_list:
+            used_name_list = ScreenUtils.special_name_list
+            filter_special_screens = True
+        for curr_name_list in used_name_list:
+            for used_name in curr_name_list:
+                regex_str = r'^.+#.*?' + used_name + r'.*?$'
+                match_screens = ScreenUtils.query_by_regex(regex_str, screens)
+                if not match_screens:
+                    continue
+                if filter_special_screens:
+                    for key in screens:
+                        if key not in match_screens:
+                            result_screens[key] = screens[key]
+                else:
+                    return match_screens
+        if result_screens:
+            return result_screens
+        else:
             return screens
-        for used_name in used_name_list:
-            regex_str = r'^.+#.*?' + used_name + r'.*?$'
-            match_screens = ScreenUtils.query_by_regex(regex_str, screens)
-            if match_screens:
-                break
-        if not match_screens:
-            return screens
-        return match_screens
