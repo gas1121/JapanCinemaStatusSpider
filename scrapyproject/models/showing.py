@@ -23,7 +23,7 @@ class Showing(DeclarativeBase):
     source = Column('source', String, nullable=False)
 
     @staticmethod
-    def get_cinema_if_exist(item):
+    def get_showing_if_exist(item):
         """
         Get showing if exists else return None.
         Judged by cinema site, screen and start time

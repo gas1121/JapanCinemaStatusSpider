@@ -86,7 +86,7 @@ class DataBasePipeline(object):
     def process_showing_item(self, item, spider):
         showing = Showing(**item)
         # if data do not exist in database, add it
-        if not Showing.get_cinema_if_exist(showing):
+        if not Showing.get_showing_if_exist(showing):
             self.add_item_to_database(showing)
         return item
 
@@ -95,7 +95,7 @@ class DataBasePipeline(object):
         showing_booking.from_item(item)
 
         # if showing exists use its id in database
-        exist_showing = Showing.get_cinema_if_exist(showing_booking.showing)
+        exist_showing = Showing.get_showing_if_exist(showing_booking.showing)
         if exist_showing:
             # update showing total seat by showing_booking result
             # TODO some site like movix should use database

@@ -73,6 +73,9 @@ class Cinema(DeclarativeBase):
             ))
         cinema = query.first()
         session.close()
+        print(cinema)
+        print(cinema_name)
+        print(cinema_site)
         if not cinema:
             return 0
         screens = cinema.screens
