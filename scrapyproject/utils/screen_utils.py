@@ -7,6 +7,7 @@ class ScreenUtils(object):
         ["SELECT", "セレクト"],
         ["SCALAZA", "スカラ座"],  # special case for TOHOシネマズスカラ座・みゆき座
         ["MIYUKIZA", "みゆき座"],  # special case for TOHOシネマズスカラ座・みゆき座
+        ["プラチナ"],  # special case for 新宿ピカデリー
     ]
 
     @staticmethod

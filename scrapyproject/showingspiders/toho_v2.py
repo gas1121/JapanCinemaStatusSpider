@@ -8,7 +8,6 @@ from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingItem, ShowingBookingItem,
                                  standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.models import Cinema
 from scrapyproject.utils import standardize_site_url, TohoUtil
 
 
@@ -192,10 +191,7 @@ class TohoV2Spider(ShowingSpider):
 
         # query screen number from database
         showing_data_proto['total_seat_count'] = \
-            Cinema.get_screen_seat_count(
-                cinema_name=showing_data_proto['cinema_name'],
-                cinema_site=showing_data_proto['cinema_site'],
-                screen=showing_data_proto['screen'])
+            self.get_screen_seat_count(showing_data_proto)
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
@@ -211,6 +207,8 @@ class TohoV2Spider(ShowingSpider):
                 showing_data_proto['total_seat_count']
                 if status == 'SoldOut' else 0)
             booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
             result_list.append(booking_data_proto)
             return
         else:
@@ -249,7 +247,5 @@ class TohoV2Spider(ShowingSpider):
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
         result['record_time'] = arrow.now()
-        time_before = result['showing']['start_time'] - result['record_time'] 
-        result['minutes_before'] = (
-            time_before.days*1440 + time_before.seconds//60)
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

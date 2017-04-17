@@ -69,6 +69,9 @@ class WalkerplusCinemaSpider(CinemaSpider):
             extra_match = re.findall(r"プレミアスクリーン(\d+)", all_raw_text)
             if extra_match:
                 match.append(("プレミアスクリーン", extra_match[0]))
+        # special case for "新宿ピカデリー"
+        if response.meta['cinema_name'] == "新宿ピカデリー":
+            match.append(("プラチナ", "26"))
         # TODO special case for aeon d-box seat
         for screen_name, seat_str in match:
             screen_name = standardize_screen_name(screen_name, cinema)

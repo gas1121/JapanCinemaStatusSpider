@@ -4,9 +4,10 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import MovixUtil
+from scrapyproject.utils import standardize_site_url, MovixUtil
 
 
 class MovieSpider(ShowingSpider):
@@ -79,7 +80,8 @@ class MovieSpider(ShowingSpider):
     def parse_shechedule(self, response):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
         data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath('//div[@class="scheduleBox"]')
@@ -126,23 +128,37 @@ class MovieSpider(ShowingSpider):
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
-        book_status = curr_showing.xpath('.//img/@src').extract_first()
-        showing_data_proto['book_status'] = \
-            MovixUtil.standardize_book_status(book_status)
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
+        book_status = curr_showing.xpath('.//img/@src').extract_first()
+        booking_data_proto['book_status'] = \
+            MovixUtil.standardize_book_status(book_status)
+        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # sold out or not sold, seat set to 0
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
             showing_script = curr_showing.xpath('./@onclick').extract_first()
             url = re.findall(r'\(\'(.+?)\'\,', showing_script)[0]
             request = scrapy.Request(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             result_list.append(request)
 
     def parse_normal_showing(self, response):
@@ -151,4 +167,5 @@ class MovieSpider(ShowingSpider):
             '//img[contains(@src,"seat_no.gif")]'))
         result['book_seat_count'] = booked_seat_count
         result['record_time'] = arrow.now()
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result
