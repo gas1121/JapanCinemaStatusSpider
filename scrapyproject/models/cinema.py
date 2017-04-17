@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_, or_, cast
 from scrapyproject.models.models import DeclarativeBase, db_connect
-from scrapyproject.utils.screen_utils import ScreenUtils
+from scrapyproject.utils import ScreenUtils
 
 
 class Cinema(DeclarativeBase):

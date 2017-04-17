@@ -4,7 +4,7 @@ Base class for spiders crawling movie showings
 import unicodedata
 import arrow
 import scrapy
-from scrapyproject.utils.spider_helper import ShowingsDatabaseMixin
+from scrapyproject.utils import ShowingsDatabaseMixin
 
 
 class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):

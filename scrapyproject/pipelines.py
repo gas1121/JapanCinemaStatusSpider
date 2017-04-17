@@ -8,8 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinema, Showing, ShowingBooking, db_connect,
                                   drop_table_if_exist, create_table)
 from scrapyproject.items import CinemaItem, ShowingItem, ShowingBookingItem
-from scrapyproject.utils.spider_helper import (use_cinemas_database,
-                                               use_showings_database)
+from scrapyproject.utils import use_cinemas_database, use_showings_database
 
 
 class DataBasePipeline(object):

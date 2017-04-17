@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
-from scrapyproject.utils.site_utils import do_proxy_request
+from scrapyproject.utils import do_proxy_request
 
 
 class EigaCinemaSpider(CinemaSpider):

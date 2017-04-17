@@ -8,7 +8,7 @@ import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingItem, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import AeonUtil
+from scrapyproject.utils import AeonUtil
 
 
 class AeonSpider(ShowingSpider):

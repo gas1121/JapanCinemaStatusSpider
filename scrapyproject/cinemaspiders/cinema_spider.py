@@ -7,10 +7,10 @@ import unicodedata
 import scrapy
 from scrapyproject.items import (CinemaItem, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.spider_helper import CinemasDatabaseMixin
-from scrapyproject.utils.site_utils import (standardize_county_name,
-                                            extract_seat_number,
-                                            standardize_site_url)
+from scrapyproject.utils import (CinemasDatabaseMixin,
+                                 standardize_county_name,
+                                 extract_seat_number,
+                                 standardize_site_url)
 
 
 class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):

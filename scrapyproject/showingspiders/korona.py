@@ -7,7 +7,7 @@ import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingItem, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import KoronaUtil
+from scrapyproject.utils import KoronaUtil
 
 
 class KoronaSpider(ShowingSpider):

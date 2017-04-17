@@ -1,5 +1,5 @@
 from scrapy.http import HtmlResponse
-from scrapyproject.utils.site_utils import do_proxy_request
+from scrapyproject.utils import do_proxy_request
 
 
 class ProxyDownloaderMiddleware(object):

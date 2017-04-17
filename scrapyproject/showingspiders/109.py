@@ -6,7 +6,7 @@ import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingItem, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils.site_utils import Site109Util
+from scrapyproject.utils import Site109Util
 
 
 class Site109Spider(ShowingSpider):
