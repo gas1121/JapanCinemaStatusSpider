@@ -4,7 +4,9 @@ import re
 class ScreenUtils(object):
     special_name_list = [
         ["PREMIER", "プレミア"],
-        ["SELECT", "セレクト"]
+        ["SELECT", "セレクト"],
+        ["SCALAZA", "スカラ座"],  # special case for TOHOシネマズスカラ座・みゆき座
+        ["MIYUKIZA", "みゆき座"],  # special case for TOHOシネマズスカラ座・みゆき座
     ]
 
     @staticmethod
@@ -20,7 +22,6 @@ class ScreenUtils(object):
             remain_screens, cinema_name, target_screen)
         if len(remain_screens) == 1:
             return list(remain_screens.values())[0]
-        # TODO fitler by sub cinema
         return 0
 
     @staticmethod
