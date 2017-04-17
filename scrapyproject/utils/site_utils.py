@@ -29,6 +29,7 @@ def standardize_site_url(url, cinema_name):
     """
     change crawled cinema site url as some data are wrong
     """
+    # TODO keep origin url,add new data field?
     # special case for ジストシネマ
     if "ジストシネマ和歌山" in cinema_name:
         return "www.o-entertainment.co.jp"\

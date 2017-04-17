@@ -14,11 +14,12 @@ class ShowingBooking(DeclarativeBase):
     book_status = Column('book_status', String, nullable=False)
     book_seat_count = Column('book_seat_count', Integer, default=0,
                              nullable=False)
+    minutes_before = Column('minutes_before', Integer, nullable=False)
     record_time = Column('record_time', ArrowType, nullable=False)
-    # TODO add crawl minutes before showing
 
     def from_item(self, item):
         self.book_status = item['book_status']
         self.book_seat_count = item['book_seat_count']
+        self.minutes_before = item['minutes_before']
         self.record_time = item['record_time']
         self.showing = Showing(**(item['showing']))

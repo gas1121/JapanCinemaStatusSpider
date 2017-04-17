@@ -7,4 +7,5 @@ class ShowingBooking(scrapy.Item):
     showing = scrapy.Field(serializer=Showing)
     book_status = scrapy.Field()
     book_seat_count = scrapy.Field()
+    minutes_before = scrapy.Field()
     record_time = scrapy.Field()

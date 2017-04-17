@@ -205,7 +205,7 @@ class TohoV2Spider(ShowingSpider):
         booking_data_proto['book_status'] = TohoUtil.standardize_book_status(
             curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
         if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # sold out or not sold, seat set to 0
+            # sold out or not sold
             status = booking_data_proto['book_status']
             booking_data_proto['book_seat_count'] = (
                 showing_data_proto['total_seat_count']
@@ -249,4 +249,7 @@ class TohoV2Spider(ShowingSpider):
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
         result['record_time'] = arrow.now()
+        time_before = result['showing']['start_time'] - result['record_time'] 
+        result['minutes_before'] = (
+            time_before.days*1440 + time_before.seconds//60)
         yield result
