@@ -80,6 +80,7 @@ class MovieSpider(ShowingSpider):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
         data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath('//div[@class="scheduleBox"]')
         for curr_movie in movie_section_list:
@@ -148,12 +149,6 @@ class MovieSpider(ShowingSpider):
         result = response.meta["data_proto"]
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_no.gif")]'))
-        empty_seat_count = len(response.xpath(
-            '//img[contains(@src,"seat_off.gif")]'))
-        # TODO seats reserved for offline is showed by background image,
-        # so we can not get its information without manually counting
         result['book_seat_count'] = booked_seat_count
-        result['total_seat_count'] = booked_seat_count + empty_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
         yield result

@@ -15,6 +15,7 @@ class ShowingBooking(DeclarativeBase):
     book_seat_count = Column('book_seat_count', Integer, default=0,
                              nullable=False)
     record_time = Column('record_time', ArrowType, nullable=False)
+    # TODO add crawl minutes before showing
 
     def from_item(self, item):
         self.book_status = item['book_status']

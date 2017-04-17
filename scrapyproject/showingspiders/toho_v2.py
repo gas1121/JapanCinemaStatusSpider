@@ -245,11 +245,8 @@ class TohoV2Spider(ShowingSpider):
                    fnc="1", pageid="2000J01", enter_kbn="")
 
     def parse_normal_showing(self, response):
-        empty_seat_count = len(response.css('[alt~="空席(選択可)"]'))
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
-        total_seat_count = empty_seat_count + booked_seat_count
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
-        result['showing']['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
         yield result
