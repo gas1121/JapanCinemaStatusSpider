@@ -47,6 +47,8 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] startheaters 6650
  - [x] forum 6500
  - [ ] humax 5064
+- big single cinemas:
+ - [ ] 札幌シネマフロンティア 2705
 
 ## TODO list
 - [x] Better command line support for spider
