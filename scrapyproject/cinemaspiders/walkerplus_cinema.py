@@ -38,7 +38,13 @@ class WalkerplusCinemaSpider(CinemaSpider):
 
     def is_cinema_crawl(self, cinema_name):
         # TEST
-        if "109" not in cinema_name and "ムービル" not in cinema_name:
+        if ("ジョイ" not in cinema_name
+                and "新宿バルト9" not in cinema_name
+                and "横浜ブルク13" not in cinema_name
+                and "こうのすシネマ" not in cinema_name
+                and "梅田ブルク7" not in cinema_name
+                and "広島バルト11" not in cinema_name
+                and "鹿児島ミッテ10" not in cinema_name):
             return False
         return True
 

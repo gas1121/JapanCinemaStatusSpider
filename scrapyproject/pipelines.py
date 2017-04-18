@@ -96,7 +96,19 @@ class DataBasePipeline(object):
         # if showing exists use its id in database
         exist_showing = Showing.get_showing_if_exist(showing_booking.showing)
         if exist_showing:
+            old_showing = showing_booking.showing
             showing_booking.showing = exist_showing
+            showing_booking.showing.title = old_showing.title
+            showing_booking.showing.title_en = old_showing.title_en
+            showing_booking.showing.start_time = old_showing.start_time
+            showing_booking.showing.end_time = old_showing.end_time
+            showing_booking.showing.cinema_name = old_showing.cinema_name
+            showing_booking.showing.cinema_site = old_showing.cinema_site
+            showing_booking.showing.screen = old_showing.screen
+            showing_booking.showing.seat_type = old_showing.seat_type
+            showing_booking.showing.total_seat_count = \
+                old_showing.total_seat_count
+            showing_booking.showing.source = old_showing.source
         # then add self
         self.add_item_to_database(showing_booking)
         return item
