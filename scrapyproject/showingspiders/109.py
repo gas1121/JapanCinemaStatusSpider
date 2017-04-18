@@ -4,9 +4,10 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import Site109Util
+from scrapyproject.utils import standardize_site_url, Site109Util
 
 
 class Site109Spider(ShowingSpider):
@@ -55,7 +56,9 @@ class Site109Spider(ShowingSpider):
     def parse_cinema(self, response):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
+        data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath('//div[@id="timetable"]/article')
         for curr_movie in movie_section_list:
@@ -68,8 +71,8 @@ class Site109Spider(ShowingSpider):
         """
         parse movie showing data
         """
-        title = curr_movie.xpath('./header/a/h2/text()').extract_first()
-        title_en = curr_movie.xpath('./header/a/p/text()').extract_first()
+        title = curr_movie.xpath('./header//h2/text()').extract_first()
+        title_en = curr_movie.xpath('./header//p/text()').extract_first()
         title_list = [title, title_en]
         if not self.is_movie_crawl(title_list):
             return
@@ -109,23 +112,37 @@ class Site109Spider(ShowingSpider):
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
+            result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
         book_status = curr_showing.xpath(
             './a/div/@class').extract_first()
-        showing_data_proto['book_status'] = \
+        booking_data_proto['book_status'] = \
             Site109Util.standardize_book_status(book_status)
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
-            result_list.append(showing_data_proto)
+        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # sold out or not sold
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./a/@href').extract_first()
             request = scrapy.Request(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             result_list.append(request)
 
     def parse_normal_showing(self, response):
@@ -149,12 +166,6 @@ class Site109Spider(ShowingSpider):
 
     def parse_seat_json_api(self, response):
         result = response.meta["data_proto"]
-        empty_normal_seat_count = len(response.xpath(
-            '//a[@class="seat seat-empty"]'))
-        empty_wheelseat_count = len(response.xpath(
-            '//a[@class="seat wheelseat-empty"]'))
-        empty_executive_seat_count = len(response.xpath(
-            '//a[@class="seat executive-empty"]'))
         booked_normal_seat_count = len(response.xpath(
             '//a[@class="seat seat-none"]'))
         booked_wheelseat_count = len(response.xpath(
@@ -164,11 +175,7 @@ class Site109Spider(ShowingSpider):
         booked_seat_count = (
             booked_normal_seat_count + booked_wheelseat_count +
             booked_executive_seat_count)
-        empty_seat_count = (
-            empty_normal_seat_count + empty_wheelseat_count +
-            empty_executive_seat_count)
         result['book_seat_count'] = booked_seat_count
-        result['total_seat_count'] = (empty_seat_count + booked_seat_count)
         result['record_time'] = arrow.now()
-        result['source'] = self.name
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

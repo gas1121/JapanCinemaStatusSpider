@@ -36,6 +36,12 @@ class WalkerplusCinemaSpider(CinemaSpider):
         """
         return url.replace('schedule.html', '')
 
+    def is_cinema_crawl(self, cinema_name):
+        # TEST
+        if "109" not in cinema_name and "ムービル" not in cinema_name:
+            return False
+        return True
+
     def parse_screen_data(self, response, cinema):
         """
         override as screen text on this site is a bit different
@@ -72,6 +78,13 @@ class WalkerplusCinemaSpider(CinemaSpider):
         # special case for "新宿ピカデリー"
         if response.meta['cinema_name'] == "新宿ピカデリー":
             match.append(("プラチナ", "26"))
+        # special case for "109シネマズ二子玉川"
+        if response.meta['cinema_name'] == "109シネマズ二子玉川":
+            match.append(("グランドEXE", "12"))
+            for i in range(len(match)):
+                if match[i][0] == "スクリーン7":
+                    seat_count = extract_seat_number(match[i][1])
+                    match[i] = (match[i][0], str(seat_count-12))
         # TODO special case for aeon d-box seat
         for screen_name, seat_str in match:
             screen_name = standardize_screen_name(screen_name, cinema)

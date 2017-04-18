@@ -59,12 +59,17 @@ class CinemaSpider(scrapy.Spider, CinemasDatabaseMixin):
         for curr_cinema in cinema_list:
             cinema_name = curr_cinema.xpath('./text()').extract_first()
             cinema_name = standardize_cinema_name(cinema_name)
+            if not self.is_cinema_crawl(cinema_name):
+                continue
             url = curr_cinema.xpath('./@href').extract_first()
             url = self.adjust_cinema_url(response.urljoin(url))
             request = scrapy.Request(url, callback=self.parse_cinema)
             request.meta['county_name'] = response.meta['county_name']
             request.meta['cinema_name'] = cinema_name
             yield request
+
+    def is_cinema_crawl(self, cinema_name):
+        return True
 
     def adjust_cinema_url(self, url):
         """

@@ -143,7 +143,7 @@ class MovieSpider(ShowingSpider):
         booking_data_proto['book_status'] = \
             MovixUtil.standardize_book_status(book_status)
         if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # sold out or not sold, seat set to 0
+            # sold out or not sold
             status = booking_data_proto['book_status']
             booking_data_proto['book_seat_count'] = (
                 showing_data_proto['total_seat_count']
