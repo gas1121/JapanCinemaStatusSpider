@@ -4,9 +4,10 @@ import re
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import UnitedUtil
+from scrapyproject.utils import standardize_site_url, UnitedUtil
 
 
 class UnitedSpider(ShowingSpider):
@@ -67,7 +68,9 @@ class UnitedSpider(ShowingSpider):
     def parse_cinema(self, response):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
+        data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath('//ul[@id="dailyList"]/li')
         for curr_movie in movie_section_list:
@@ -123,18 +126,32 @@ class UnitedSpider(ShowingSpider):
             './div/ul/li[@class="seatIcon"]/img/@src').extract_first()
         showing_data_proto['seat_type'] = \
             UnitedUtil.standardize_seat_type(seat_type)
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
+            result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
         book_status = curr_showing.xpath(
             './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
-        showing_data_proto['book_status'] = \
+        booking_data_proto['book_status'] = \
             UnitedUtil.standardize_book_status(book_status)
         if (showing_data_proto['seat_type'] == 'FreeSeat' or
-                showing_data_proto['book_status'] in ['SoldOut', 'NotSold']):
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
-            result_list.append(showing_data_proto)
+                booking_data_proto['book_status'] in ['SoldOut', 'NotSold']):
+            # sold out or not sold
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
@@ -149,7 +166,7 @@ class UnitedSpider(ShowingSpider):
             else:
                 request = scrapy.Request(
                     url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             # use independent cookie to avoid affecting each other
             request.meta["cookiejar"] = url
             result_list.append(request)
@@ -164,11 +181,8 @@ class UnitedSpider(ShowingSpider):
 
     def parse_normal_showing(self, response):
         result = response.meta["data_proto"]
-        total_seat_count = int(response.xpath(
-            '//span[@class="seat"]/text()').extract_first())
         result['book_seat_count'] = len(response.xpath(
             '//img[contains(@src,"lb_non_selected")]'))
-        result['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

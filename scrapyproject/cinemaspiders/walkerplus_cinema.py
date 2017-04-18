@@ -38,13 +38,9 @@ class WalkerplusCinemaSpider(CinemaSpider):
 
     def is_cinema_crawl(self, cinema_name):
         # TEST
-        if ("ジョイ" not in cinema_name
-                and "新宿バルト9" not in cinema_name
-                and "横浜ブルク13" not in cinema_name
-                and "こうのすシネマ" not in cinema_name
-                and "梅田ブルク7" not in cinema_name
-                and "広島バルト11" not in cinema_name
-                and "鹿児島ミッテ10" not in cinema_name):
+        if ("ユナイテッド" not in cinema_name
+                and "シネプレックス" not in cinema_name
+                and "YEBISU" not in cinema_name):
             return False
         return True
 
@@ -91,6 +87,9 @@ class WalkerplusCinemaSpider(CinemaSpider):
                 if match[i][0] == "スクリーン7":
                     seat_count = extract_seat_number(match[i][1])
                     match[i] = (match[i][0], str(seat_count-12))
+        # TODO special case for united cinema 3D screen
+        # TODO special case for united cinema YEBISUGARDENCINEMA en/jp
+        # TODO make special case only need to modify one place
         # TODO special case for aeon d-box seat
         for screen_name, seat_str in match:
             screen_name = standardize_screen_name(screen_name, cinema)
