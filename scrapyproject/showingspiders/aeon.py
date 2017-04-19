@@ -6,9 +6,10 @@ import demjson
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import AeonUtil
+from scrapyproject.utils import standardize_site_url, AeonUtil
 
 
 class AeonSpider(ShowingSpider):
@@ -69,7 +70,9 @@ class AeonSpider(ShowingSpider):
     def parse_cinema_schedule(self, response):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
+        data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
@@ -119,8 +122,7 @@ class AeonSpider(ShowingSpider):
         end_hour, end_minute = parse_time(end_time)
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
-        screen_name = curr_showing.xpath(
-            './div[@class="screen"]/a/text()').extract_first()
+        screen_name = curr_showing.xpath('./div[2]/a/text()').extract_first()
         screen_name = standardize_screen_name(screen_name,  showing_data_proto)
         showing_data_proto['screen'] = screen_name
         # when site ordering is stopped stop crawling
@@ -133,17 +135,31 @@ class AeonSpider(ShowingSpider):
             './div[@class="icon"]//img/@alt').extract_first()
         showing_data_proto['seat_type'] = \
             AeonUtil.standardize_seat_type(seat_type)
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
+            result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
-        showing_data_proto['book_status'] = \
+        booking_data_proto['book_status'] = \
             AeonUtil.standardize_book_status(book_status)
         if (showing_data_proto['seat_type'] == 'FreeSeat' or
-                showing_data_proto['book_status'] in ['SoldOut', 'NotSold']):
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
-            result_list.append(showing_data_proto)
+                booking_data_proto['book_status'] in ['SoldOut', 'NotSold']):
+            # sold out or not sold
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, generate request to showing page
@@ -154,7 +170,7 @@ class AeonSpider(ShowingSpider):
             schedule_url = response.meta['schedule_url']
             request = scrapy.Request(
                 schedule_url, dont_filter=True, callback=self.parse_new_cookie)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
@@ -265,22 +281,13 @@ class AeonSpider(ShowingSpider):
         json_data = demjson.decode(script_text)
         result = response.meta["data_proto"]
 
-        empty_seat_count = 0
         booked_seat_count = 0
-        locked_seat_count = 0
         for i in range(len(json_data['SeatMaps']['FLAG'][0])):
             for j in range(len(json_data['SeatMaps']['FLAG'][0][i])):
                 curr_num = json_data['SeatMaps']['FLAG'][0][i][j]
-                if curr_num == '1':
-                    empty_seat_count += 1
-                elif curr_num == '3':
+                if curr_num == '3':
                     booked_seat_count += 1
-                elif curr_num == '8':
-                    locked_seat_count += 1
-        total_seat_count = (empty_seat_count + booked_seat_count
-                            + locked_seat_count)
         result['book_seat_count'] = booked_seat_count
-        result['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

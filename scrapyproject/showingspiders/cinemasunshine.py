@@ -4,9 +4,10 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import CinemaSunshineUtil
+from scrapyproject.utils import standardize_site_url, CinemaSunshineUtil
 
 
 class CinemaSunshineSpider(ShowingSpider):
@@ -61,7 +62,9 @@ class CinemaSunshineSpider(ShowingSpider):
             return
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
+        data_proto['source'] = self.name
         result_list = []
         movie_list = []
         if isinstance(schedule_data['data']['movie'], dict):
@@ -118,22 +121,37 @@ class CinemaSunshineSpider(ShowingSpider):
         showing_data_proto['end_time'] = self.get_time_from_text(
             end_hour, end_minute)
         showing_data_proto['seat_type'] = 'NormalSeat'
-        showing_data_proto['book_status'] = \
+        # TODO get seat type right now
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
+            result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto['book_status'] = \
             CinemaSunshineUtil.standardize_book_status(
                 curr_showing['available'])
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
-            result_list.append(showing_data_proto)
+        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # sold out or not sold
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
             url = curr_showing['url']
             request = scrapy.Request(url, callback=self.parse_pre_ordering)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             request.meta["dont_merge_cookies"] = True
             result_list.append(request)
 
@@ -175,17 +193,10 @@ class CinemaSunshineSpider(ShowingSpider):
 
     def parse_normal_showing(self, response):
         # some cinemas are free seat ordered, so data may not be crawled
-        empty_seat_count = len(response.xpath(
-            '//img[contains(@src,"seat_100.gif")]'))
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_102.gif")]'))
-        locked_seat_count = len(response.xpath(
-            '//img[contains(@src,"seat_109.gif")]'))
-        total_seat_count = (empty_seat_count + booked_seat_count
-                            + locked_seat_count)
         result = response.meta["data_proto"]
         result['book_seat_count'] = booked_seat_count
-        result['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

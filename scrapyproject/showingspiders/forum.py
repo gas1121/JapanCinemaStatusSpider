@@ -4,9 +4,10 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, standardize_cinema_name,
+from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+                                 standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import ForumUtil
+from scrapyproject.utils import standardize_site_url, ForumUtil
 
 
 class ForumSpider(ShowingSpider):
@@ -52,7 +53,9 @@ class ForumSpider(ShowingSpider):
     def parse_cinema(self, response):
         data_proto = ShowingItem()
         data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
+        data_proto["cinema_site"] = standardize_site_url(
+            response.meta["cinema_site"], response.meta["cinema_name"])
+        data_proto['source'] = self.name
         result_list = []
         movie_section_list = response.xpath(
             '//section[@data-accordion-group="movie"]')
@@ -105,29 +108,44 @@ class ForumSpider(ShowingSpider):
         if cinema_name:
             standardize_cinema_name(cinema_name)
             showing_data_proto['cinema_name'] = cinema_name
+        # CANNOTSOLVE we cannot get screen name from site for
+        # sold out and not sold showings so we have to give it a special
+        # screen name
+        # TODO extract screen name from url parameter
+        showing_data_proto['screen'] = "unknown"
         showing_data_proto['seat_type'] = 'NormalSeat'
+
+        # query screen number from database
+        showing_data_proto['total_seat_count'] = \
+            self.get_screen_seat_count(showing_data_proto)
+        # check whether need to continue crawl booking data or stop now
+        if not self.crawl_booking_data:
+            result_list.append(showing_data_proto)
+            return
+
+        booking_data_proto = ShowingBookingItem()
+        booking_data_proto['showing'] = showing_data_proto
         book_status = curr_showing.xpath(
             './span[@class="purchase-block"]/a/@class').extract_first()
-        showing_data_proto['book_status'] = \
+        booking_data_proto['book_status'] = \
             ForumUtil.standardize_book_status(book_status)
-        if showing_data_proto['book_status'] in ['SoldOut', 'NotSold']:
-            # CANNOTSOLVE we cannot get screen name from site for
-            # sold out and not sold showings so we have to give it a special
-            # screen name
-            showing_data_proto['screen'] = "unknown"
-            # sold out or not sold, seat set to 0
-            showing_data_proto['book_seat_count'] = 0
-            showing_data_proto['total_seat_count'] = 0
-            showing_data_proto['record_time'] = arrow.now()
-            showing_data_proto['source'] = self.name
-            result_list.append(showing_data_proto)
+        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+            # sold out or not sold
+            status = booking_data_proto['book_status']
+            booking_data_proto['book_seat_count'] = (
+                showing_data_proto['total_seat_count']
+                if status == 'SoldOut' else 0)
+            booking_data_proto['record_time'] = arrow.now()
+            booking_data_proto['minutes_before'] = \
+                self.get_minutes_before(booking_data_proto)
+            result_list.append(booking_data_proto)
             return
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath(
                 './span[@class="purchase-block"]/a/@href').extract_first()
             request = scrapy.Request(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = showing_data_proto
+            request.meta["data_proto"] = booking_data_proto
             result_list.append(request)
 
     def parse_normal_showing(self, response):
@@ -146,7 +164,7 @@ class ForumSpider(ShowingSpider):
         m = re.search(r'"unsold_seat_number":"(\d+)"', script_text)
         unsold_seat_count = int(m.group(1))
         result['book_seat_count'] = total_seat_count - unsold_seat_count
-        result['total_seat_count'] = total_seat_count
+        result['showing']['total_seat_count'] = total_seat_count
         result['record_time'] = arrow.now()
-        result['source'] = self.name
+        result['minutes_before'] = self.get_minutes_before(result)
         yield result

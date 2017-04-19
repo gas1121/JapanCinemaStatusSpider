@@ -92,7 +92,9 @@ class WalkerplusCinemaSpider(CinemaSpider):
         # TODO special case for united cinema YEBISUGARDENCINEMA en/jp
         # TODO make special case only need to modify one place
         # TODO special case for korona 4DX screen
+        # TODO special case for cinemasunshine BESTIA and 4DX screen
         # TODO special case for aeon d-box seat
+        # TODO special case for aeon イオンシネマ岡山 screen1
         for screen_name, seat_str in match:
             screen_name = standardize_screen_name(screen_name, cinema)
             # add cinema name into screen name to avoid conflict for
