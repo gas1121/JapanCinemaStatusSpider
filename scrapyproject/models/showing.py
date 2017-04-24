@@ -21,6 +21,7 @@ class Showing(DeclarativeBase):
                               nullable=False)
     # site that data crawled from
     source = Column('source', String, nullable=False)
+    # TODO add movie real title column
 
     @staticmethod
     def get_showing_if_exist(item):

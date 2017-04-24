@@ -48,7 +48,8 @@ class ScreenUtils(object):
         if not screen_number:
             return screens
         screen_number = screen_number[-1]
-        # TODO handle pre 0 issue like "05" and "5"
+        # convert to int once to remove pre 0 like "05"
+        screen_number = str(int(screen_number))
         regex_str = r'^.+#[^0-9]+?' + screen_number + r'[^0-9]*?$'
         match_screens = ScreenUtils.query_by_regex(regex_str, screens)
         if not match_screens:
