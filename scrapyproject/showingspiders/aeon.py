@@ -95,6 +95,8 @@ class AeonSpider(ShowingSpider):
         if not self.is_movie_crawl(title_list):
             return
         movie_data_proto = copy.deepcopy(data_proto)
+        # TODO extract to single method for all spider
+        title = unicodedata.normalize('NFKC', title)
         movie_data_proto['title'] = title
         movie_data_proto['title_en'] = title_en
         movie_data_proto['real_title'] = Movie.get_by_title(title)
