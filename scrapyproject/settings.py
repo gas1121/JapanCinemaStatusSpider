@@ -16,7 +16,8 @@ BOT_NAME = 'scrapyproject'
 
 SPIDER_MODULES = [
     'scrapyproject.cinemaspiders',
-    'scrapyproject.showingspiders'
+    'scrapyproject.showingspiders',
+    'scrapyproject.moviespiders',
 ]
 NEWSPIDER_MODULE = 'scrapyproject.showingspiders'
 

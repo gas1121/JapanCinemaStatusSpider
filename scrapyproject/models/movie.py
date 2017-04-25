@@ -8,7 +8,6 @@ class Movie(DeclarativeBase):
 
     id = Column(Integer, primary_key=True)
     title = Column('title', String, nullable=False)
-    site = Column('cinema_site', String, nullable=False)
     # TODO add another table for cinema count and total showing count
 
     @staticmethod
