@@ -1,36 +1,24 @@
-"""
-base class for spiders crawling cinema info as processes are usually
-very similar, like: county->cinema->(detailed page)
-"""
 import re
 import unicodedata
 import scrapy
-from scrapyproject.items import (CinemaItem, standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import (CinemaDatabaseMixin,
-                                 standardize_county_name,
-                                 extract_seat_number,
-                                 standardize_site_url)
+from scrapyproject.items import (MovieItem, standardize_movie_name)
+from scrapyproject.utils import MovieDatabaseMixin
 
 
-class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
+class WalkerplusMovieSpider(scrapy.Spider, MovieDatabaseMixin):
+    """
+    walkerplus site movie spider.
+    """
+    name = "walkerplus_movie"
+    allowed_domains = ["movie.walkerplus.com"]
+    start_urls = [
+        'http://movie.walkerplus.com/list/',
+        'http://movie.walkerplus.com/list/coming/'
+    ]
 
     def __init__(self, *args, **kwargs):
-        super(CinemaSpider, self).__init__(*args, **kwargs)
-        if not hasattr(self, 'county_xpath'):
-            self.county_xpath = '/invalid_path'
-        if not hasattr(self, 'cinema_xpath'):
-            self.cinema_xpath = '/invalid_path'
-        if not hasattr(self, 'cinema_site_xpath'):
-            self.cinema_site_xpath = '/invalid_path'
-        if not hasattr(self, 'screen_text_xpath'):
-            self.screen_text_xpath = '/invalid_path'
-        if not hasattr(self, 'screen_pattern'):
-            self.screen_pattern = r'$invalid_match^'
-        if not hasattr(self, 'screen_name_pattern'):
-            self.screen_name_pattern = r'$invalid_match^'
-        if not hasattr(self, 'seat_number_pattern'):
-            self.seat_number_pattern = r'$invalid_match^'
+        # TODO
+        super(WalkerplusMovieSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         """

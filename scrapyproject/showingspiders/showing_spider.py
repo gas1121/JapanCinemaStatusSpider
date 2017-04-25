@@ -5,10 +5,10 @@ import unicodedata
 import arrow
 import scrapy
 from scrapyproject.models import Cinema
-from scrapyproject.utils import ShowingsDatabaseMixin
+from scrapyproject.utils import ShowingDatabaseMixin
 
 
-class ShowingSpider(scrapy.Spider, ShowingsDatabaseMixin):
+class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
     def __init__(self, *args, **kwargs):
         """
         Prepare common settings for showing spider.
