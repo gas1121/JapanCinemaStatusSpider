@@ -5,6 +5,7 @@ import scrapy
 class Showing(scrapy.Item):
     title = scrapy.Field()
     title_en = scrapy.Field()
+    real_title = scrapy.Field()
     start_time = scrapy.Field()
     end_time = scrapy.Field()
     cinema_name = scrapy.Field()

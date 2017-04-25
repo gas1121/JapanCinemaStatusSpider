@@ -6,6 +6,7 @@ import demjson
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
+from scrapyproject.models import Movie
 from scrapyproject.items import (ShowingItem, ShowingBookingItem,
                                  standardize_cinema_name,
                                  standardize_screen_name)
@@ -96,6 +97,7 @@ class AeonSpider(ShowingSpider):
         movie_data_proto = copy.deepcopy(data_proto)
         movie_data_proto['title'] = title
         movie_data_proto['title_en'] = title_en
+        movie_data_proto['real_title'] = Movie.get_by_title(title)
         show_section_list = curr_movie.xpath(
             './div[2]/div')
         for curr_showing in show_section_list:

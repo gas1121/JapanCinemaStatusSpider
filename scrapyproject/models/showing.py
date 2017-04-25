@@ -11,6 +11,7 @@ class Showing(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     title = Column('title', String, nullable=False)
     title_en = Column('title_en', String)
+    real_title = Column('real_title', String)
     start_time = Column('start_time', ArrowType, nullable=False)
     end_time = Column('end_time', ArrowType)
     cinema_name = Column('cinema_name', String, nullable=False)
@@ -21,7 +22,6 @@ class Showing(DeclarativeBase):
                               nullable=False)
     # site that data crawled from
     source = Column('source', String, nullable=False)
-    # TODO add movie real title column
 
     @staticmethod
     def get_showing_if_exist(item):
