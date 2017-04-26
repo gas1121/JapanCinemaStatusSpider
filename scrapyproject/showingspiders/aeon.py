@@ -25,7 +25,6 @@ class AeonSpider(ShowingSpider):
 
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
-        'COOKIES_DEBUG': True
     }
 
     cinema_list = ['イオンシネマ板橋']
