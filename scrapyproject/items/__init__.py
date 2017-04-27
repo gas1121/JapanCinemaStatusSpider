@@ -4,4 +4,4 @@ from scrapyproject.items.cinema import Cinema as CinemaItem
 from scrapyproject.items.showing import Showing as ShowingItem
 from scrapyproject.items.showing_booking import ShowingBooking \
     as ShowingBookingItem
-from scrapyproject.items.movie import Movie as MovieItem
+from scrapyproject.items.movie import MovieLoader, Movie as MovieItem

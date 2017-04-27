@@ -1,6 +1,6 @@
 import unicodedata
 import scrapy
-from scrapyproject.items import MovieItem
+from scrapyproject.items import MovieLoader
 from scrapyproject.utils import MovieDatabaseMixin
 
 
@@ -24,9 +24,9 @@ class WalkerplusMovieSpider(scrapy.Spider, MovieDatabaseMixin):
         movie_list = response.xpath('//div[@class="onScreenBoxContentMovie"]')
         for movie in movie_list:
             title = movie.xpath('./h3/a/text()').extract_first()
-            item = MovieItem()
-            item['title'] = unicodedata.normalize('NFKC', title)
-            yield item
+            movie_loader = MovieLoader(response=response)
+            movie_loader.add_value('title', title)
+            yield movie_loader.load_item()
         next_page = response.xpath(
             '//li[@class="next"]/a/@href').extract_first()
         if next_page:
