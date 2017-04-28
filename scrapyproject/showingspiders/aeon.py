@@ -7,7 +7,7 @@ import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.models import Movie
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
+from scrapyproject.items import (ShowingItem, ShowingBookingLoader,
                                  standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils import standardize_site_url, AeonUtil
@@ -147,22 +147,21 @@ class AeonSpider(ShowingSpider):
             result_list.append(showing_data_proto)
             return
 
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = AeonUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto)
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
-        booking_data_proto['book_status'] = \
-            AeonUtil.standardize_book_status(book_status)
+        booking_data_proto.add_value('book_status', book_status)
+        book_status = booking_data_proto.get_output_value('book_status')
         if (showing_data_proto['seat_type'] == 'FreeSeat' or
-                booking_data_proto['book_status'] in ['SoldOut', 'NotSold']):
+                book_status in ['SoldOut', 'NotSold']):
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            book_seat_count = (showing_data_proto['total_seat_count']
+                               if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, generate request to showing page
@@ -290,7 +289,6 @@ class AeonSpider(ShowingSpider):
                 curr_num = json_data['SeatMaps']['FLAG'][0][i][j]
                 if curr_num == '3':
                     booked_seat_count += 1
-        result['book_seat_count'] = booked_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()

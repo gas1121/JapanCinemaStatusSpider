@@ -85,8 +85,3 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
                 cinema_name=showing_data_proto['cinema_name'],
                 cinema_site=showing_data_proto['cinema_site'],
                 screen=showing_data_proto['screen'])
-
-    def get_minutes_before(self, booking_data_proto):
-        time_before = (booking_data_proto['showing']['start_time'] -
-                       booking_data_proto['record_time'])
-        return (time_before.days*1440 + time_before.seconds//60)

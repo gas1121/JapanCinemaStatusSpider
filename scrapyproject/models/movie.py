@@ -36,10 +36,6 @@ class Movie(DeclarativeBase):
         session.close()
         title_list = [title for title, in result]
         result_title, ratio = process.extractOne(title, title_list)
-        # TODO problem for japanese katakana (half and full width)
-        print(title)
-        print(result_title)
-        print(ratio)
         if ratio > 60:
             return result_title
         else:
