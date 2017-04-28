@@ -5,12 +5,11 @@ very similar, like: county->cinema->(detailed page)
 import re
 import unicodedata
 import scrapy
-from scrapyproject.items import (CinemaItem, standardize_cinema_name,
+from scrapyproject.items import (CinemaLoader, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils import (CinemaDatabaseMixin,
                                  standardize_county_name,
-                                 extract_seat_number,
-                                 standardize_site_url)
+                                 extract_seat_number)
 
 
 class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
@@ -81,14 +80,14 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
         """
         parse cinema's info
         """
-        cinema = CinemaItem()
-        cinema['names'] = [response.meta['cinema_name']]
-        cinema['county'] = response.meta['county_name']
+        cinema = CinemaLoader(response=response)
+        cinema.context['cinema_name'] = response.meta['cinema_name']
+        cinema.add_value('nemas', response.meta['cinema_name'])
+        cinema.add_value('county', response.meta['county_name'])
         site = response.xpath(self.cinema_site_xpath).extract_first()
         if site:
             site = self.adjust_cinema_site(response, site)
-            cinema['site'] = standardize_site_url(
-                site, response.meta['cinema_name'])
+            cinema.add_value('site', site)
         (cinema['screens'], cinema['screen_count'],
          cinema['total_seats']) = self.parse_screen_data(response, cinema)
         cinema['source'] = self.name
