@@ -82,16 +82,18 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
         """
         cinema = CinemaLoader(response=response)
         cinema.context['cinema_name'] = response.meta['cinema_name']
-        cinema.add_value('nemas', response.meta['cinema_name'])
+        cinema.add_value('names', response.meta['cinema_name'])
         cinema.add_value('county', response.meta['county_name'])
         site = response.xpath(self.cinema_site_xpath).extract_first()
         if site:
             site = self.adjust_cinema_site(response, site)
             cinema.add_value('site', site)
-        (cinema['screens'], cinema['screen_count'],
-         cinema['total_seats']) = self.parse_screen_data(response, cinema)
-        cinema['source'] = self.name
-        yield cinema
+        screen, screen_count, total_seats = self.parse_screen_data(response)
+        cinema.add_value('screens', screen)
+        cinema.add_value('screen_count', screen_count)
+        cinema.add_value('total_seats', total_seats)
+        cinema.add_value('source', self.name)
+        yield cinema.load_item()
 
     def adjust_cinema_site(self, response, site):
         """
@@ -99,7 +101,7 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
         """
         return site
 
-    def parse_screen_data(self, response, cinema):
+    def parse_screen_data(self, response):
         screen_raw_texts = response.xpath(self.screen_text_xpath).extract()
         screen = {}
         screen_count = 0
@@ -110,7 +112,8 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
             if not pattern.match(raw_text):
                 continue
             screen_name = pattern.sub(self.screen_name_pattern, raw_text)
-            screen_name = standardize_screen_name(screen_name, cinema)
+            screen_name = standardize_screen_name(
+                screen_name, response.meta['cinema_name'])
             # add cinema name into screen name to avoid conflict for
             # sub cinemas
             screen_name = response.meta['cinema_name'] + "#" + screen_name

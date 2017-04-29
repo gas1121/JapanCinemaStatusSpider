@@ -45,7 +45,7 @@ class WalkerplusCinemaSpider(CinemaSpider):
             return False
         return True
 
-    def parse_screen_data(self, response, cinema):
+    def parse_screen_data(self, response):
         """
         override as screen text on this site is a bit different
         """
@@ -96,7 +96,8 @@ class WalkerplusCinemaSpider(CinemaSpider):
         # TODO special case for aeon d-box seat
         # TODO special case for aeon イオンシネマ岡山 screen1
         for screen_name, seat_str in match:
-            screen_name = standardize_screen_name(screen_name, cinema)
+            screen_name = standardize_screen_name(
+                screen_name, response.meta['cinema_name'])
             # add cinema name into screen name to avoid conflict for
             # sub cinemas
             screen_name = response.meta['cinema_name'] + "#" + screen_name
