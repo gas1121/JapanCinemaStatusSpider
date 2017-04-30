@@ -3,14 +3,10 @@ import re
 import unicodedata
 import copy
 import demjson
-import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.models import Movie
-from scrapyproject.items import (ShowingItem, ShowingBookingLoader,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, AeonUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.utils import AeonUtil
 
 
 class AeonSpider(ShowingSpider):
@@ -40,15 +36,20 @@ class AeonSpider(ShowingSpider):
             # specify cinema name on schedule page
             city_name = theater_link.xpath('./text()').extract_first()
             cinema_name = "イオンシネマ"+city_name
-            cinema_name = standardize_cinema_name(cinema_name)
+            data_proto = ShowingLoader(response=response)
+            data_proto.context['util'] = AeonUtil
+            data_proto.context['loader'] = data_proto
+            data_proto.add_value('cinema_name', cinema_name)
+            cinema_name = data_proto.get_output_value('cinema_name')
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_link.xpath('./@href').extract_first()
             curr_cinema_url = response.urljoin(curr_cinema_url)
+            data_proto.add_value('cinema_site', curr_cinema_url)
+            data_proto.add_value('source', self.name)
             request = scrapy.Request(curr_cinema_url,
                                      callback=self.parse_cinema)
-            request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = curr_cinema_url
+            request.meta["data_proto"] = data_proto
             yield request
 
     def parse_cinema(self, response):
@@ -62,17 +63,12 @@ class AeonSpider(ShowingSpider):
             r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
         request = scrapy.Request(schedule_url,
                                  callback=self.parse_cinema_schedule)
-        request.meta["cinema_name"] = response.meta['cinema_name']
-        request.meta["cinema_site"] = response.meta['cinema_site']
+        request.meta["data_proto"] = response.meta['data_proto']
         request.meta["schedule_url"] = schedule_url
         yield request
 
     def parse_cinema_schedule(self, response):
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = standardize_site_url(
-            response.meta["cinema_site"], response.meta["cinema_name"])
-        data_proto['source'] = self.name
+        data_proto = copy.deepcopy(response.meta["data_proto"])
         result_list = []
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
@@ -87,26 +83,21 @@ class AeonSpider(ShowingSpider):
         parse movie showing data
         """
         title = curr_movie.xpath('./div[1]/p[1]/a[1]/text()').extract_first()
-        title = title.strip()
         title_en = curr_movie.xpath(
             './div[1]/p[1]/span/text()').extract_first()
-        title_list = [title, title_en]
+        movie_data_proto = copy.deepcopy(data_proto)
+        movie_data_proto.add_title(title, title_en)
+        title_list = movie_data_proto.get_title_list()
         if not self.is_movie_crawl(title_list):
             return
-        movie_data_proto = copy.deepcopy(data_proto)
-        # TODO extract to single method for all spider
-        title = unicodedata.normalize('NFKC', title)
-        movie_data_proto['title'] = title
-        movie_data_proto['title_en'] = title_en
-        movie_data_proto['real_title'] = Movie.get_by_title(title)
-        show_section_list = curr_movie.xpath(
-            './div[2]/div')
+        show_section_list = curr_movie.xpath('./div[2]/div')
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,
                                movie_data_proto, result_list)
 
     def parse_showing(self, response, curr_showing, data_proto, result_list):
         def parse_time(time_str):
+            time_str = unicodedata.normalize('NFKC', start_time)
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
 
@@ -116,18 +107,15 @@ class AeonSpider(ShowingSpider):
             return
         showing_data_proto = copy.deepcopy(data_proto)
         start_time = time_section.xpath('./span/span/text()').extract_first()
-        start_time = unicodedata.normalize('NFKC', start_time)
         start_hour, start_minute = parse_time(start_time)
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         end_time = time_section.xpath('./span/text()').extract_first()
-        end_time = unicodedata.normalize('NFKC', end_time)[1:]
         end_hour, end_minute = parse_time(end_time)
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
+        showing_data_proto.add_value('end_time', self.get_time_from_text(
+            end_hour, end_minute))
         screen_name = curr_showing.xpath('./div[2]/a/text()').extract_first()
-        screen_name = standardize_screen_name(screen_name,  showing_data_proto)
-        showing_data_proto['screen'] = screen_name
+        showing_data_proto.add_value('screen', screen_name)
         # when site ordering is stopped stop crawling
         site_status = curr_showing.xpath(
             './a/span[2]/text()').extract_first()
@@ -136,29 +124,30 @@ class AeonSpider(ShowingSpider):
         # handle free order seat type showings
         seat_type = curr_showing.xpath(
             './div[@class="icon"]//img/@alt').extract_first()
-        showing_data_proto['seat_type'] = \
-            AeonUtil.standardize_seat_type(seat_type)
+        showing_data_proto.add_value(
+            'seat_type', AeonUtil.standardize_seat_type(seat_type))
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_screen_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
-            result_list.append(showing_data_proto)
+            result_list.append(showing_data_proto.load_item())
             return
 
         booking_data_proto = ShowingBookingLoader(response=response)
         booking_data_proto.context['util'] = AeonUtil
         booking_data_proto.context['loader'] = booking_data_proto
-        booking_data_proto.add_value('showing', showing_data_proto)
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
         booking_data_proto.add_value('book_status', book_status)
         book_status = booking_data_proto.get_output_value('book_status')
-        if (showing_data_proto['seat_type'] == 'FreeSeat' or
-                book_status in ['SoldOut', 'NotSold']):
+        seat_type = showing_data_proto.get_output_value('seat_type')
+        if (seat_type == 'FreeSeat' or book_status in ['SoldOut', 'NotSold']):
             # sold out or not sold
-            book_seat_count = (showing_data_proto['total_seat_count']
-                               if book_status == 'SoldOut' else 0)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
             booking_data_proto.add_value('book_seat_count', book_seat_count)
             booking_data_proto.add_time_data()
             result_list.append(booking_data_proto.load_item())

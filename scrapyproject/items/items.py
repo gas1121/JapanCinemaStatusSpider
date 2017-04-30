@@ -19,7 +19,7 @@ def standardize_cinema_name(cinema_name):
     return cinema_name
 
 
-def standardize_screen_name(screen_name, cinema):
+def standardize_screen_name(screen_name, cinema_name):
     """
     standardize screen name, make sure screen can be queried in database
     """

@@ -4,7 +4,6 @@ Base class for spiders crawling movie showings
 import unicodedata
 import arrow
 import scrapy
-from scrapyproject.models import Cinema
 from scrapyproject.utils import ShowingDatabaseMixin
 
 
@@ -79,9 +78,3 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
         time = arrow.get(self.date, 'YYYYMMDD').replace(tzinfo='UTC+9')
         time = time.shift(hours=hours, minutes=minutes)
         return time
-
-    def get_screen_seat_count(self, showing_data_proto):
-        return Cinema.get_screen_seat_count(
-                cinema_name=showing_data_proto['cinema_name'],
-                cinema_site=showing_data_proto['cinema_site'],
-                screen=showing_data_proto['screen'])
