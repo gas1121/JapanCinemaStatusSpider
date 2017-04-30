@@ -2,7 +2,7 @@
 import unicodedata
 import scrapy
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import Identity, TakeFirst, MapCompose
+from scrapy.loader.processors import Identity, TakeFirst
 from scrapyproject.models import Movie, Cinema
 from scrapyproject.items import (standardize_cinema_name,
                                  standardize_screen_name)
@@ -23,29 +23,28 @@ class Showing(scrapy.Item):
     source = scrapy.Field()
 
 
-def cinema_site_in(value, loader_context):
-    loader = loader_context.get('loader')
-    return standardize_site_url(value, loader.get_output_value('cinema_name'))
-
-
-def screen_name_in(value, loader_context):
-    loader = loader_context.get('loader')
-    return standardize_screen_name(
-        value,  loader.get_output_value('cinema_name'))
-
-
 class ShowingLoader(ItemLoader):
     default_item_class = Showing
     default_input_processor = Identity()
     default_output_processor = TakeFirst()
 
-    cinema_name_in = MapCompose(lambda v: standardize_cinema_name(v))
-    cinema_site_in = MapCompose(cinema_site_in)
-    screen_name_in = MapCompose(screen_name_in)
+    def add_cinema_name(self, cinema_name):
+        self.add_value('cinema_name', standardize_cinema_name(cinema_name))
+
+    def add_cinema_site(self, cinema_site, cinema_name):
+        self.add_value('cinema_site',
+                       standardize_site_url(cinema_site, cinema_name))
+
+    def add_screen_name(self, screen_name, cinema_name):
+        self.add_value('screen_name',
+                       standardize_screen_name(screen_name, cinema_name))
 
     def add_title(self, title, title_en=None):
+        # normalize title to avoid full width characters
         title = title.strip()
         title = unicodedata.normalize('NFKC', title)
+        if title_en:
+            title_en = unicodedata.normalize('NFKC', title_en)
         self.add_value('title', title)
         self.add_value('title_en', title_en)
         self.add_value('real_title', Movie.get_by_title(title))

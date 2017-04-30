@@ -5,10 +5,8 @@ import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, TohoUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader,)
+from scrapyproject.utils import TohoUtil
 
 
 class TohoV2Spider(ShowingSpider):
@@ -122,14 +120,11 @@ class TohoV2Spider(ShowingSpider):
                          showing_url_parameter, result_list):
         site_cd = sub_cinema['code']
         showing_url_parameter['site_cd'] = site_cd
-        cinema_name = sub_cinema['name']
-        cinema_name = standardize_cinema_name(cinema_name)
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = cinema_name
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_cinema_name(sub_cinema['name'])
         cinema_site = TohoUtil.generate_cinema_homepage_url(site_cd)
-        data_proto["cinema_site"] = standardize_site_url(
-            cinema_site, cinema_name)
-        data_proto['source'] = self.name
+        data_proto.add_cinema_site(cinema_site, sub_cinema['name'])
+        data_proto.add_value('source', self.name)
         for curr_movie in sub_cinema['list']:
             self.parse_movie(response, curr_movie, showing_url_parameter,
                              data_proto, result_list)
@@ -140,28 +135,26 @@ class TohoV2Spider(ShowingSpider):
         parse movie showing data
         movie may have different versions
         """
-        title = curr_movie['name']
-        # normalize title_en to avoid full width characters
-        title_en = unicodedata.normalize('NFKC', curr_movie['ename'])
-        if not self.is_movie_crawl([title, title_en]):
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(
+            title=curr_movie['name'], title_en=curr_movie['ename'])
+        title_list = movie_data_proto.get_title_list()
+        if not self.is_movie_crawl(title_list):
             return
         showing_url_parameter['movie_cd'] = curr_movie['code']
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto['title'] = title
-        movie_data_proto['title_en'] = title_en
         for curr_screen in curr_movie['list']:
             self.parse_screen(response, curr_screen, showing_url_parameter,
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen,
                      showing_url_parameter, data_proto, result_list):
-        screen = curr_screen['ename']
         showing_url_parameter['theater_cd'] = curr_screen['theaterCd']
         showing_url_parameter['screen_cd'] = curr_screen['code']
-        screen_data_proto = copy.deepcopy(data_proto)
-        # make sure screen name is same with those in cinemas table
-        screen_data_proto['screen'] = standardize_screen_name(
-            screen, screen_data_proto['cinema_name'])
+        screen_data_proto = ShowingLoader(response=response)
+        screen_data_proto.add_value(None, data_proto.load_item())
+        screen = curr_screen['ename']
+        screen_data_proto.add_value('screen', screen)
         for curr_showing in curr_screen['list']:
             # filter empty showing
             if not curr_showing['unsoldSeatInfo']:
@@ -178,38 +171,39 @@ class TohoV2Spider(ShowingSpider):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
         showing_url_parameter['showing_cd'] = curr_showing['code']
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         # time like 24:40 can not be directly parsed,
         # so we need to shift time properly
         start_hour, start_minute = parse_time(curr_showing['showingStart'])
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         end_hour, end_minute = parse_time(curr_showing['showingEnd'])
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
-        showing_data_proto['seat_type'] = 'NormalSeat'
+        showing_data_proto.add_value('end_time', self.get_time_from_text(
+            end_hour, end_minute))
+        showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_screen_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
-            result_list.append(showing_data_proto)
+            result_list.append(showing_data_proto.load_item())
             return
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
-        booking_data_proto['book_status'] = TohoUtil.standardize_book_status(
-            curr_showing['unsoldSeatInfo']['unsoldSeatStatus'])
-        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = TohoUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
+        book_status = curr_showing['unsoldSeatInfo']['unsoldSeatStatus']
+        booking_data_proto.add_value('book_status', book_status)
+        if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, need to crawl book number on order page
@@ -245,7 +239,6 @@ class TohoV2Spider(ShowingSpider):
     def parse_normal_showing(self, response):
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
         result = response.meta["data_proto"]
-        result['book_seat_count'] = booked_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()

@@ -37,15 +37,13 @@ class AeonSpider(ShowingSpider):
             city_name = theater_link.xpath('./text()').extract_first()
             cinema_name = "イオンシネマ"+city_name
             data_proto = ShowingLoader(response=response)
-            data_proto.context['util'] = AeonUtil
-            data_proto.context['loader'] = data_proto
-            data_proto.add_value('cinema_name', cinema_name)
+            data_proto.add_cinema_name(cinema_name)
             cinema_name = data_proto.get_output_value('cinema_name')
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_link.xpath('./@href').extract_first()
             curr_cinema_url = response.urljoin(curr_cinema_url)
-            data_proto.add_value('cinema_site', curr_cinema_url)
+            data_proto.add_cinema_site(curr_cinema_url, cinema_name)
             data_proto.add_value('source', self.name)
             request = scrapy.Request(curr_cinema_url,
                                      callback=self.parse_cinema)
@@ -68,7 +66,8 @@ class AeonSpider(ShowingSpider):
         yield request
 
     def parse_cinema_schedule(self, response):
-        data_proto = copy.deepcopy(response.meta["data_proto"])
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_value(None, response.meta["data_proto"].load_item())
         result_list = []
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
@@ -85,8 +84,9 @@ class AeonSpider(ShowingSpider):
         title = curr_movie.xpath('./div[1]/p[1]/a[1]/text()').extract_first()
         title_en = curr_movie.xpath(
             './div[1]/p[1]/span/text()').extract_first()
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto.add_title(title, title_en)
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(title=title, title_en=title_en)
         title_list = movie_data_proto.get_title_list()
         if not self.is_movie_crawl(title_list):
             return
@@ -105,7 +105,8 @@ class AeonSpider(ShowingSpider):
         time_section = curr_showing.xpath('./div[@class="time"]')
         if not time_section:
             return
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         start_time = time_section.xpath('./span/span/text()').extract_first()
         start_hour, start_minute = parse_time(start_time)
         showing_data_proto.add_value('start_time', self.get_time_from_text(
