@@ -31,6 +31,9 @@ class ShowingLoader(ItemLoader):
     def add_cinema_name(self, cinema_name):
         self.add_value('cinema_name', standardize_cinema_name(cinema_name))
 
+    def replace_cinema_name(self, cinema_name):
+        self.replace_value('cinema_name', standardize_cinema_name(cinema_name))
+
     def add_cinema_site(self, cinema_site, cinema_name):
         self.add_value('cinema_site',
                        standardize_site_url(cinema_site, cinema_name))
@@ -55,10 +58,10 @@ class ShowingLoader(ItemLoader):
         real_title = self.get_output_value('real_title')
         return filter(None, [title, title_en, real_title])
 
-    def add_screen_seat_count(self):
+    def add_total_seat_count(self):
         cinema_name = self.get_output_value('cinema_name')
         cinema_site = self.get_output_value('cinema_site')
         screen = self.get_output_value('screen')
-        return Cinema.get_screen_seat_count(
+        self.add_value('total_seat_count', Cinema.get_screen_seat_count(
                 cinema_name=cinema_name, cinema_site=cinema_site,
-                screen=screen)
+                screen=screen))

@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
-import copy
-import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, CinemaSunshineUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.utils import CinemaSunshineUtil
 
 
 class CinemaSunshineSpider(ShowingSpider):
@@ -29,17 +25,21 @@ class CinemaSunshineSpider(ShowingSpider):
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
                 './p[@class="theaterName"]/a/text()').extract_first()
-            standardize_cinema_name(cinema_name)
+            data_proto = ShowingLoader(response=response)
+            data_proto.add_cinema_name(cinema_name)
+            cinema_name = data_proto.get_output_value('cinema_name')
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_element.xpath(
                 './p[@class="theaterName"]/a/@href').extract_first()
+            data_proto.add_cinema_site(
+                response.urljoin(curr_cinema_url), cinema_name)
+            data_proto.add_value('source', self.name)
             cinema_name_en = curr_cinema_url.split('/')[-1]
             json_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(json_url, callback=self.parse_cinema)
-            request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
+            request.meta["data_proto"] = data_proto
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name, date):
@@ -60,11 +60,8 @@ class CinemaSunshineSpider(ShowingSpider):
             return
         if 'data' not in schedule_data or 'movie' not in schedule_data['data']:
             return
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = standardize_site_url(
-            response.meta["cinema_site"], response.meta["cinema_name"])
-        data_proto['source'] = self.name
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_value(None, response.meta["data_proto"].load_item())
         result_list = []
         movie_list = []
         if isinstance(schedule_data['data']['movie'], dict):
@@ -82,10 +79,12 @@ class CinemaSunshineSpider(ShowingSpider):
         parse movie showing data
         """
         title = curr_movie['name']
-        if not self.is_movie_crawl([title]):
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(title=title)
+        title_list = movie_data_proto.get_title_list()
+        if not self.is_movie_crawl(title_list):
             return
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto['title'] = title
         screen_list = []
         if isinstance(curr_movie['screen'], dict):
             screen_list.append(curr_movie['screen'])
@@ -97,10 +96,9 @@ class CinemaSunshineSpider(ShowingSpider):
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
         screen = curr_screen['name']
-        screen_data_proto = copy.deepcopy(data_proto)
-        # make sure screen name is same with those in cinemas table
-        screen_data_proto['screen'] = standardize_screen_name(
-            screen, screen_data_proto['cinema_name'])
+        screen_data_proto = ShowingLoader(response=response)
+        screen_data_proto.add_value(None, data_proto.load_item())
+        screen_data_proto.add_value('screen', screen)
         showing_list = []
         if isinstance(curr_screen['time'], dict):
             showing_list.append(curr_screen['time'])
@@ -113,39 +111,39 @@ class CinemaSunshineSpider(ShowingSpider):
     def parse_showing(self, response, curr_showing, data_proto, result_list):
         def parse_time(time_str):
             return (int(time_str[:2]), int(time_str[2:]))
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         start_hour, start_minute = parse_time(curr_showing['start_time'])
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         end_hour, end_minute = parse_time(curr_showing['end_time'])
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
-        showing_data_proto['seat_type'] = 'NormalSeat'
+        showing_data_proto.add_value('end_time', self.get_time_from_text(
+            end_hour, end_minute))
+        showing_data_proto.add_value('seat_type', 'NormalSeat')
         # TODO get seat type right now
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
-            result_list.append(showing_data_proto)
+            result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
-        booking_data_proto['book_status'] = \
-            CinemaSunshineUtil.standardize_book_status(
-                curr_showing['available'])
-        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = CinemaSunshineUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
+        booking_data_proto.add_value('book_status', curr_showing['available'])
+        book_status = booking_data_proto.get_output_value('book_status')
+        if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, need to crawl book number on order page
@@ -159,6 +157,7 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         redirect with form data
         """
+        # TODO form not found bug
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form', callback=self.parse_agreement)
         request.meta["data_proto"] = response.meta["data_proto"]
@@ -196,7 +195,6 @@ class CinemaSunshineSpider(ShowingSpider):
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_102.gif")]'))
         result = response.meta["data_proto"]
-        result['book_seat_count'] = booked_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()

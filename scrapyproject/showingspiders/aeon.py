@@ -129,7 +129,7 @@ class AeonSpider(ShowingSpider):
             'seat_type', AeonUtil.standardize_seat_type(seat_type))
 
         # query screen number from database
-        showing_data_proto.add_screen_seat_count()
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto.load_item())

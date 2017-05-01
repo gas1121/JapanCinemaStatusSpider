@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import unicodedata
 import json
-import copy
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
@@ -184,7 +183,7 @@ class TohoV2Spider(ShowingSpider):
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database
-        showing_data_proto.add_screen_seat_count()
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto.load_item())

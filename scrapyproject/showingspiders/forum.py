@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
-import copy
-import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, ForumUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.utils import ForumUtil
 
 
 class ForumSpider(ShowingSpider):
@@ -31,16 +27,20 @@ class ForumSpider(ShowingSpider):
             # forum site have multiple cinema on one site, so we need to
             # specify cinema name on schedule page
             cinema_name = theater_element.xpath('./h4/text()').extract_first()
-            standardize_cinema_name(cinema_name)
+            data_proto = ShowingLoader(response=response)
+            data_proto.add_cinema_name(cinema_name)
+            cinema_name = data_proto.get_output_value('cinema_name')
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             curr_cinema_url = theater_element.xpath(
                 './p/a/@href').extract_first()
+            data_proto.add_cinema_site(
+                response.urljoin(curr_cinema_url), cinema_name)
+            data_proto.add_value('source', self.name)
             schedule_url = self.generate_cinema_schedule_url(
                 curr_cinema_url, self.date)
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
-            request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = response.urljoin(curr_cinema_url)
+            request.meta["data_proto"] = data_proto
             yield request
 
     def generate_cinema_schedule_url(self, curr_cinema_url, date):
@@ -51,11 +51,8 @@ class ForumSpider(ShowingSpider):
         return url
 
     def parse_cinema(self, response):
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = standardize_site_url(
-            response.meta["cinema_site"], response.meta["cinema_name"])
-        data_proto['source'] = self.name
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_value(None, response.meta["data_proto"].load_item())
         result_list = []
         movie_section_list = response.xpath(
             '//section[@data-accordion-group="movie"]')
@@ -71,17 +68,13 @@ class ForumSpider(ShowingSpider):
         """
         title = curr_movie.xpath('./h2/text()').extract_first()
         title_en = curr_movie.xpath('./h2/span/text()').extract_first()
-        title_list = [title]
-        if title_en:
-            title_list.append(title_en)
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(title=title, title_en=title_en)
+        title_list = movie_data_proto.get_title_list()
         if not self.is_movie_crawl(title_list):
             return
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto['title'] = title
-        if title_en:
-            movie_data_proto['title_en'] = title_en
-        show_section_list = curr_movie.xpath(
-            './/ul[@class="timetable"]/li')
+        show_section_list = curr_movie.xpath('.//ul[@class="timetable"]/li')
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,
                                movie_data_proto, result_list)
@@ -91,54 +84,54 @@ class ForumSpider(ShowingSpider):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
 
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         start_time = curr_showing.xpath(
             './span[@class="start-time digit"]/text()').extract_first()
         start_hour, start_minute = parse_time(start_time)
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         end_time = curr_showing.xpath(
             './span[@class="end-time digit"]/text()').extract_first()
         end_hour, end_minute = parse_time(end_time)
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
+        showing_data_proto.add_value('end_time', self.get_time_from_text(
+            end_hour, end_minute))
         cinema_name = curr_showing.xpath(
             './span[@class="movie-info-theater"]/text()').extract_first()
         # if extract cinema name from showing info, use this one
         if cinema_name:
-            standardize_cinema_name(cinema_name)
-            showing_data_proto['cinema_name'] = cinema_name
+            showing_data_proto.replace_cinema_name(cinema_name)
         # CANNOTSOLVE we cannot get screen name from site for
         # sold out and not sold showings so we have to give it a special
         # screen name
         # TODO extract screen name from url parameter
-        showing_data_proto['screen'] = "unknown"
-        showing_data_proto['seat_type'] = 'NormalSeat'
+        showing_data_proto.add_value('screen', "unknown")
+        showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
             return
 
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = ForumUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath(
             './span[@class="purchase-block"]/a/@class').extract_first()
-        booking_data_proto['book_status'] = \
-            ForumUtil.standardize_book_status(book_status)
-        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        booking_data_proto.add_value('book_status', book_status)
+        book_status = booking_data_proto.get_output_value('book_status')
+        if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, need to crawl book number on order page
@@ -150,12 +143,6 @@ class ForumSpider(ShowingSpider):
 
     def parse_normal_showing(self, response):
         result = response.meta["data_proto"]
-        info_block = response.xpath(
-            '//div[@class="reservationstatus-inner accordion_mobile_inner"]'
-            )
-        screen_name = info_block.xpath('./div[2]/span/text()').extract_first()
-        result['screen'] = standardize_screen_name(
-            screen_name, result['cinema_name'])
         # extract seat info from javascript
         script_text = response.xpath(
             '//script[contains(., "seat_info")]/text()').extract_first()
@@ -163,8 +150,7 @@ class ForumSpider(ShowingSpider):
         total_seat_count = int(m.group(1))
         m = re.search(r'"unsold_seat_number":"(\d+)"', script_text)
         unsold_seat_count = int(m.group(1))
-        result['book_seat_count'] = total_seat_count - unsold_seat_count
-        result['showing']['total_seat_count'] = total_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        booked_seat_count = total_seat_count - unsold_seat_count
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()
