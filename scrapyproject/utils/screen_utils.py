@@ -16,11 +16,16 @@ class ScreenUtils(object):
         """
         get screen seat count from given data.
         """
+        # TODO use map reduce to rewrite
         remain_screens = ScreenUtils.query_by_number(
             screens, cinema_name, target_screen)
         if len(remain_screens) == 1:
             return list(remain_screens.values())[0]
         remain_screens = ScreenUtils.query_by_special_name(
+            remain_screens, cinema_name, target_screen)
+        if len(remain_screens) == 1:
+            return list(remain_screens.values())[0]
+        remain_screens = ScreenUtils.query_by_sub_cinema(
             remain_screens, cinema_name, target_screen)
         if len(remain_screens) == 1:
             return list(remain_screens.values())[0]
@@ -40,8 +45,7 @@ class ScreenUtils(object):
     def query_by_number(screens, cinema_name, target_screen):
         """
         get useful screens by its number,if no number in target screen name,
-        or more than one screen is found, function will fail and return all
-        origin screens
+        function will fail and return all origin screens
         """
         # try to extract screen number
         screen_number = re.findall(r'.+?(\d+)', target_screen)
@@ -90,3 +94,15 @@ class ScreenUtils(object):
             return result_screens
         else:
             return screens
+
+    @staticmethod
+    def query_by_sub_cinema(screens, cinema_name, target_screen):
+        """
+        get screen seat count by sub cinema name ex:
+        "アートフォーラム" and "フォーラム盛岡"
+        """
+        regex_str = r'^' + cinema_name + r'#.*?$'
+        match_screens = ScreenUtils.query_by_regex(regex_str, screens)
+        if not match_screens:
+            return screens
+        return match_screens

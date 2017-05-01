@@ -96,16 +96,26 @@ class ForumSpider(ShowingSpider):
         end_hour, end_minute = parse_time(end_time)
         showing_data_proto.add_value('end_time', self.get_time_from_text(
             end_hour, end_minute))
+        # TODO cinema name extract failed
+        # TODO extract name may be different from real name
         cinema_name = curr_showing.xpath(
             './span[@class="movie-info-theater"]/text()').extract_first()
         # if extract cinema name from showing info, use this one
         if cinema_name:
             showing_data_proto.replace_cinema_name(cinema_name)
+        screen_name = "unknown"
+        url = curr_showing.xpath(
+                './span[@class="purchase-block"]/a/@href').extract_first()
+        if url:
+            # extract screen name by url parameter
+            screen_number = re.findall(r'&sc=(\d+)&', url)
+            if screen_number:
+                screen_number = screen_number[-1]
+                screen_name = "シアター" + screen_number
         # CANNOTSOLVE we cannot get screen name from site for
         # sold out and not sold showings so we have to give it a special
         # screen name
-        # TODO extract screen name from url parameter
-        showing_data_proto.add_value('screen', "unknown")
+        showing_data_proto.add_screen_name(screen_name)
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database

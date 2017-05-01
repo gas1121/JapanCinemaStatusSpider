@@ -38,8 +38,9 @@ class ShowingLoader(ItemLoader):
         self.add_value('cinema_site',
                        standardize_site_url(cinema_site, cinema_name))
 
-    def add_screen_name(self, screen_name, cinema_name):
-        self.add_value('screen_name',
+    def add_screen_name(self, screen_name):
+        cinema_name = self.get_output_value('cinema_name')
+        self.add_value('screen',
                        standardize_screen_name(screen_name, cinema_name))
 
     def add_title(self, title, title_en=None):
