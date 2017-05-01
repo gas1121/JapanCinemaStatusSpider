@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-import copy
-import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, KinezoUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.utils import KinezoUtil
 
 
 class KinezoSpider(ShowingSpider):
@@ -36,14 +32,17 @@ class KinezoSpider(ShowingSpider):
             curr_cinema_url = theater_element.xpath(
                 './@href').extract_first()
             cinema_name = theater_element.xpath('./text()').extract_first()
-            cinema_name = standardize_cinema_name(cinema_name)
+            data_proto = ShowingLoader(response=response)
+            data_proto.add_cinema_name(cinema_name)
+            cinema_name = data_proto.get_output_value('cinema_name')
+            data_proto.add_cinema_site(curr_cinema_url, cinema_name)
+            data_proto.add_value('source', self.name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
             request = scrapy.Request(
                 curr_cinema_url, callback=self.parse_main_page)
-            request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = curr_cinema_url
+            request.meta["data_proto"] = data_proto
             request.meta["cinema_name_en"] = cinema_name_en
             request.meta["dont_merge_cookies"] = True
             yield request
@@ -58,8 +57,7 @@ class KinezoSpider(ShowingSpider):
         schedule_url = self.generate_cinema_schedule_url(
             cinema_name_en, self.date)
         request = scrapy.Request(schedule_url, callback=self.parse_cinema)
-        request.meta["cinema_name"] = response.meta["cinema_name"]
-        request.meta["cinema_site"] = response.meta["cinema_site"]
+        request.meta["data_proto"] = response.meta["data_proto"]
         yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
@@ -76,10 +74,8 @@ class KinezoSpider(ShowingSpider):
         cinema home page
         we have to pass this page to get independent cookie for each cinema
         """
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = response.meta['cinema_site']
-        data_proto['source'] = self.name
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_value(None, response.meta["data_proto"].load_item())
         result_list = []
         movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
         movie_section_list = response.xpath('//div[@class="theaterListWrap"]')
@@ -97,61 +93,62 @@ class KinezoSpider(ShowingSpider):
         """
         title_section, detail_section = curr_movie
         title = ''.join(title_section.xpath('./text()').extract())
-        title = title.strip()
-        title_list = [title]
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(title=title)
+        title_list = movie_data_proto.get_title_list()
         if not self.is_movie_crawl(title_list):
             return
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto['title'] = title
         screen_section_list = detail_section.xpath('.//table')
         for curr_screen in screen_section_list:
             self.parse_screen(response, curr_screen,
                               movie_data_proto, result_list)
 
     def parse_screen(self, response, curr_screen, data_proto, result_list):
-        screen_data_proto = copy.deepcopy(data_proto)
+        screen_data_proto = ShowingLoader(response=response)
+        screen_data_proto.add_value(None, data_proto.load_item())
         screen_name = curr_screen.xpath('./tr/td[1]/text()').extract_first()
-        screen_data_proto['screen'] = standardize_screen_name(
-            screen_name, screen_data_proto['cinema_name'])
+        screen_data_proto.add_screen_name(screen_name)
         show_section_list = curr_screen.xpath('./tr/td[2]/a')
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,
                                screen_data_proto, result_list)
 
     def parse_showing(self, response, curr_showing, data_proto, result_list):
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         start_time = curr_showing.xpath(
             './div/text()').extract_first()[:-1]
         start_hour, start_minute = self.parse_time(start_time)
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         # end time not displayed in schedule page
 
-        showing_data_proto['seat_type'] = 'NormalSeat'
+        showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
             return
 
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = KinezoUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath('./div/@class').extract_first()
-        booking_data_proto['book_status'] = \
-            KinezoUtil.standardize_book_status(book_status)
-        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        booking_data_proto.add_value('book_status', book_status)
+        book_status = booking_data_proto.get_output_value('book_status')
+        if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, need to crawl book number on order page
@@ -168,19 +165,18 @@ class KinezoSpider(ShowingSpider):
         time_list = time_text.split('-')
         start_time = time_list[0].strip()
         start_hour, start_minute = self.parse_time(start_time)
-        result['showing']['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        result.get_output_value('showing')['start_time'] = \
+            self.get_time_from_text(start_hour, start_minute)
         end_time = time_list[1].strip()
         end_hour, end_minute = self.parse_time(end_time)
-        result['showing']['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
+        result.get_output_value('showing')['end_time'] = \
+            self.get_time_from_text(end_hour, end_minute)
 
         booked_seat_count = len(response.xpath(
             '//li[@class="seatSell seatOff"]'))
-        result['book_seat_count'] = booked_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()
 
     def parse_time(self, time_str):
         time = time_str.split(":")

@@ -152,8 +152,7 @@ class TohoV2Spider(ShowingSpider):
         showing_url_parameter['screen_cd'] = curr_screen['code']
         screen_data_proto = ShowingLoader(response=response)
         screen_data_proto.add_value(None, data_proto.load_item())
-        screen = curr_screen['ename']
-        screen_data_proto.add_value('screen', screen)
+        screen_data_proto.add_screen_name(curr_screen['ename'])
         for curr_showing in curr_screen['list']:
             # filter empty showing
             if not curr_showing['unsoldSeatInfo']:

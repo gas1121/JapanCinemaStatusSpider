@@ -116,7 +116,7 @@ class AeonSpider(ShowingSpider):
         showing_data_proto.add_value('end_time', self.get_time_from_text(
             end_hour, end_minute))
         screen_name = curr_showing.xpath('./div[2]/a/text()').extract_first()
-        showing_data_proto.add_value('screen', screen_name)
+        showing_data_proto.add_screen_name(screen_name)
         # when site ordering is stopped stop crawling
         site_status = curr_showing.xpath(
             './a/span[2]/text()').extract_first()

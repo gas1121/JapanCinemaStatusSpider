@@ -86,7 +86,7 @@ class Site109Spider(ShowingSpider):
         screen_data_proto.add_value(None, data_proto.load_item())
         screen_name = ''.join(curr_screen.xpath(
             './li[@class="theatre"]/a//text()').extract())
-        screen_data_proto.add_value('screen', screen_name)
+        screen_data_proto.add_screen_name(screen_name)
         show_section_list = curr_screen.xpath('./li')[1:]
         for curr_showing in show_section_list:
             self.parse_showing(response, curr_showing,

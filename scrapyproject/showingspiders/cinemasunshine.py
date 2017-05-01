@@ -98,7 +98,7 @@ class CinemaSunshineSpider(ShowingSpider):
         screen = curr_screen['name']
         screen_data_proto = ShowingLoader(response=response)
         screen_data_proto.add_value(None, data_proto.load_item())
-        screen_data_proto.add_value('screen', screen)
+        screen_data_proto.add_screen_name(screen)
         showing_list = []
         if isinstance(curr_screen['time'], dict):
             showing_list.append(curr_screen['time'])

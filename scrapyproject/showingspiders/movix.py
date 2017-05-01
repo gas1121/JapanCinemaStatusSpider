@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
-import copy
-import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingItem, ShowingBookingItem,
-                                 standardize_cinema_name,
-                                 standardize_screen_name)
-from scrapyproject.utils import standardize_site_url, MovixUtil
+from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.utils import MovixUtil
 
 
 class MovieSpider(ShowingSpider):
@@ -44,13 +40,16 @@ class MovieSpider(ShowingSpider):
                     './/text()').extract())
             else:
                 curr_cinema_url = response.urljoin(curr_cinema_url)
-            cinema_name = standardize_cinema_name(cinema_name)
+            data_proto = ShowingLoader(response=response)
+            data_proto.add_cinema_name(cinema_name)
+            cinema_name = data_proto.get_output_value('cinema_name')
+            data_proto.add_cinema_site(curr_cinema_url, cinema_name)
+            data_proto.add_value('source', self.name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             request = scrapy.Request(
                 curr_cinema_url, callback=self.parse_cinema)
-            request.meta["cinema_name"] = cinema_name
-            request.meta["cinema_site"] = curr_cinema_url
+            request.meta["data_proto"] = data_proto
             yield request
 
     def parse_cinema(self, response):
@@ -64,8 +63,7 @@ class MovieSpider(ShowingSpider):
             response.url, thnumber, self.date)
         request = scrapy.Request(
             schedule_url, encoding='utf-8', callback=self.parse_shechedule)
-        request.meta["cinema_name"] = response.meta["cinema_name"]
-        request.meta["cinema_site"] = response.meta["cinema_site"]
+        request.meta["data_proto"] = response.meta["data_proto"]
         yield request
 
     def generate_cinema_schedule_url(self, site_url, thnumber, show_day):
@@ -78,11 +76,8 @@ class MovieSpider(ShowingSpider):
         return url
 
     def parse_shechedule(self, response):
-        data_proto = ShowingItem()
-        data_proto['cinema_name'] = response.meta['cinema_name']
-        data_proto["cinema_site"] = standardize_site_url(
-            response.meta["cinema_site"], response.meta["cinema_name"])
-        data_proto['source'] = self.name
+        data_proto = ShowingLoader(response=response)
+        data_proto.add_value(None, response.meta["data_proto"].load_item())
         result_list = []
         movie_section_list = response.xpath('//div[@class="scheduleBox"]')
         for curr_movie in movie_section_list:
@@ -97,11 +92,12 @@ class MovieSpider(ShowingSpider):
         """
         title = curr_movie.xpath(
             './/div[@class="MovieTitle1"]//a/text()').extract_first()
-        title_list = [title]
+        movie_data_proto = ShowingLoader(response=response)
+        movie_data_proto.add_value(None, data_proto.load_item())
+        movie_data_proto.add_title(title=title)
+        title_list = movie_data_proto.get_title_list()
         if not self.is_movie_crawl(title_list):
             return
-        movie_data_proto = copy.deepcopy(data_proto)
-        movie_data_proto['title'] = title
         showing_section_list = curr_movie.xpath(
             './/td[contains(@onmouseover,"eventover")]')
         for curr_showing in showing_section_list:
@@ -113,45 +109,45 @@ class MovieSpider(ShowingSpider):
             time = time_str.split(":")
             return (int(time[0]), int(time[1]))
 
-        showing_data_proto = copy.deepcopy(data_proto)
+        showing_data_proto = ShowingLoader(response=response)
+        showing_data_proto.add_value(None, data_proto.load_item())
         screen_name = curr_showing.xpath('./p/text()').extract_first()
-        showing_data_proto['screen'] = standardize_screen_name(
-            screen_name, showing_data_proto['cinema_name'])
+        showing_data_proto.add_screen_name(screen_name)
         start_time = curr_showing.xpath(
             './/span[@class="strong fontXL"]/text()').extract_first()
         start_hour, start_minute = parse_time(start_time)
-        showing_data_proto['start_time'] = self.get_time_from_text(
-            start_hour, start_minute)
+        showing_data_proto.add_value('start_time', self.get_time_from_text(
+            start_hour, start_minute))
         end_time = curr_showing.xpath(
             './/span[@class="strong fontXL"]/../text()').extract_first()[1:]
         end_hour, end_minute = parse_time(end_time)
-        showing_data_proto['end_time'] = self.get_time_from_text(
-            end_hour, end_minute)
-        showing_data_proto['seat_type'] = 'NormalSeat'
+        showing_data_proto.add_value('end_time', self.get_time_from_text(
+            end_hour, end_minute))
+        showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # query screen number from database
-        showing_data_proto['total_seat_count'] = \
-            self.get_screen_seat_count(showing_data_proto)
+        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto)
             return
 
-        booking_data_proto = ShowingBookingItem()
-        booking_data_proto['showing'] = showing_data_proto
+        booking_data_proto = ShowingBookingLoader(response=response)
+        booking_data_proto.context['util'] = MovixUtil
+        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath('.//img/@src').extract_first()
-        booking_data_proto['book_status'] = \
-            MovixUtil.standardize_book_status(book_status)
-        if booking_data_proto['book_status'] in ['SoldOut', 'NotSold']:
+        booking_data_proto.add_value('book_status', book_status)
+        book_status = booking_data_proto.get_output_value('book_status')
+        if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
-            status = booking_data_proto['book_status']
-            booking_data_proto['book_seat_count'] = (
-                showing_data_proto['total_seat_count']
-                if status == 'SoldOut' else 0)
-            booking_data_proto['record_time'] = arrow.now()
-            booking_data_proto['minutes_before'] = \
-                self.get_minutes_before(booking_data_proto)
-            result_list.append(booking_data_proto)
+            total_seat_count = showing_data_proto.get_output_value(
+                'total_seat_count')
+            book_seat_count = (
+                total_seat_count if book_status == 'SoldOut' else 0)
+            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            booking_data_proto.add_time_data()
+            result_list.append(booking_data_proto.load_item())
             return
         else:
             # normal, need to crawl book number on order page
@@ -165,7 +161,6 @@ class MovieSpider(ShowingSpider):
         result = response.meta["data_proto"]
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_no.gif")]'))
-        result['book_seat_count'] = booked_seat_count
-        result['record_time'] = arrow.now()
-        result['minutes_before'] = self.get_minutes_before(result)
-        yield result
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()
