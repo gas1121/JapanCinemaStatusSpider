@@ -108,7 +108,7 @@ class KoronaSpider(ShowingSpider):
         showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
-            result_list.append(showing_data_proto)
+            result_list.append(showing_data_proto.load_item())
             return
 
         booking_data_proto = ShowingBookingLoader(response=response)
