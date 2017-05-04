@@ -91,4 +91,4 @@ Here is a list of useful site and some of them is used by this spider
 - [ ] filter locked seat data
 - [ ] add more stand alone cinema's crawler
 - [ ] handle showings allow selecting seat freely
-- [ ] add scrapyd docker service for deploy
+- [ ] use other spider library for support of schedule and web ui

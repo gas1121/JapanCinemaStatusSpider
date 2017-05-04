@@ -41,8 +41,6 @@ services:
     build:
      context: .
      dockerfile: Dockerfile
-    expose:
-      - "6800"
     volumes: 
       - .:{WORK_DIR}
     working_dir: {WORK_DIR}
@@ -57,16 +55,6 @@ services:
       - phantomjs
       - postgres
       - redis
-    command: scrapyd
-  schedule:
-    build:
-     context: .
-     dockerfile: Dockerfile
-    volumes: 
-      - .:{WORK_DIR}
-    working_dir: {WORK_DIR}
-    depends_on: 
-      - scrapy
     command: python run.py
   phantomjs-vps:
     image: wernight/phantomjs:2
@@ -79,8 +67,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.vps
-    expose:
-      - "6800"
     volumes: 
       - .:{WORK_DIR}
     working_dir: {WORK_DIR}
@@ -95,16 +81,6 @@ services:
       - phantomjs-vps
       - postgres
       - redis
-    command: scrapyd
-  schedule-vps:
-    build:
-     context: .
-     dockerfile: Dockerfile
-    volumes: 
-      - .:{WORK_DIR}
-    working_dir: {WORK_DIR}
-    depends_on: 
-      - scrapy-vps
     command: python run.py
 volumes:
   pgdata:
