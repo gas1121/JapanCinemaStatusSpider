@@ -81,7 +81,10 @@ class AeonSpider(ShowingSpider):
         """
         parse movie showing data
         """
-        title = curr_movie.xpath('./div[1]/p[1]/a[1]/text()').extract_first()
+        title = curr_movie.xpath(
+            './div[1]/p[1]/span/preceding::*[1]/text()').extract_first()
+        if not title:
+            title = curr_movie.xpath('./div[1]/p[1]/text()').extract_first()
         title_en = curr_movie.xpath(
             './div[1]/p[1]/span/text()').extract_first()
         movie_data_proto = ShowingLoader(response=response)

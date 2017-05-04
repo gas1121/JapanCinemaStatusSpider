@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import unicodedata
 import scrapy
 from scrapy.loader import ItemLoader
@@ -45,9 +46,12 @@ class ShowingLoader(ItemLoader):
 
     def add_title(self, title, title_en=None):
         # normalize title to avoid full width characters
+        title = re.sub(r'[\t\r\n]', '', title, re.DOTALL)
         title = title.strip()
         title = unicodedata.normalize('NFKC', title)
         if title_en:
+            title_en = re.sub(r'[\t\r\n]', '', title_en, re.DOTALL)
+            title_en = title_en.strip()
             title_en = unicodedata.normalize('NFKC', title_en)
         self.add_value('title', title)
         self.add_value('title_en', title_en)
@@ -57,7 +61,7 @@ class ShowingLoader(ItemLoader):
         title = self.get_output_value('title')
         title_en = self.get_output_value('title_en')
         real_title = self.get_output_value('real_title')
-        return filter(None, [title, title_en, real_title])
+        return list(filter(None, [title, title_en, real_title]))
 
     def add_total_seat_count(self):
         cinema_name = self.get_output_value('cinema_name')
