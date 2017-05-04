@@ -115,6 +115,7 @@ def check_log_folder(dir):
 
 check_log_folder("log")
 LOG_FILE = "log/" + str(arrow.now().format('YYYYMMDD HH mm ss')) + ".log"
+LOG_LEVEL = 'INFO'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
