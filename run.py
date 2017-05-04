@@ -1,61 +1,25 @@
 #! /bin/python3
+"""
+Scheduler for running spider periodly. We have to use subprocess.call as
+scrapyd do not support run multiple spider in a single call, and we want to
+use different log file each time we run spider.
+"""
 
 import time
 import schedule
-import requests
-from twisted.internet import reactor
-from scrapy.crawler import CrawlerRunner
-from scrapy.utils.log import configure_logging
-from scrapy.utils.project import get_project_settings
+from subprocess import call
 
 
 def movie_crawl_job():
-    settings = get_project_settings()
-    configure_logging(settings=settings)
-    runner = CrawlerRunner(settings)
-    runner.crawl('walkerplus_movie')
-    #d = runner.join()
-    #d.addBoth(lambda _: reactor.stop())
-    reactor.run()
+    call(["scrapy", "crawl", "walkerplus_movie"])
 
 
 def cinema_crawl_job():
-    settings = get_project_settings()
-    configure_logging(settings=settings)
-    runner = CrawlerRunner(settings)
-    runner.crawl('walkerplus_cinema')
-    #d = runner.join()
-    #d.addBoth(lambda _: reactor.stop())
-    reactor.run()
+    call(["scrapy", "crawl", "walkerplus_cinema"])
 
 
 def showing_crawl_job():
-    settings = get_project_settings()
-    configure_logging(settings=settings)
-    runner = CrawlerRunner(settings)
-
-    runner.crawl('toho_v2', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('movix', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('aeon', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('united', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('kinezo', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('site109', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('cinemasunshine', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('forum', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    runner.crawl('korona', keep_old_data=True, crawl_all_cinemas=True,
-                 crawl_all_movies=True)
-    d = runner.join()
-    d.addBoth(lambda _: reactor.stop())
-
-    reactor.run()
+    call(["scrapy", "crawlshowing"])
 
 
 if __name__ == '__main__':

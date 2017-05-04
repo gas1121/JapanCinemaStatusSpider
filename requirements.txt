@@ -1,7 +1,6 @@
 appdirs==1.4.0
 arrow==0.10.0
 attrs==16.3.0
-billiard==3.5.0.2
 cffi==1.9.1
 constantly==15.1.0
 cryptography==1.7.2
