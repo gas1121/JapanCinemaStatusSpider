@@ -1,4 +1,3 @@
-import unicodedata
 import scrapy
 from scrapyproject.items import MovieLoader
 from scrapyproject.utils import MovieDatabaseMixin

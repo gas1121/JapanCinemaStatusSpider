@@ -13,7 +13,6 @@ def create_table(engine):
 
 
 def drop_table_if_exist(engine, TableClass):
-    # TODO move table create to sql script only clean data in spider
     if engine.dialect.has_table(engine, TableClass.__table__):
         TableClass.__table__.drop(engine)
 
