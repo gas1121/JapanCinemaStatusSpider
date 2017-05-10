@@ -22,6 +22,8 @@ class DataBasePipeline(object):
     """
     def __init__(self, database):
         self.database = database
+        # keep crawled movie to sum cinema count
+        self.crawled_movies = {}
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -44,7 +46,8 @@ class DataBasePipeline(object):
         self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
-        pass
+        for title in self.crawled_movies:
+            self.process_movie_item(self.crawled_movies[title], spider)
 
     def process_item(self, item, spider):
         """
@@ -59,7 +62,14 @@ class DataBasePipeline(object):
         elif isinstance(item, ShowingBookingItem):
             return self.process_showing_booking_item(item, spider)
         elif isinstance(item, MovieItem):
-            return self.process_movie_item(item, spider)
+            # sum cinema count for each cinema
+            if item['title'] not in self.crawled_movies:
+                self.crawled_movies[item['title']] = item
+            else:
+                count = (item['current_cinema_count'] +
+                         self.crawled_movies[item['title']]['current_cinema_count'])
+                self.crawled_movies[item['title']]['current_cinema_count'] = count
+            return item
 
     def process_cinema_item(self, item, spider):
         cinema = Cinema(**item)

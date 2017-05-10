@@ -9,7 +9,9 @@ class Movie(DeclarativeBase):
 
     id = Column(Integer, primary_key=True)
     title = Column('title', String, nullable=False)
-    site = Column('site', String)
+    # cinema count for current week
+    current_cinema_count = Column('current_cinema_count', Integer,
+                                  default=0)
 
     @staticmethod
     def get_movie_if_exist(item):

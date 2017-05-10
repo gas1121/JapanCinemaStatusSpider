@@ -7,6 +7,7 @@ from scrapy.loader.processors import Identity, TakeFirst, MapCompose
 
 class Movie(scrapy.Item):
     title = scrapy.Field()
+    current_cinema_count = scrapy.Field()
 
 
 class MovieLoader(ItemLoader):
