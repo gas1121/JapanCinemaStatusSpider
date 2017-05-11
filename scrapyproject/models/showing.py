@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy_utils import ArrowType
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_
-from scrapyproject.models.models import DeclarativeBase, db_connect
+from scrapyproject.models import Session
+from scrapyproject.models.models import DeclarativeBase
 
 
 class Showing(DeclarativeBase):
@@ -29,17 +29,14 @@ class Showing(DeclarativeBase):
         Get showing if exists else return None.
         Judged by cinema site, screen and start time
         """
-        engine = db_connect()
-        session = sessionmaker(bind=engine)()
         # convert all time to utc timezone before compare
         start_time = item.start_time.to('utc')
         pre_start_time = start_time.shift(minutes=-1)
         post_start_time = start_time.shift(minutes=+1)
-        query = session.query(Showing).filter(and_(
+        query = Session.query(Showing).filter(and_(
             Showing.screen == item.screen,
             Showing.cinema_site == item.cinema_site,
             Showing.start_time > pre_start_time,
             Showing.start_time < post_start_time))
         result = query.first()
-        session.close()
         return result

@@ -1,9 +1,9 @@
 from enum import Enum
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_, or_, cast
-from scrapyproject.models.models import DeclarativeBase, db_connect
+from scrapyproject.models import Session
+from scrapyproject.models.models import DeclarativeBase
 from scrapyproject.utils import ScreenUtils
 
 
@@ -39,40 +39,31 @@ class Cinema(DeclarativeBase):
         Some cinemas may be treated as different cinemas when crawled from
         different site but we will leave them there now.
         """
-        engine = db_connect()
-        session = sessionmaker(bind=engine)()
-        query = session.query(Cinema).filter(and_(
+        query = Session.query(Cinema).filter(and_(
             Cinema.county == item.county, or_(
                 and_(item.site is not None, Cinema.site == item.site),
                 and_(item.names is not None, Cinema.names.overlap(
                     cast(item.names, ARRAY(String))))
             )))
         result = query.first()
-        session.close()
         return result
 
     @staticmethod
     def get_by_name(cinema_name):
-        engine = db_connect()
-        session = sessionmaker(bind=engine)()
-        query = session.query(Cinema).filter(
+        query = Session.query(Cinema).filter(
             Cinema.names.any(cinema_name)
         )
         cinema = query.first()
-        session.close()
         return cinema
 
     @staticmethod
     def get_screen_seat_count(cinema_name, cinema_site, screen):
-        engine = db_connect()
-        session = sessionmaker(bind=engine)()
-        query = session.query(Cinema).filter(or_(
+        query = Session.query(Cinema).filter(or_(
                 and_(cinema_site is not None, Cinema.site == cinema_site),
                 and_(cinema_name is not None, Cinema.names.overlap(
                     cast([cinema_name], ARRAY(String))))
             ))
         cinema = query.first()
-        session.close()
         if not cinema:
             return 0
         screens = cinema.screens

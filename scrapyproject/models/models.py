@@ -1,4 +1,6 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
@@ -26,3 +28,7 @@ def db_connect():
     if not database_exists(engine.url):
         create_database(engine.url)
     return engine
+
+
+# global session for project
+Session = scoped_session(sessionmaker(bind=db_connect()))

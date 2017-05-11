@@ -4,10 +4,9 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-from sqlalchemy.orm import sessionmaker
 from scrapyproject.models import (Cinema, Showing, ShowingBooking, Movie,
                                   db_connect, drop_table_if_exist,
-                                  create_table)
+                                  create_table, Session)
 from scrapyproject.items import (CinemaItem, ShowingItem, ShowingBookingItem,
                                  MovieItem)
 from scrapyproject.utils import (use_cinema_database,
@@ -43,11 +42,12 @@ class DataBasePipeline(object):
             elif use_movie_database(spider):
                 drop_table_if_exist(engine, Movie)
         create_table(engine)
-        self.Session = sessionmaker(bind=engine)
 
     def close_spider(self, spider):
         for title in self.crawled_movies:
             self.process_movie_item(self.crawled_movies[title], spider)
+        # close global session when spider ends
+        Session.remove()
 
     def process_item(self, item, spider):
         """
@@ -139,13 +139,9 @@ class DataBasePipeline(object):
         return item
 
     def add_item_to_database(self, db_item):
-        # TODO too many clients error
-        session = self.Session()
         try:
-            db_item = session.merge(db_item)
-            session.commit()
+            db_item = Session.merge(db_item)
+            Session.commit()
         except:
-            session.rollback()
+            Session.rollback()
             raise
-        finally:
-            session.close()
