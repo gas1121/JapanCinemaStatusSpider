@@ -24,11 +24,11 @@ def showing_crawl_job():
 
 if __name__ == '__main__':
     print('schedule start')
-    # crawl movie info every week
-    schedule.every().monday.at('20:00').do(movie_crawl_job)
-    schedule.every().monday.at('20:10').do(cinema_crawl_job)
-    # crawl showing info UTC 20:00(Beijing 04:00) everyday
-    schedule.every().day.at('20:00').do(showing_crawl_job)
+    # crawl movie and cinema info every week
+    schedule.every().monday.at('02:00').do(movie_crawl_job)
+    schedule.every().monday.at('03:00').do(cinema_crawl_job)
+    # crawl showing info as system time 04:00 everyday
+    schedule.every().day.at('04:00').do(showing_crawl_job)
     while True:
         schedule.run_pending()
         time.sleep(1)
