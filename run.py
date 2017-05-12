@@ -19,7 +19,10 @@ def cinema_crawl_job():
 
 
 def showing_crawl_job():
-    call(["scrapy", "crawl", "--all_showing"])
+    # TODO bug for copy issue
+    call(["scrapy", "crawl", "--all_showing", "--movie_list=無限の住人"])
+    #call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
+    #      "--crawl_all_cinemas", "--crawl_all_movies"])
 
 
 if __name__ == '__main__':

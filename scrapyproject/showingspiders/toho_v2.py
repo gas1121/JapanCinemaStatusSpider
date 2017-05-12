@@ -53,6 +53,7 @@ class TohoV2Spider(ShowingSpider):
         """
         crawl theater list data first
         """
+        print("toho_v2 parse")
         try:
             theater_list = json.loads(response.text)
         except json.JSONDecodeError:

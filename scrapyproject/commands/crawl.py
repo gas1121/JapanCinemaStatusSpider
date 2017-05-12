@@ -1,3 +1,4 @@
+import copy
 from optparse import OptionGroup
 import arrow
 from scrapy.commands.crawl import Command
@@ -43,20 +44,23 @@ class CrawlCommand(Command):
 
     def run(self, args, opts):
         # pass custom option to spiders
-        opts.spargs = {}
-        opts.spargs['keep_old_data'] = opts.keep_old_data
-        opts.spargs['crawl_all_cinemas'] = opts.crawl_all_cinemas
-        opts.spargs['crawl_all_movies'] = opts.crawl_all_movies
-        opts.spargs['crawl_booking_data'] = opts.crawl_booking_data
-        opts.spargs['movie_list'] = opts.movie_list
-        opts.spargs['cinema_list'] = opts.cinema_list
-        opts.spargs['date'] = opts.date
+        custom_opts = {}
+        custom_opts['keep_old_data'] = opts.keep_old_data
+        custom_opts['crawl_all_cinemas'] = opts.crawl_all_cinemas
+        custom_opts['crawl_all_movies'] = opts.crawl_all_movies
+        custom_opts['crawl_booking_data'] = opts.crawl_booking_data
+        custom_opts['movie_list'] = opts.movie_list
+        custom_opts['cinema_list'] = opts.cinema_list
+        custom_opts['date'] = opts.date
+        # TODO bug for copy issue
+        opts.spargs = copy.deepcopy(custom_opts)
         if opts.all_showing:
             self.run_multiple_spiders(args, opts)
         else:
             Command.run(self, args, opts)
 
     def run_multiple_spiders(self, args, opts):
+        print("run_multiple_spiders")
         self.crawler_process.crawl('aeon', **opts.spargs)
         self.crawler_process.crawl('toho_v2', **opts.spargs)
         self.crawler_process.crawl('united', **opts.spargs)

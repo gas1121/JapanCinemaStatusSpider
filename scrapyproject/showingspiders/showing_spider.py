@@ -28,6 +28,7 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
         """
         super(ShowingSpider, self).__init__(*args, **kwargs)
         # if cinema list is empty, add default cinema for spider
+        # TODO bug for copy issue
         if not self.cinema_list:
             self.cinema_list.append(default_cinema[self.name])
         # normalize cinema and movie name
@@ -35,6 +36,8 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
             self.movie_list[idx] = unicodedata.normalize('NFKC', item)
         for idx, item in enumerate(self.cinema_list):
             self.cinema_list[idx] = unicodedata.normalize('NFKC', item)
+        print(self.name)
+        print(vars(self))
 
     def is_cinema_crawl(self, cinema_names):
         """
