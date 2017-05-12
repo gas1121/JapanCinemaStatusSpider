@@ -19,7 +19,7 @@ def cinema_crawl_job():
 
 
 def showing_crawl_job():
-    call(["scrapy", "crawlshowing"])
+    call(["scrapy", "crawl", "--all_showing"])
 
 
 if __name__ == '__main__':
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # every time schedule script starts, crawl cinema and movie data first
     cinema_crawl_job()
     movie_crawl_job()
-    print('initial job finished')    
+    print('initial job finished')
     # crawl movie and cinema info every week
     schedule.every().monday.at('19:00').do(movie_crawl_job)
     schedule.every().monday.at('20:00').do(cinema_crawl_job)
