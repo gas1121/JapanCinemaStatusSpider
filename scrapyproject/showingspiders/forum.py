@@ -15,8 +15,6 @@ class ForumSpider(ShowingSpider):
         'http://forum-movie.net/theater-list'
     ]
 
-    cinema_list = ['フォーラム八戸']
-
     def parse(self, response):
         """
         crawl theater list data first

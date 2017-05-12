@@ -19,8 +19,6 @@ class KinezoSpider(ShowingSpider):
         'CONCURRENT_REQUESTS': 1
     }
 
-    cinema_list = ['新宿バルト9']
-
     def parse(self, response):
         """
         crawl theater list data first

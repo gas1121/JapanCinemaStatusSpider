@@ -84,11 +84,12 @@ Here is a list of useful site and some of them is used by this spider
 ## TODO list
 - [x] Better command line support for spider
 - [ ] Add redis as cache
-- [ ] run multiple time to ensure all record is crawled
+- [ ] run multiple times to ensure all record is crawled
  - [x] database support multiple times
- - [ ] pre filter request for crawled showing(by cinema crawled showing count)
-- [ ] spider command line bool option problem
+- [x] better command line support
 - [ ] filter locked seat data
 - [ ] add more stand alone cinema's crawler
-- [ ] handle showings allow selecting seat freely
+- [ ] handle showings selecting seat freely
 - [ ] use other spider library for support of schedule and web ui
+ - [x] schedule
+ - [ ] web ui

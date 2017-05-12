@@ -49,8 +49,6 @@ class TohoV2Spider(ShowingSpider):
         'https://hlo.tohotheater.jp/responsive/json/theater_list.json'
     ]
 
-    cinema_list = ['TOHOシネマズ 新宿']
-
     def parse(self, response):
         """
         crawl theater list data first

@@ -23,8 +23,6 @@ class MovieSpider(ShowingSpider):
         'http://www.smt-cinema.com/theater/'
     ]
 
-    cinema_list = ['新宿ピカデリー']
-
     def parse(self, response):
         """
         crawl theater list data first

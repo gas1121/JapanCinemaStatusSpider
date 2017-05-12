@@ -16,8 +16,6 @@ class Site109Spider(ShowingSpider):
         'http://109cinemas.net/'
     ]
 
-    cinema_list = ['109シネマズ湘南']
-
     def parse(self, response):
         """
         crawl theater list data first

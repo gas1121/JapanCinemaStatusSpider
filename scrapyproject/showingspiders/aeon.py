@@ -23,8 +23,6 @@ class AeonSpider(ShowingSpider):
         'CONCURRENT_REQUESTS': 1,
     }
 
-    cinema_list = ['イオンシネマ板橋']
-
     def parse(self, response):
         """
         crawl theater list data first

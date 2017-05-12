@@ -15,8 +15,6 @@ class CinemaSunshineSpider(ShowingSpider):
         'http://www.cinemasunshine.co.jp/theater/'
     ]
 
-    cinema_list = ['シネマサンシャイン池袋']
-
     def parse(self, response):
         """
         crawl theater list data first

@@ -16,12 +16,6 @@ class UnitedSpider(ShowingSpider):
         'http://www.unitedcinemas.jp/index.html'
     ]
 
-    cinema_list = ['ユナイテッド・シネマとしまえん']
-
-    custom_settings = {
-        'COOKIES_DEBUG': True
-    }
-
     def parse(self, response):
         """
         crawl theater list data first

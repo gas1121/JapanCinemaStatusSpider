@@ -16,8 +16,6 @@ class KoronaSpider(ShowingSpider):
         'http://www.korona.co.jp/cinema/'
     ]
 
-    cinema_list = ['青森コロナシネマワールド']
-
     def parse(self, response):
         """
         crawl theater list data first

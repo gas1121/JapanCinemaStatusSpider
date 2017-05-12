@@ -7,36 +7,34 @@ import scrapy
 from scrapyproject.utils import ShowingDatabaseMixin
 
 
+default_cinema = {
+    "aeon": "イオンシネマ板橋",
+    "toho_v2": "TOHOシネマズ 新宿",
+    "united": "ユナイテッド・シネマとしまえん",
+    "movix": "新宿ピカデリー",
+    "kinezo": "新宿バルト9",
+    "site109": "109シネマズ湘南",
+    "korona": "青森コロナシネマワールド",
+    "cinemasunshine": "シネマサンシャイン池袋",
+    "forum": "フォーラム八戸",
+}
+
+
 class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
     def __init__(self, *args, **kwargs):
         """
         Prepare common settings for showing spider.
-        Only movie title are raw str, others are normailized
+        All strings are normailized
         """
         super(ShowingSpider, self).__init__(*args, **kwargs)
-        if not hasattr(self, 'movie_list'):
-            self.movie_list = ['君の名は。']
-        if not isinstance(self.movie_list, list):
-            self.movie_list = self.movie_list.split(',')
-        # scrapy doesn't allow to pass name without value
-        self.crawl_all_movies = (
-            True if hasattr(self, 'crawl_all_movies') else False)
-        if not hasattr(self, 'cinema_list'):
-            self.cinema_list = ['TOHOシネマズ 新宿']
-        if not isinstance(self.cinema_list, list):
-            self.cinema_list = self.cinema_list.split(',')
-        # should not remove space, but normalize only
+        # if cinema list is empty, add default cinema for spider
+        if not self.cinema_list:
+            self.cinema_list.append(default_cinema[self.name])
+        # normalize cinema and movie name
+        for idx, item in enumerate(self.movie_list):
+            self.movie_list[idx] = unicodedata.normalize('NFKC', item)
         for idx, item in enumerate(self.cinema_list):
             self.cinema_list[idx] = unicodedata.normalize('NFKC', item)
-        self.crawl_all_cinemas = (
-            True if hasattr(self, 'crawl_all_cinemas') else False)
-        # is spider crawl showing info only or as well as booking data
-        self.crawl_booking_data = (
-            True if hasattr(self, 'crawl_booking_data') else False)
-        # date: default tomorrow(UTC+9 timezone)
-        if not hasattr(self, 'date'):
-            tomorrow = arrow.now('UTC+9').shift(days=+1)
-            self.date = tomorrow.format('YYYYMMDD')
 
     def is_cinema_crawl(self, cinema_names):
         """
