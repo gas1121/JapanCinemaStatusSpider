@@ -19,9 +19,13 @@ def cinema_crawl_job():
 
 
 def showing_crawl_job():
-    call(["scrapy", "crawl", "--all_showing", "--movie_list=無限の住人"])
-    #call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-    #      "--crawl_all_cinemas", "--crawl_all_movies"])
+    call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
+          "--crawl_all_cinemas", "--crawl_all_movies"])
+
+
+def showing_booking_crawl_job():
+    call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
+          "--crawl_booking_data", "--crawl_all_cinemas", "--crawl_all_movies"])
 
 
 if __name__ == '__main__':
@@ -33,8 +37,12 @@ if __name__ == '__main__':
     # crawl movie and cinema info every week
     schedule.every().monday.at('19:00').do(movie_crawl_job)
     schedule.every().monday.at('20:00').do(cinema_crawl_job)
-    # crawl showing info as utc 21:00(6:00 jpn) everyday
+    # crawl showing data at utc 21:00(6:00 jpn) everyday
     schedule.every().day.at('21:00').do(showing_crawl_job)
+    # crawl showing booking data at utc 11:00(20:00 jpn) every friday and
+    # saturday for weekend information
+    schedule.every().friday.at('11:00').do(showing_booking_crawl_job)
+    schedule.every().saturday.at('11:00').do(showing_booking_crawl_job)
     while True:
         schedule.run_pending()
         time.sleep(1)

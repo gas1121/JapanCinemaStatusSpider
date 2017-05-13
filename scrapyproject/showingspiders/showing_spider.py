@@ -38,8 +38,6 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
             self.movie_list[idx] = unicodedata.normalize('NFKC', item)
         for idx, item in enumerate(self.cinema_list):
             self.cinema_list[idx] = unicodedata.normalize('NFKC', item)
-        print(self.name)
-        print(vars(self))
 
     def is_cinema_crawl(self, cinema_names):
         """
