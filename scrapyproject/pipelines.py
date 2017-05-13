@@ -29,10 +29,8 @@ class DataBasePipeline(object):
         return cls(database=crawler.settings.get('DATABASE'))
 
     def open_spider(self, spider):
-        self.keep_old_data = (
-            True if hasattr(spider, 'keep_old_data') else False)
         engine = db_connect()
-        if not self.keep_old_data:
+        if not spider.keep_old_data:
             # drop data
             if use_showing_database(spider):
                 drop_table_if_exist(engine, ShowingBooking)

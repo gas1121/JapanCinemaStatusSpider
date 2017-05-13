@@ -38,12 +38,6 @@ class WalkerplusCinemaSpider(CinemaSpider):
 
     def is_cinema_crawl(self, cinema_name):
         return True
-        # TEST
-        if ("ユナイテッド" not in cinema_name
-                and "シネプレックス" not in cinema_name
-                and "YEBISU" not in cinema_name):
-            return False
-        return True
 
     def parse_screen_data(self, response):
         """

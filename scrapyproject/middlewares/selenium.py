@@ -8,7 +8,7 @@ class SeleniumDownloaderMiddleware(object):
     middleware to use phantomjs for site that need javascript support
     """
     def process_request(self, request, spider):
-        if not hasattr(spider, 'require_js'):
+        if not spider.require_js:
             return
         driver = webdriver.Remote(
                 command_executor='http://phantomjs:8910',

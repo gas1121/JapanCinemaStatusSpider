@@ -27,8 +27,10 @@ class ShowingSpider(scrapy.Spider, ShowingDatabaseMixin):
         All strings are normailized
         """
         super(ShowingSpider, self).__init__(*args, **kwargs)
+        # if movie list is empty, add default movie for spider
+        if not self.movie_list:
+            self.movie_list.append('君の名は。')
         # if cinema list is empty, add default cinema for spider
-        # TODO bug for copy issue
         if not self.cinema_list:
             self.cinema_list.append(default_cinema[self.name])
         # normalize cinema and movie name

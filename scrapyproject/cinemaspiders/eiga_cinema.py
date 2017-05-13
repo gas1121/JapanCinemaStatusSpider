@@ -26,7 +26,7 @@ class EigaCinemaSpider(CinemaSpider):
         adjust cinema official site's url if needed
         """
         site = response.urljoin(site)
-        if (hasattr(self, 'use_proxy')):
+        if self.use_proxy:
             r = do_proxy_request(site, allow_redirects=False)
         else:
             r = requests.get(site, allow_redirects=False)

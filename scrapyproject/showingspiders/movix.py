@@ -27,7 +27,6 @@ class MovieSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        print("movix parse")
         theater_list = response.xpath('//div[@class="theater_info"]//li/a')
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
