@@ -191,6 +191,7 @@ class TohoV2Spider(ShowingSpider):
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing['unsoldSeatInfo']['unsoldSeatStatus']
         booking_data_proto.add_value('book_status', book_status)
+        book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
             total_seat_count = showing_data_proto.get_output_value(
