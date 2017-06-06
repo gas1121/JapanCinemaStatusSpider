@@ -106,14 +106,6 @@ ITEM_PIPELINES = {
     'scrapyproject.pipelines.DataBasePipeline': 300,
 }
 
-
-# log configuration
-def check_log_folder(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-
-check_log_folder("log")
 LOG_FILE = "log/" + str(arrow.now().format('YYYYMMDD HH mm ss')) + ".log"
 LOG_LEVEL = 'INFO'
 

@@ -11,21 +11,23 @@ from subprocess import call
 
 
 def movie_crawl_job():
-    call(["scrapy", "crawl", "walkerplus_movie"])
+    call(["scrapy", "crawl", "walkerplus_movie", "-s", "JOBDIR=job/movie"])
 
 
 def cinema_crawl_job():
-    call(["scrapy", "crawl", "walkerplus_cinema"])
+    call(["scrapy", "crawl", "walkerplus_cinema", "-s", "JOBDIR=job/cinema"])
 
 
 def showing_crawl_job():
     call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-          "--crawl_all_cinemas", "--crawl_all_movies"])
+          "--crawl_all_cinemas", "--crawl_all_movies",
+          "-s", "JOBDIR=job/showing"])
 
 
 def showing_booking_crawl_job():
     call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-          "--crawl_booking_data", "--crawl_all_cinemas", "--crawl_all_movies"])
+          "--crawl_booking_data", "--crawl_all_cinemas", "--crawl_all_movies",
+          "-s", "JOBDIR=job/showing_booking"])
 
 
 if __name__ == '__main__':
