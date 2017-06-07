@@ -31,7 +31,11 @@ class Movie(DeclarativeBase):
         query = Session.query(Movie.title)
         result = query.all()
         title_list = [title for title, in result]
-        result_title, ratio = process.extractOne(title, title_list)
+        one_item = process.extractOne(title, title_list)
+        if one_item:
+            result_title, ratio = one_item
+        else:
+            return None
         if ratio > 60:
             return result_title
         else:
