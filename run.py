@@ -5,6 +5,7 @@ scrapyd do not support run multiple spider in a single call, and we want to
 use different log file each time we run spider.
 """
 
+import shutil
 import time
 import schedule
 from subprocess import call
@@ -12,22 +13,26 @@ from subprocess import call
 
 def movie_crawl_job():
     call(["scrapy", "crawl", "walkerplus_movie", "-s", "JOBDIR=job/movie"])
+    shutil.rmtree('job/movie', ignore_errors=True)
 
 
 def cinema_crawl_job():
     call(["scrapy", "crawl", "walkerplus_cinema", "-s", "JOBDIR=job/cinema"])
+    shutil.rmtree('job/cinema', ignore_errors=True)
 
 
 def showing_crawl_job():
     call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
           "--crawl_all_cinemas", "--crawl_all_movies",
           "-s", "JOBDIR=job/showing"])
+    shutil.rmtree('job/showing', ignore_errors=True)
 
 
 def showing_booking_crawl_job():
     call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
           "--crawl_booking_data", "--crawl_all_cinemas", "--crawl_all_movies",
           "-s", "JOBDIR=job/showing_booking"])
+    shutil.rmtree('job/showing_booking', ignore_errors=True)
 
 
 if __name__ == '__main__':
