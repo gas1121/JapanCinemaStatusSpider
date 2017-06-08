@@ -2,7 +2,7 @@
 import arrow
 import scrapy
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import Identity, TakeFirst, MapCompose
+from scrapy.loader.processors import Identity, TakeFirst
 from scrapyproject.items.showing import Showing
 
 
@@ -14,17 +14,10 @@ class ShowingBooking(scrapy.Item):
     record_time = scrapy.Field()
 
 
-def book_status_in(value, loader_context):
-    value = loader_context.get('util').standardize_book_status(value)
-    return value
-
-
 class ShowingBookingLoader(ItemLoader):
     default_item_class = ShowingBooking
     default_input_processor = Identity()
     default_output_processor = TakeFirst()
-
-    book_status_in = MapCompose(book_status_in)
 
     def add_time_data(self):
         self.add_value('record_time', arrow.now())
@@ -33,3 +26,17 @@ class ShowingBookingLoader(ItemLoader):
             self.get_output_value('record_time'))
         minutes_before = time_before.days*1440 + time_before.seconds//60
         self.add_value('minutes_before', minutes_before)
+
+    def add_book_status(self, book_status, util):
+        value = util.standardize_book_status(book_status)
+        self.add_value('book_status', value)
+
+
+def init_show_booking_loader(response, item=None):
+    """
+    init ShowingBookingLoader with optional ShowingBooking item
+    """
+    loader = ShowingBookingLoader(response=response)
+    if item:
+        loader.add_value(None, item)
+    return loader

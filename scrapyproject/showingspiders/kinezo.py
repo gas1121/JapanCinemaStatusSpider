@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import KinezoUtil
 
 
@@ -40,7 +40,7 @@ class KinezoSpider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
             request = scrapy.Request(
                 curr_cinema_url, callback=self.parse_main_page)
-            request.meta["data_proto"] = data_proto
+            request.meta["data_proto"] = data_proto.load_item()
             request.meta["cinema_name_en"] = cinema_name_en
             request.meta["dont_merge_cookies"] = True
             yield request
@@ -73,7 +73,7 @@ class KinezoSpider(ShowingSpider):
         we have to pass this page to get independent cookie for each cinema
         """
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"].load_item())
+        data_proto.add_value(None, response.meta["data_proto"])
         result_list = []
         movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
         movie_section_list = response.xpath('//div[@class="theaterListWrap"]')
@@ -131,12 +131,10 @@ class KinezoSpider(ShowingSpider):
             result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = KinezoUtil
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath('./div/@class').extract_first()
-        booking_data_proto.add_value('book_status', book_status)
+        booking_data_proto.add_book_status(book_status, util=KinezoUtil)
         book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
@@ -153,11 +151,12 @@ class KinezoSpider(ShowingSpider):
             url = curr_showing.xpath('./@href').extract_first()
             url = response.urljoin(url)
             request = scrapy.Request(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
     def parse_normal_showing(self, response):
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
         time_text = response.xpath(
             '//span[@class="screenTime"]/text()').extract_first()
         time_list = time_text.split('-')

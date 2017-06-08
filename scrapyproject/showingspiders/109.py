@@ -2,7 +2,7 @@
 import re
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import Site109Util
 
 
@@ -39,7 +39,7 @@ class Site109Spider(ShowingSpider):
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto
+            request.meta["data_proto"] = data_proto.load_item()
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
@@ -53,7 +53,7 @@ class Site109Spider(ShowingSpider):
 
     def parse_cinema(self, response):
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"].load_item())
+        data_proto.add_value(None, response.meta["data_proto"])
         result_list = []
         movie_section_list = response.xpath('//div[@id="timetable"]/article')
         for curr_movie in movie_section_list:
@@ -116,13 +116,11 @@ class Site109Spider(ShowingSpider):
             result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = Site109Util
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath(
             './a/div/@class').extract_first()
-        booking_data_proto.add_value('book_status', book_status)
+        booking_data_proto.add_book_status(book_status, util=Site109Util)
         book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
@@ -138,7 +136,7 @@ class Site109Spider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./a/@href').extract_first()
             request = scrapy.Request(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
     def parse_normal_showing(self, response):
@@ -161,7 +159,8 @@ class Site109Spider(ShowingSpider):
         yield request
 
     def parse_seat_json_api(self, response):
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
         booked_normal_seat_count = len(response.xpath(
             '//a[@class="seat seat-none"]'))
         booked_wheelseat_count = len(response.xpath(

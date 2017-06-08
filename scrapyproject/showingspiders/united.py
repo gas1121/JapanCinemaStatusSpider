@@ -2,7 +2,7 @@
 import re
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import UnitedUtil
 
 
@@ -46,7 +46,7 @@ class UnitedSpider(ShowingSpider):
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(schedule_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto
+            request.meta["data_proto"] = data_proto.load_item()
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
@@ -61,7 +61,7 @@ class UnitedSpider(ShowingSpider):
 
     def parse_cinema(self, response):
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"].load_item())
+        data_proto.add_value(None, response.meta["data_proto"])
         result_list = []
         movie_section_list = response.xpath('//ul[@id="dailyList"]/li')
         for curr_movie in movie_section_list:
@@ -127,13 +127,11 @@ class UnitedSpider(ShowingSpider):
             result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = UnitedUtil
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath(
             './div/ul/li[@class="uolIcon"]//img[1]/@src').extract_first()
-        booking_data_proto.add_value('book_status', book_status)
+        booking_data_proto.add_book_status(book_status, util=UnitedUtil)
         book_status = booking_data_proto.get_output_value('book_status')
         seat_type = showing_data_proto.get_output_value('seat_type')
         if (seat_type == 'FreeSeat' or book_status in ['SoldOut', 'NotSold']):
@@ -160,7 +158,7 @@ class UnitedSpider(ShowingSpider):
             else:
                 request = scrapy.Request(
                     url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             # use independent cookie to avoid affecting each other
             request.meta["cookiejar"] = url
             result_list.append(request)
@@ -174,7 +172,8 @@ class UnitedSpider(ShowingSpider):
         yield request
 
     def parse_normal_showing(self, response):
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"lb_non_selected")]'))
         result.add_value('book_seat_count', booked_seat_count)

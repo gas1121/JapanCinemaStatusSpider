@@ -2,7 +2,7 @@
 import json
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import CinemaSunshineUtil
 
 
@@ -37,7 +37,7 @@ class CinemaSunshineSpider(ShowingSpider):
             json_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = scrapy.Request(json_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto
+            request.meta["data_proto"] = data_proto.load_item()
             yield request
 
     def generate_cinema_schedule_url(self, cinema_name, date):
@@ -59,7 +59,7 @@ class CinemaSunshineSpider(ShowingSpider):
         if 'data' not in schedule_data or 'movie' not in schedule_data['data']:
             return
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"].load_item())
+        data_proto.add_value(None, response.meta["data_proto"])
         result_list = []
         movie_list = []
         if isinstance(schedule_data['data']['movie'], dict):
@@ -127,11 +127,10 @@ class CinemaSunshineSpider(ShowingSpider):
             result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = CinemaSunshineUtil
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
-        booking_data_proto.add_value('book_status', curr_showing['available'])
+        booking_data_proto.add_book_status(
+            curr_showing['available'], util=CinemaSunshineUtil)
         book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
@@ -147,7 +146,7 @@ class CinemaSunshineSpider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing['url']
             request = scrapy.Request(url, callback=self.parse_pre_ordering)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             request.meta["dont_merge_cookies"] = True
             result_list.append(request)
 
@@ -192,7 +191,8 @@ class CinemaSunshineSpider(ShowingSpider):
         # some cinemas are free seat ordered, so data may not be crawled
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_102.gif")]'))
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
         yield result.load_item()

@@ -4,7 +4,7 @@ import json
 import arrow
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader,)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import TohoUtil
 
 
@@ -185,12 +185,10 @@ class TohoV2Spider(ShowingSpider):
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto.load_item())
             return
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = TohoUtil
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing['unsoldSeatInfo']['unsoldSeatStatus']
-        booking_data_proto.add_value('book_status', book_status)
+        booking_data_proto.add_book_status(book_status, util=TohoUtil)
         book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
@@ -207,7 +205,7 @@ class TohoV2Spider(ShowingSpider):
             url = self.generate_showing_url(**showing_url_parameter)
             request = scrapy.Request(url,
                                      callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
@@ -235,7 +233,8 @@ class TohoV2Spider(ShowingSpider):
 
     def parse_normal_showing(self, response):
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
         yield result.load_item()

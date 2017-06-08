@@ -5,7 +5,7 @@ import copy
 import demjson
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, ShowingBookingLoader)
+from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import AeonUtil
 
 
@@ -45,7 +45,7 @@ class AeonSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             request = scrapy.Request(curr_cinema_url,
                                      callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto
+            request.meta["data_proto"] = data_proto.load_item()
             yield request
 
     def parse_cinema(self, response):
@@ -65,7 +65,7 @@ class AeonSpider(ShowingSpider):
 
     def parse_cinema_schedule(self, response):
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"].load_item())
+        data_proto.add_value(None, response.meta["data_proto"])
         result_list = []
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
@@ -136,12 +136,10 @@ class AeonSpider(ShowingSpider):
             result_list.append(showing_data_proto.load_item())
             return
 
-        booking_data_proto = ShowingBookingLoader(response=response)
-        booking_data_proto.context['util'] = AeonUtil
-        booking_data_proto.context['loader'] = booking_data_proto
+        booking_data_proto = init_show_booking_loader(response=response)
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath('./a/span/text()').extract_first()
-        booking_data_proto.add_value('book_status', book_status)
+        booking_data_proto.add_book_status(book_status, util=AeonUtil)
         book_status = booking_data_proto.get_output_value('book_status')
         seat_type = showing_data_proto.get_output_value('seat_type')
         if (seat_type == 'FreeSeat' or book_status in ['SoldOut', 'NotSold']):
@@ -163,7 +161,7 @@ class AeonSpider(ShowingSpider):
             schedule_url = response.meta['schedule_url']
             request = scrapy.Request(
                 schedule_url, dont_filter=True, callback=self.parse_new_cookie)
-            request.meta["data_proto"] = booking_data_proto
+            request.meta["data_proto"] = booking_data_proto.load_item()
             request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
@@ -272,7 +270,8 @@ class AeonSpider(ShowingSpider):
         script_text = re.sub(
             r'if\( typeof.+?{}}WMC_E_DATA = ', '', script_text, re.DOTALL)
         json_data = demjson.decode(script_text)
-        result = response.meta["data_proto"]
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
 
         booked_seat_count = 0
         for i in range(len(json_data['SeatMaps']['FLAG'][0])):
