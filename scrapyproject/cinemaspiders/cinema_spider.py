@@ -42,8 +42,7 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
             county_name = county.xpath('.//text()').extract_first()
             county_name = standardize_county_name(county_name)
             url = county.xpath('./@href').extract_first()
-            url = response.urljoin(url)
-            request = scrapy.Request(url, callback=self.parse_county)
+            request = response.follow(url, callback=self.parse_county)
             request.meta['county_name'] = county_name
             yield request
 
@@ -62,7 +61,7 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
                 continue
             url = curr_cinema.xpath('./@href').extract_first()
             url = self.adjust_cinema_url(response.urljoin(url))
-            request = scrapy.Request(url, callback=self.parse_cinema)
+            request = response.follow(url, callback=self.parse_cinema)
             request.meta['county_name'] = response.meta['county_name']
             request.meta['cinema_name'] = cinema_name
             yield request

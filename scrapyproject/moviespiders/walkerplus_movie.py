@@ -25,23 +25,20 @@ class WalkerplusMovieSpider(scrapy.Spider, MovieDatabaseMixin):
         for movie in movie_list:
             title = movie.xpath('./h3/a/text()').extract_first()
             url = movie.xpath('./dl/dd/a/@href').extract_first()
-            url = response.urljoin(url)
-            request = scrapy.Request(url, callback=self.parse_area)
+            request = response.follow(url, callback=self.parse_area)
             request.meta['title'] = title
             yield request
         next_page = response.xpath(
             '//li[@class="next"]/a/@href').extract_first()
         if next_page:
-            url = response.urljoin(next_page)
-            request = scrapy.Request(url, callback=self.parse)
+            request = response.follow(next_page, callback=self.parse)
             yield request
 
     def parse_area(self, response):
         area_list = response.xpath('//ul[@class="optionGroup"]//a')
         for area in area_list:
             url = area.xpath('./@href').extract_first()
-            url = response.urljoin(url)
-            request = scrapy.Request(url, callback=self.parse_sub_area)
+            request = response.follow(url, callback=self.parse_sub_area)
             request.meta['title'] = response.meta['title']
             yield request
 
@@ -49,8 +46,7 @@ class WalkerplusMovieSpider(scrapy.Spider, MovieDatabaseMixin):
         city_list = response.xpath('//ul[@class="optionGroup"]//a')
         for city in city_list:
             url = city.xpath('./@href').extract_first()
-            url = response.urljoin(url)
-            request = scrapy.Request(url, callback=self.parse_city)
+            request = response.follow(url, callback=self.parse_city)
             request.meta['title'] = response.meta['title']
             yield request
 

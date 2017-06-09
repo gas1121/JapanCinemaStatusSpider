@@ -29,11 +29,10 @@ class TohoCinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
                     cinema_number = curr_cinema_url.re(
                         r'/net/schedule/([0-9]+)/TNPI2000J01.do')
                     tail_url = '/theater/'+cinema_number[0]+'/institution.html'
-                    cinema_page_url = response.urljoin(tail_url)
                     cinema_site = TohoUtil.generate_cinema_homepage_url(
                         cinema_number[0])
-                    request = scrapy.Request(cinema_page_url,
-                                             callback=self.parse_cinema)
+                    request = response.follow(
+                        tail_url, callback=self.parse_cinema)
                     request.meta['county'] = county
                     request.meta['site'] = cinema_site
                     yield request
@@ -54,9 +53,8 @@ class TohoCinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
             '//section[@class="about"]//a[@class="link bold"]/@href').extract()
         if sub_page_list:
             for sub_page_url in sub_page_list:
-                sub_page_url = response.urljoin(sub_page_url)
-                request = scrapy.Request(sub_page_url,
-                                         callback=self.parse_sub_cinema)
+                request = response.follow(
+                        sub_page_url, callback=self.parse_sub_cinema)
                 request.meta['cinema'] = copy.deepcopy(cinema)
                 yield request
         else:
