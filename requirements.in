@@ -1,0 +1,10 @@
+arrow
+demjson
+fuzzywuzzy[speedup]
+schedule
+Scrapy
+selenium
+SQLAlchemy
+SQLAlchemy-Utils
+requests[socks]
+psycopg2
