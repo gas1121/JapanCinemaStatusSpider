@@ -5,7 +5,7 @@ from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import MovixUtil
 
 
-class MovieSpider(ShowingSpider):
+class MovixSpider(ShowingSpider):
     """
     movix site spider.
     """

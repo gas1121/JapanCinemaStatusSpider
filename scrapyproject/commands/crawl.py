@@ -2,6 +2,7 @@ import copy
 from optparse import OptionGroup
 import arrow
 from scrapy.commands.crawl import Command
+from scrapyproject.showingspiders import set_independent_job_dir
 
 
 class CrawlCommand(Command):
@@ -41,6 +42,8 @@ class CrawlCommand(Command):
         tomorrow = arrow.now('UTC+9').shift(days=+1)
         group.add_option("--date", default=tomorrow.format('YYYYMMDD'),
                          help="crawl date, default is tomorrow")
+        group.add_option("--sample_cinema", action="store_true", default=False,
+                         help="use several sample cinemas instead all cinemas")
         parser.add_option_group(group)
 
     def process_options(self, args, opts):
@@ -64,13 +67,24 @@ class CrawlCommand(Command):
             Command.run(self, args, opts)
 
     def run_multiple_spiders(self, args, opts):
+        # we need to make sure each spider's JOBDIR is independent,
+        # so we can not use provided JOBDIR option.
+        if opts.sample_cinema:
+            sample_cinema = ["TOHOシネマズ府中", "TOHOシネマズ海老名",
+                             "TOHOシネマズ西宮OS", "TOHOシネマズ仙台",
+                             "MOVIX仙台", "MOVIX三好", "MOVIXさいたま"]
+            opts.spargs['cinema_list'] = sample_cinema
+        if opts.crawl_booking_data:
+            set_independent_job_dir('job/showing_booking')
+        else:
+            set_independent_job_dir('job/showing')
         # option passed to spider need deep copy
         self.crawler_process.crawl('aeon', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('toho_v2', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('united', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('movix', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('kinezo', **copy.deepcopy(opts.spargs))
-        self.crawler_process.crawl('site109', **copy.deepcopy(opts.spargs))
+        self.crawler_process.crawl('cinema109', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('korona', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('cinemasunshine',
                                    **copy.deepcopy(opts.spargs))

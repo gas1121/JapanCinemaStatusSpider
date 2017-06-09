@@ -255,7 +255,7 @@ class KinezoUtil(object):
             return "NotSold"
 
 
-class Site109Util(object):
+class Cinema109Util(object):
     @staticmethod
     def standardize_book_status(book_status):
         if "available" in book_status:

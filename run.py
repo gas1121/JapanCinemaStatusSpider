@@ -29,8 +29,7 @@ def cinema_crawl_job():
 def showing_crawl_job():
     try:
         call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-              "--crawl_all_cinemas", "--crawl_all_movies",
-              "-s", "JOBDIR=job/showing"])
+              "--crawl_all_cinemas", "--crawl_all_movies", ])
     finally:
         shutil.rmtree('job/showing', ignore_errors=True)
 
@@ -39,16 +38,17 @@ def showing_booking_crawl_job():
     try:
         call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
               "--crawl_booking_data", "--crawl_all_cinemas",
-              "--crawl_all_movies", "-s", "JOBDIR=job/showing_booking"])
+              "--crawl_all_movies", ])
     finally:
         shutil.rmtree('job/showing_booking', ignore_errors=True)
 
 
 def showing_booking_sample_crawl_job():
+    # TODO pass cinema list by arguments
     try:
         call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-              "--crawl_booking_data", "--crawl_all_cinemas",
-              "--crawl_all_movies", "-s", "JOBDIR=job/showing_booking"])
+              "--crawl_booking_data", "--crawl_all_movies",
+              "--sample_cinema"])
     finally:
         shutil.rmtree('job/showing_booking', ignore_errors=True)
 
@@ -66,8 +66,10 @@ if __name__ == '__main__':
     schedule.every().day.at('21:00').do(showing_crawl_job)
     # crawl showing booking data at utc 11:00(20:00 jpn) every friday and
     # saturday for weekend information
-    schedule.every().friday.at('11:00').do(showing_booking_crawl_job)
-    schedule.every().saturday.at('11:00').do(showing_booking_crawl_job)
+    schedule.every().friday.at('11:00').do(showing_booking_sample_crawl_job)
+    schedule.every().friday.at('22:00').do(showing_booking_crawl_job)
+    schedule.every().saturday.at('11:00').do(showing_booking_sample_crawl_job)
+    schedule.every().saturday.at('22:00').do(showing_booking_crawl_job)
     while True:
         schedule.run_pending()
         time.sleep(1)

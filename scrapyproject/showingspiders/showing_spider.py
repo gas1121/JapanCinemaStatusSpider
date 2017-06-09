@@ -13,7 +13,7 @@ default_cinema = {
     "united": "ユナイテッド・シネマとしまえん",
     "movix": "新宿ピカデリー",
     "kinezo": "新宿バルト9",
-    "site109": "109シネマズ湘南",
+    "cinema109": "109シネマズ湘南",
     "korona": "青森コロナシネマワールド",
     "cinemasunshine": "シネマサンシャイン池袋",
     "forum": "フォーラム八戸",

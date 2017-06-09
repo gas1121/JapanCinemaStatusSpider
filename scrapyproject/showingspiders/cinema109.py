@@ -2,14 +2,14 @@
 import re
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
-from scrapyproject.utils import Site109Util
+from scrapyproject.utils import Cinema109Util
 
 
-class Site109Spider(ShowingSpider):
+class Cinema109Spider(ShowingSpider):
     """
     109 site spider.
     """
-    name = "site109"
+    name = "cinema109"
     allowed_domains = ['109cinemas.net', 'cinema.109cinemas.net']
     start_urls = [
         'http://109cinemas.net/'
@@ -119,7 +119,7 @@ class Site109Spider(ShowingSpider):
         booking_data_proto.add_value('showing', showing_data_proto.load_item())
         book_status = curr_showing.xpath(
             './a/div/@class').extract_first()
-        booking_data_proto.add_book_status(book_status, util=Site109Util)
+        booking_data_proto.add_book_status(book_status, util=Cinema109Util)
         book_status = booking_data_proto.get_output_value('book_status')
         if book_status in ['SoldOut', 'NotSold']:
             # sold out or not sold
