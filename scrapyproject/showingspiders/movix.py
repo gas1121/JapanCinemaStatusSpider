@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import MovixUtil
@@ -45,7 +44,7 @@ class MovieSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             if not self.is_cinema_crawl([cinema_name]):
                 continue
-            request = scrapy.Request(
+            request = response.follow(
                 curr_cinema_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
@@ -59,7 +58,7 @@ class MovieSpider(ShowingSpider):
         thnumber = re.findall(r'\d+', script_text)[0]
         schedule_url = self.generate_cinema_schedule_url(
             response.url, thnumber, self.date)
-        request = scrapy.Request(
+        request = response.follow(
             schedule_url, encoding='utf-8', callback=self.parse_shechedule)
         request.meta["data_proto"] = response.meta["data_proto"]
         yield request
@@ -149,7 +148,7 @@ class MovieSpider(ShowingSpider):
             # normal, need to crawl book number on order page
             showing_script = curr_showing.xpath('./@onclick').extract_first()
             url = re.findall(r'\(\'(.+?)\'\,', showing_script)[0]
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            request = response.follow(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 

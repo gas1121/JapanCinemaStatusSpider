@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import json
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import KoronaUtil
@@ -38,7 +37,7 @@ class KoronaSpider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = scrapy.Request(
+            request = response.follow(
                 schedule_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
@@ -129,7 +128,7 @@ class KoronaSpider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing.xpath(
                 './td[@class="btnReservation"]/div/a/@href').extract_first()
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            request = response.follow(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
@@ -154,7 +153,7 @@ class KoronaSpider(ShowingSpider):
         m = re.search(r"data: \"(.+)\"", script_text)
         parameters = m.group(1)
         url = self.generate_seat_json_url(tail=tail, parameters=parameters)
-        request = scrapy.Request(url, callback=self.parse_showing_seat_json)
+        request = response.follow(url, callback=self.parse_showing_seat_json)
         request.meta["data_proto"] = result.load_item()
         yield request
 

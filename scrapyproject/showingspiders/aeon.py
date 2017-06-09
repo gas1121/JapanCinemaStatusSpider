@@ -16,7 +16,7 @@ class AeonSpider(ShowingSpider):
     name = "aeon"
     allowed_domains = ["www.aeoncinema.com", "cinema.aeoncinema.com"]
     start_urls = [
-        'http://www.aeoncinema.com/theater/'
+        'http://www.aeoncinema.com/theater/',
     ]
 
     custom_settings = {
@@ -43,8 +43,8 @@ class AeonSpider(ShowingSpider):
             curr_cinema_url = response.urljoin(curr_cinema_url)
             data_proto.add_cinema_site(curr_cinema_url, cinema_name)
             data_proto.add_value('source', self.name)
-            request = scrapy.Request(curr_cinema_url,
-                                     callback=self.parse_cinema)
+            request = response.follow(curr_cinema_url,
+                                      callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
 
@@ -57,8 +57,8 @@ class AeonSpider(ShowingSpider):
             '//a[contains(@href,"dt=")]/@href').extract_first()
         schedule_url = re.sub(
             r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
-        request = scrapy.Request(schedule_url,
-                                 callback=self.parse_cinema_schedule)
+        request = response.follow(schedule_url,
+                                  callback=self.parse_cinema_schedule)
         request.meta["data_proto"] = response.meta['data_proto']
         request.meta["schedule_url"] = schedule_url
         yield request
@@ -159,7 +159,7 @@ class AeonSpider(ShowingSpider):
             # go to shchedule page again to generate independent cookie
             # for each showing
             schedule_url = response.meta['schedule_url']
-            request = scrapy.Request(
+            request = response.follow(
                 schedule_url, dont_filter=True, callback=self.parse_new_cookie)
             request.meta["data_proto"] = booking_data_proto.load_item()
             request.meta["showing_request"] = showing_request
@@ -235,8 +235,8 @@ class AeonSpider(ShowingSpider):
         display_id = response.xpath(
             '//input[@name="displayID"]/@value').extract_first()
         url = self.generate_ticket_page_url(self, action, display_id)
-        request = scrapy.Request(url, method='POST', dont_filter=True,
-                                 callback=self.parse_normal_showing)
+        request = response.follow(url, method='POST', dont_filter=True,
+                                  callback=self.parse_normal_showing)
         request.meta["data_proto"] = response.meta["data_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         yield request
@@ -254,8 +254,7 @@ class AeonSpider(ShowingSpider):
         url = response.xpath(
             '//script[contains(@src,"pc.2.pinpoint.jsondata")]/@src'
         ).extract_first()
-        url = response.urljoin(url)
-        request = scrapy.Request(url, callback=self.parse_showing_json)
+        request = response.follow(url, callback=self.parse_showing_json)
         request.meta["data_proto"] = response.meta["data_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         yield request

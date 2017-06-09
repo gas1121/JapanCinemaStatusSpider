@@ -36,7 +36,7 @@ class CinemaSunshineSpider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-1]
             json_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = scrapy.Request(json_url, callback=self.parse_cinema)
+            request = response.follow(json_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
 
@@ -145,7 +145,7 @@ class CinemaSunshineSpider(ShowingSpider):
         else:
             # normal, need to crawl book number on order page
             url = curr_showing['url']
-            request = scrapy.Request(url, callback=self.parse_pre_ordering)
+            request = response.follow(url, callback=self.parse_pre_ordering)
             request.meta["data_proto"] = booking_data_proto.load_item()
             request.meta["dont_merge_cookies"] = True
             result_list.append(request)

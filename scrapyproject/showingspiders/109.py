@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import Site109Util
@@ -38,7 +37,7 @@ class Site109Spider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+            request = response.follow(schedule_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
 
@@ -135,7 +134,7 @@ class Site109Spider(ShowingSpider):
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./a/@href').extract_first()
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            request = response.follow(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
@@ -153,8 +152,8 @@ class Site109Spider(ShowingSpider):
         crt = re.findall(r'crt:\'(.+?)\'', post_json_data)[0]
         konyu_su = re.findall(r'konyu_su:\'(.+?)\'', post_json_data)[0]
         url = (url + '?crt=' + crt + '&konyu_su=' + konyu_su + '&mit=')
-        request = scrapy.Request(url, method='POST',
-                                 callback=self.parse_seat_json_api)
+        request = response.follow(url, method='POST',
+                                  callback=self.parse_seat_json_api)
         request.meta["data_proto"] = response.meta['data_proto']
         yield request
 

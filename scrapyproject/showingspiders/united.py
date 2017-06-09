@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import UnitedUtil
@@ -45,7 +44,7 @@ class UnitedSpider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+            request = response.follow(schedule_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
 
@@ -153,10 +152,10 @@ class UnitedSpider(ShowingSpider):
             # determine if next page is 4dx confirm page by title
             title = showing_data_proto.get_output_value('title')
             if '4DX' in title:
-                request = scrapy.Request(
+                request = response.follow(
                     url, callback=self.parse_4dx_confirm_page)
             else:
-                request = scrapy.Request(
+                request = response.follow(
                     url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             # use independent cookie to avoid affecting each other
@@ -165,9 +164,8 @@ class UnitedSpider(ShowingSpider):
 
     def parse_4dx_confirm_page(self, response):
         url = response.xpath('//form/@action').extract_first()
-        url = response.urljoin(url)
-        request = scrapy.Request(url, method='POST',
-                                 callback=self.parse_normal_showing)
+        request = response.follow(url, method='POST',
+                                  callback=self.parse_normal_showing)
         request.meta["data_proto"] = response.meta['data_proto']
         yield request
 

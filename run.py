@@ -44,6 +44,15 @@ def showing_booking_crawl_job():
         shutil.rmtree('job/showing_booking', ignore_errors=True)
 
 
+def showing_booking_sample_crawl_job():
+    try:
+        call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
+              "--crawl_booking_data", "--crawl_all_cinemas",
+              "--crawl_all_movies", "-s", "JOBDIR=job/showing_booking"])
+    finally:
+        shutil.rmtree('job/showing_booking', ignore_errors=True)
+
+
 if __name__ == '__main__':
     print('schedule start')
     # every time schedule script starts, crawl cinema and movie data first

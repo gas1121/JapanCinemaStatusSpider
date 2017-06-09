@@ -2,7 +2,6 @@
 import unicodedata
 import json
 import arrow
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import TohoUtil
@@ -67,8 +66,8 @@ class TohoV2Spider(ShowingSpider):
             show_day = self.date
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
-            request = scrapy.Request(curr_cinema_url,
-                                     callback=self.parse_cinema)
+            request = response.follow(curr_cinema_url,
+                                      callback=self.parse_cinema)
             yield request
 
     def get_cinema_name_list(self, curr_cinema):
@@ -203,8 +202,8 @@ class TohoV2Spider(ShowingSpider):
         else:
             # normal, need to crawl book number on order page
             url = self.generate_showing_url(**showing_url_parameter)
-            request = scrapy.Request(url,
-                                     callback=self.parse_normal_showing)
+            request = response.follow(url,
+                                      callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import ForumUtil
@@ -37,7 +36,7 @@ class ForumSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             schedule_url = self.generate_cinema_schedule_url(
                 curr_cinema_url, self.date)
-            request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+            request = response.follow(schedule_url, callback=self.parse_cinema)
             request.meta["data_proto"] = data_proto.load_item()
             yield request
 
@@ -143,7 +142,7 @@ class ForumSpider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing.xpath(
                 './span[@class="purchase-block"]/a/@href').extract_first()
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            request = response.follow(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 

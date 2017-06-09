@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
 from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
 from scrapyproject.utils import KinezoUtil
@@ -38,7 +37,7 @@ class KinezoSpider(ShowingSpider):
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
-            request = scrapy.Request(
+            request = response.follow(
                 curr_cinema_url, callback=self.parse_main_page)
             request.meta["data_proto"] = data_proto.load_item()
             request.meta["cinema_name_en"] = cinema_name_en
@@ -54,7 +53,7 @@ class KinezoSpider(ShowingSpider):
         cinema_name_en = response.meta["cinema_name_en"]
         schedule_url = self.generate_cinema_schedule_url(
             cinema_name_en, self.date)
-        request = scrapy.Request(schedule_url, callback=self.parse_cinema)
+        request = response.follow(schedule_url, callback=self.parse_cinema)
         request.meta["data_proto"] = response.meta["data_proto"]
         yield request
 
@@ -149,8 +148,7 @@ class KinezoSpider(ShowingSpider):
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./@href').extract_first()
-            url = response.urljoin(url)
-            request = scrapy.Request(url, callback=self.parse_normal_showing)
+            request = response.follow(url, callback=self.parse_normal_showing)
             request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
