@@ -133,3 +133,6 @@ AUTOTHROTTLE_ENABLED = True
 
 # add command to crawl showing data together
 COMMANDS_MODULE = 'scrapyproject.commands'
+
+# also retry for 404 request
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 404]

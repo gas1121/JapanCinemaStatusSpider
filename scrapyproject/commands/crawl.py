@@ -50,6 +50,7 @@ class CrawlCommand(Command):
         Command.process_options(self, args, opts)
 
     def run(self, args, opts):
+        # TODO list parse is not correct
         # pass custom option to spiders
         opts.spargs = {}
         opts.spargs['use_proxy'] = opts.use_proxy
