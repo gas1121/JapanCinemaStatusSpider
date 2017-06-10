@@ -79,7 +79,11 @@ class CrawlCommand(Command):
         else:
             set_independent_job_dir('job/showing')
         # option passed to spider need deep copy
-        self.crawler_process.crawl('aeon', **copy.deepcopy(opts.spargs))
+        # TODO aeon spider is blocked temporary due to performance issue
+        # maybe distributed spider is needed.
+        # kinezo spider may also need  distributed spider
+
+        # self.crawler_process.crawl('aeon', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('toho_v2', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('united', **copy.deepcopy(opts.spargs))
         self.crawler_process.crawl('movix', **copy.deepcopy(opts.spargs))

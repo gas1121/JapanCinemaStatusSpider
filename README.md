@@ -84,8 +84,6 @@ Here is a list of useful site and some of them is used by this spider
 ## TODO list
 - [x] Better command line support for spider
 - [ ] Add redis as cache
-- [ ] run multiple times to ensure all record is crawled
- - [x] database support multiple times
 - [x] better command line support
 - [ ] filter locked seat data
 - [ ] add more stand alone cinema's crawler

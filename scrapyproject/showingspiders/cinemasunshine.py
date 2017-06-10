@@ -19,6 +19,7 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         crawl theater list data first
         """
+        # TODO bug
         theater_list = response.xpath('//li[@class="clearfix"]')
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
