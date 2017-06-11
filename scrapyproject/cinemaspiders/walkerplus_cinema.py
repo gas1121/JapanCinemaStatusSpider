@@ -90,6 +90,7 @@ class WalkerplusCinemaSpider(CinemaSpider):
         # TODO special case for aeon d-box seat
         # TODO special case for aeon イオンシネマ岡山 screen1
         # TODO special case for フォーラム盛岡 screen 8 9
+        # TODO special case for シネマサンシャイン姶良 BESTIA(4) 4DX(5)
         for screen_name, seat_str in match:
             screen_name = standardize_screen_name(
                 screen_name, response.meta['cinema_name'])

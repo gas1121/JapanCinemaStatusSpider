@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 import json
 import scrapy
 from scrapyproject.showingspiders.showing_spider import ShowingSpider
@@ -19,7 +20,6 @@ class CinemaSunshineSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        # TODO bug
         theater_list = response.xpath('//li[@class="clearfix"]')
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
@@ -145,10 +145,18 @@ class CinemaSunshineSpider(ShowingSpider):
             return
         else:
             # normal, need to crawl book number on order page
+            # with new cinema opened, there are now two online booking system
+            # exist.
             url = curr_showing['url']
-            request = response.follow(url, callback=self.parse_pre_ordering)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            if 'ticket-cinemasunshine.com' in url:
+                # new online booking system
+                request = response.follow(
+                    url, callback=self.parse_new_pre_ordering)
+            else:
+                request = response.follow(
+                    url, callback=self.parse_pre_ordering)
             request.meta["dont_merge_cookies"] = True
+            request.meta["data_proto"] = booking_data_proto.load_item()
             result_list.append(request)
 
     def parse_pre_ordering(self, response):
@@ -194,6 +202,70 @@ class CinemaSunshineSpider(ShowingSpider):
             '//img[contains(@src,"seat_102.gif")]'))
         result = init_show_booking_loader(
             response=response, item=response.meta["data_proto"])
+        result.add_value('book_seat_count', booked_seat_count)
+        result.add_time_data()
+        yield result.load_item()
+
+    def parse_new_pre_ordering(self, response):
+        showing_number = re.sub(r"^.*id=([0-9]+)$", r"\1", response.url)
+        url = "https://ticket-cinemasunshine.com/purchase/transaction"
+        form_data = {"id": showing_number}
+        request = scrapy.FormRequest(
+            url, formdata=form_data, callback=self.parse_new_redirect)
+        request.meta["data_proto"] = response.meta["data_proto"]
+        yield request
+
+    def parse_new_redirect(self, response):
+        try:
+            data = json.loads(response.text)
+        except json.JSONDecodeError:
+            return
+        request = response.follow(data["redirect"],
+                                  callback=self.parse_new_normal_showing)
+        request.meta["data_proto"] = response.meta["data_proto"]
+        yield request
+
+    def parse_new_normal_showing(self, response):
+        """
+        new booking system
+        """
+        screen_div = response.xpath('//div[contains(@class,"screen-cover")]')
+        theater_code = screen_div.xpath('./@data-theater').extract_first()
+        date_jouei = screen_div.xpath('./@data-day').extract_first()
+        title_code = screen_div.xpath('./@data-coa-title-code').extract_first()
+        title_branch_num = screen_div.xpath(
+            './@data-coa-title-branch-num').extract_first()
+        time_begin = screen_div.xpath('./@data-time-start').extract_first()
+        screen_code = screen_div.xpath('./@data-screen-code').extract_first()
+        form_data = {
+            "theater_code": theater_code,
+            "date_jouei": date_jouei,
+            "title_code": title_code,
+            "title_branch_num": title_branch_num,
+            "time_begin": time_begin,
+            "screen_code": screen_code,
+        }
+        url = 'https://ticket-cinemasunshine.com/purchase/'\
+              'getScreenStateReserve'
+        request = scrapy.FormRequest(
+            url, formdata=form_data,
+            callback=self.parse_new_normal_showing_json)
+        request.meta["data_proto"] = response.meta["data_proto"]
+        yield request
+
+    def parse_new_normal_showing_json(self, response):
+        try:
+            data = json.loads(response.text)
+        except json.JSONDecodeError:
+            return
+        result = init_show_booking_loader(
+            response=response, item=response.meta["data_proto"])
+        seat_map = data["result"]["screen"]["map"]
+        total_seat_count = sum((x.count(1) + x.count(4) + x.count(5))
+                               for x in seat_map)
+        empty_seats = data["result"]["state"]["list_seat"][0]["list_free_seat"]
+        empty_seat_count = len(empty_seats)
+        booked_seat_count = total_seat_count - empty_seat_count
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
         yield result.load_item()

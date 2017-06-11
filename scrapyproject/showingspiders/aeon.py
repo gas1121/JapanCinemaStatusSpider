@@ -165,7 +165,8 @@ class AeonSpider(ShowingSpider):
             request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
-            request.meta["cookiejar"] = performance_id
+            # add spider name to avoid conflict between spiders
+            request.meta["cookiejar"] = self.name + performance_id
             result_list.append(request)
 
     def extract_showing_parameters(self, curr_showing):
