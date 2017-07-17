@@ -1,11 +1,10 @@
 FROM library/python:alpine
 
-# use ustc mirrors
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
- && mkdir -p ~/.pip \
- && echo "[global]" > ~/.pip/pip.conf \
- && echo "timeout=60" >> ~/.pip/pip.conf \
- && echo "index-url = https://mirrors.ustc.edu.cn/pypi/web/simple" >> ~/.pip/pip.conf
+ARG USE_MIRROR=0
+
+# use ustc mirrors if needed
+COPY docker/set_mirror.sh /tmp/
+RUN /tmp/set_pip_mirror.sh
 
 # install requirements
 RUN apk update
