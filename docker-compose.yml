@@ -2,16 +2,18 @@ version: "3"
 services:
   crawler:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
-      dockerfile: docker/crawler/Dockerfile.py3
+     context: .
+     dockerfile: Dockerfile
+     args:
+       - USE_MIRROR:${USE_MIRROR:-0}
+    volumes: 
+      - .:/app
+    working_dir: /app
     depends_on:
       - kafka
       - redis
       - zookeeper
       - postgres
-    volumes: 
-      - .:/app
-    working_dir: /app
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-japancinemastatus}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-japancinemastatus}
@@ -22,7 +24,7 @@ services:
     command: python run.py
   kafka_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
       dockerfile: docker/kafka-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -30,7 +32,7 @@ services:
     restart: always
   redis_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
       dockerfile: docker/redis-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -39,14 +41,14 @@ services:
     restart: always
   rest:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
       dockerfile: docker/rest/Dockerfile.py3
     depends_on:
       - kafka
       - redis
     restart: always
     ports:
-      - "5343:5343"
+      - "8888:5343"
   zookeeper:
     image: zookeeper
     ports:
@@ -101,26 +103,6 @@ services:
     volumes:
       - redisdata:${PGWEB_PORT:-/data}
     restart: always
-  scrapy:
-    build:
-     context: .
-     dockerfile: Dockerfile
-     args:
-       - USE_MIRROR:${USE_MIRROR:-0}
-    volumes: 
-      - .:/app
-    working_dir: /app
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-japancinemastatus}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-japancinemastatus}
-      - POSTGRES_DB=${POSTGRES_DB:-japancinemastatus}
-      - PROXY_ADDRESS=${PROXY_ADDRESS:-10.0.2.2}
-      - PROXY_PORT=${PROXY_PORT:-1080}
-      - PROXY_TYPE=${PROXY_TYPE:-socks5}
-    depends_on: 
-      - postgres
-      - redis
-    command: python run.py
 volumes:
   pgdata:
   redisdata:
