@@ -23,13 +23,13 @@ RUN apt-get update && apt-get -y install \
 RUN git clone -b py3 https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
 WORKDIR /temp/scrapy-cluster/crawler
 # add a setup.py file to install as package
-COPY docker/setup.py .
+COPY docker/crawler/setup.py .
 RUN pip install -r requirements.txt
 RUN pip install .
 
 # install other requirements
 
-COPY requirements.txt /tmp/
+COPY crawler/requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 RUN mkdir -p /app
 WORKDIR /app

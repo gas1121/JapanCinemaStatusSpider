@@ -3,7 +3,7 @@ services:
   crawler:
     build:
      context: .
-     dockerfile: Dockerfile
+     dockerfile: ./docker/crawler/Dockerfile
      args:
        - USE_MIRROR:${USE_MIRROR:-0}
     volumes: 
