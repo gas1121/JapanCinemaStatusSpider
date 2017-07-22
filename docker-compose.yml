@@ -7,7 +7,7 @@ services:
      args:
        - USE_MIRROR:${USE_MIRROR:-0}
     volumes: 
-      - .:/app
+      - ./crawler:/app
     working_dir: /app
     depends_on:
       - kafka
@@ -24,7 +24,7 @@ services:
     command: python run.py
   kafka_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
+      context: https://github.com/gas1121/scrapy-cluster.git#py3
       dockerfile: docker/kafka-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -32,7 +32,7 @@ services:
     restart: always
   redis_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
+      context: https://github.com/gas1121/scrapy-cluster.git#py3
       dockerfile: docker/redis-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -41,7 +41,7 @@ services:
     restart: always
   rest:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3-package
+      context: https://github.com/gas1121/scrapy-cluster.git#py3
       dockerfile: docker/rest/Dockerfile.py3
     depends_on:
       - kafka
