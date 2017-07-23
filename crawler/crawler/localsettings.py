@@ -127,7 +127,10 @@ STATS_TIMES = [
 #
 BOT_NAME = 'crawler'
 
-SPIDER_MODULES = ['crawler.moviespiders']
+SPIDER_MODULES = [
+    'crawler.cinemaspiders',
+    'crawler.moviespiders',
+]
 NEWSPIDER_MODULE = 'crawler.moviespiders'
 
 # Enables scheduling storing requests queue in redis.
