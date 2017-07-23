@@ -22,6 +22,7 @@ class DataBasePipeline(object):
     will keep exist data if spider has attribute 'keep_old_data'
     """
     def __init__(self, logger, database):
+        # TODO change db management as we now use scrapy cluster
         self.logger = logger
         self.database = database
         # keep crawled movie to sum cinema count

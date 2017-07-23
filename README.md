@@ -1,5 +1,5 @@
 # JapanCinemaStatusSpider
-A spider to crawl movie booking data from several cinema company chains.
+A scrapy project to crawl movie booking data from several cinema company chains.
 
 ## Feature
 - Crawl cinema data from several movie web portals.
@@ -9,10 +9,9 @@ A spider to crawl movie booking data from several cinema company chains.
 
 
 ## Usage
-- use default configuration in **settings.cfg** or change setting as you like.
-- run **init.sh** on linux platform or **init.ps1** on windows platform to generate **docker-compose.yml** file.
-- build **scrapy** image
-- start **scrapy** service in **docker-compose** to start spider
+- set docker compose variables or use default
+- build **crawler** image
+- TODO run **crawler** service in **docker-compose** to start spider
 - you can use **psql** or **pgweb** in service in **docker-compose** file to visit database
 - you can also use **data_handler.py** in spider image to get crawl result.
 
@@ -20,7 +19,7 @@ A spider to crawl movie booking data from several cinema company chains.
 #### Modify schedule time
 We use [schedule](http://schedule.readthedocs.io/en/latest/]) to schedule our spider work, you can modify **run.py** to change schedule time following its documentation.
 #### Use mirror
-Use **scrapy** container instead of **scrapy-vps**
+Set docker compose's environment variable use_mirror to **1**
 
 ## Useful sites
 Here is a list of useful site and some of them is used by this spider
@@ -82,12 +81,12 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] シネマ・リオーネ古川 1010
 
 ## TODO list
+- [ ] Better integration with scrapy cluster
+- [ ] Destribution support
 - [x] Better command line support for spider
-- [ ] Add redis as cache
-- [x] better command line support
-- [ ] filter locked seat data
-- [ ] add more stand alone cinema's crawler
-- [ ] handle showings selecting seat freely
-- [ ] use other spider library for support of schedule and web ui
+- [ ] Filter locked seat data
+- [ ] Add more stand alone cinema's crawler
+- [ ] Handle showings selecting seat freely
+- [ ] Use other spider library for support of schedule and web ui
  - [x] schedule
  - [ ] web ui

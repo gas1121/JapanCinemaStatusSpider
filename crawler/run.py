@@ -54,6 +54,7 @@ def showing_booking_sample_crawl_job():
 
 
 if __name__ == '__main__':
+    # TODO rewrite schedule script as we now use scrapy cluster
     print('schedule start')
     # every time schedule script starts, crawl cinema and movie data first
     cinema_crawl_job()
