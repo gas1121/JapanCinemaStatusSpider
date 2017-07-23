@@ -70,8 +70,6 @@ class DataBasePipeline(object):
 
     def close_spider(self, spider):
         self.logger.debug("close_spider in DataBasePipeline")
-        for title in self.crawled_movies:
-            self.process_movie_item(self.crawled_movies[title], spider)
         # close global session when spider ends
         Session.remove()
 
@@ -89,14 +87,7 @@ class DataBasePipeline(object):
         elif isinstance(item, ShowingBookingItem):
             return self.process_showing_booking_item(item, spider)
         elif isinstance(item, MovieItem):
-            # sum cinema count for each cinema
-            if item['title'] not in self.crawled_movies:
-                self.crawled_movies[item['title']] = item
-            else:
-                count = (item['current_cinema_count'] +
-                         self.crawled_movies[item['title']]['current_cinema_count'])
-                self.crawled_movies[item['title']]['current_cinema_count'] = count
-            return item
+            return self.process_movie_item(item, spider)
 
     def process_cinema_item(self, item, spider):
         cinema = Cinema(**item)
@@ -160,9 +151,14 @@ class DataBasePipeline(object):
 
     def process_movie_item(self, item, spider):
         movie = Movie(**item)
-        # if data do not exist in database, add it
-        if not Movie.get_movie_if_exist(movie):
+        exist_movie = Movie.get_movie_if_exist(movie)
+        if not exist_movie:
+            # if data do not exist in database, add it
             self.add_item_to_database(movie)
+        else:
+            # sum cinema count
+            exist_movie.current_cinema_count += movie.current_cinema_count
+            self.add_item_to_database(exist_movie)
         return item
 
     def add_item_to_database(self, db_item):

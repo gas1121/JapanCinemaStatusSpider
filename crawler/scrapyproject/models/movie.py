@@ -19,7 +19,8 @@ class Movie(DeclarativeBase):
         Get movie if exists else return None.
         Judged by title
         """
-        query = Session.query(Movie).filter(Movie.title == item.title)
+        query = Session.query(Movie).filter(
+            Movie.title == item.title).with_for_update()
         result = query.first()
         return result
 

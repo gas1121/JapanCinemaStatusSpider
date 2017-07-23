@@ -37,6 +37,6 @@ class Showing(DeclarativeBase):
             Showing.screen == item.screen,
             Showing.cinema_site == item.cinema_site,
             Showing.start_time > pre_start_time,
-            Showing.start_time < post_start_time))
+            Showing.start_time < post_start_time)).with_for_update()
         result = query.first()
         return result

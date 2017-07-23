@@ -9,7 +9,7 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
     also crawl cinema count on this week.
     """
     name = "walkerplus_movie"
-    #allowed_domains = ["movie.walkerplus.com"]
+    allowed_domains = ["movie.walkerplus.com"]
     #start_urls = [
     #    'http://movie.walkerplus.com/list/',
     #]
@@ -52,7 +52,6 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
             request.meta['curr_step'] = "area"
             request.meta['title'] = title
             result_list.append(request)
-            return
         next_page = response.xpath(
             '//li[@class="next"]/a/@href').extract_first()
         if next_page:
@@ -70,7 +69,6 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
             request.meta['curr_step'] = "sub_area"
             request.meta['title'] = response.meta['title']
             result_list.append(request)
-            return
 
     def parse_sub_area(self, response, result_list):
         self._logger.debug("{}: parse_sub_area in '{}'".format(
@@ -82,7 +80,6 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
             request.meta['curr_step'] = "city"
             request.meta['title'] = response.meta['title']
             result_list.append(request)
-            return
 
     def parse_city(self, response, result_list):
         self._logger.debug("{}: parse_city in '{}'".format(

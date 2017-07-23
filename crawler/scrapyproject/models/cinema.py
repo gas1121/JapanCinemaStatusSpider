@@ -44,7 +44,7 @@ class Cinema(DeclarativeBase):
                 and_(item.site is not None, Cinema.site == item.site),
                 and_(item.names is not None, Cinema.names.overlap(
                     cast(item.names, ARRAY(String))))
-            )))
+            ))).with_for_update()
         result = query.first()
         return result
 
