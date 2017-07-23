@@ -11,8 +11,8 @@ class CrawlCommand(Command):
 
     def long_desc(self):
         return """Override default crawl command as we need to add some
-                option for our spider and neeed to support run multiple
-               spiders in single process"""
+option for our spider and neeed to support run multiple
+spiders in single process"""
 
     def add_options(self, parser):
         Command.add_options(self, parser)
