@@ -36,7 +36,8 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
             else:
                 self.parse_city(response, result_list)
         for result in result_list:
-            yield result
+            if result:
+                yield result
 
     def parse_datapage(self, response, result_list):
         """

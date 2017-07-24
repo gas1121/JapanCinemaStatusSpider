@@ -47,7 +47,8 @@ class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
             else:
                 self.parse_cinema(response, result_list)
         for result in result_list:
-            yield result
+            if result:
+                yield result
 
     def parse_mainpage(self, response, result_list):
         """

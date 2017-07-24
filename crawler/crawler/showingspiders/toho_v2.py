@@ -44,11 +44,31 @@ class TohoV2Spider(ShowingSpider):
     """
     name = "toho_v2"
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
+    """
     start_urls = [
         'https://hlo.tohotheater.jp/responsive/json/theater_list.json'
     ]
+    """
 
     def parse(self, response):
+        """
+        enter point for response process
+        """
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            else:
+                self.parse_normal_showing(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_mainpage(self, response, result_list):
         """
         crawl theater list data first
         """
@@ -68,8 +88,9 @@ class TohoV2Spider(ShowingSpider):
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
             request = response.follow(curr_cinema_url,
-                                      callback=self.parse_cinema)
-            yield request
+                                      callback=self.parse)
+            request.meta['curr_step'] = "cinema"
+            result_list.append(request)
 
     def get_cinema_name_list(self, curr_cinema):
         # replace full width text before compare
@@ -92,7 +113,7 @@ class TohoV2Spider(ShowingSpider):
                 site_cd=site_cd, show_day=show_day)
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
         # some cinemas may not open and will return empty response
         try:
             schedule_data = json.loads(response.text)
@@ -100,7 +121,6 @@ class TohoV2Spider(ShowingSpider):
             return
         if (not schedule_data):
             return
-        result_list = []
         for curr_cinema in schedule_data:
             showing_url_parameter = {}
             date_str = curr_cinema['showDay']['date']
@@ -109,9 +129,6 @@ class TohoV2Spider(ShowingSpider):
             for sub_cinema in curr_cinema['list']:
                 self.parse_sub_cinema(
                     response, sub_cinema, showing_url_parameter, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_sub_cinema(self, response, sub_cinema,
                          showing_url_parameter, result_list):
@@ -199,13 +216,13 @@ class TohoV2Spider(ShowingSpider):
             booking_data_proto.add_value('book_seat_count', book_seat_count)
             booking_data_proto.add_time_data()
             result_list.append(booking_data_proto.load_item())
-            return
         else:
             # normal, need to crawl book number on order page
             url = self.generate_showing_url(**showing_url_parameter)
-            request = response.follow(url,
-                                      callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            request = response.follow(url, callback=self.parse)
+            request.meta['curr_step'] = "normal_showing"
+            # TODO bug when convert item to dict here
+            request.meta["data_proto"] = dict(booking_data_proto.load_item())
             result_list.append(request)
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
@@ -231,10 +248,15 @@ class TohoV2Spider(ShowingSpider):
                    sakuhin_cd=movie_cd, pf_no=showing_cd,
                    fnc="1", pageid="2000J01", enter_kbn="")
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
+        print("parse_normal_showing")
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
+        print(booked_seat_count)
         result = init_show_booking_loader(
             response=response, item=response.meta["data_proto"])
+        print(result)
+        print(dict(result))
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        print("2")
+        result_list.append(result.load_item())

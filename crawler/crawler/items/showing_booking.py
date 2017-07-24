@@ -20,10 +20,15 @@ class ShowingBookingLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
     def add_time_data(self):
+        # TODO bug
+        print("add_time_data")
         self.add_value('record_time', arrow.now())
+        print(self.get_output_value('showing')['start_time'])
+        print(self.get_output_value('record_time'))
         time_before = (
             self.get_output_value('showing')['start_time'] -
             self.get_output_value('record_time'))
+        print("add_time_data 2")
         minutes_before = time_before.days*1440 + time_before.seconds//60
         self.add_value('minutes_before', minutes_before)
 
