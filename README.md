@@ -81,6 +81,7 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] シネマ・リオーネ古川 1010
 
 ## TODO list
+- [ ] some request missing when run multiple spiders concurrently
 - [ ] Better integration with scrapy cluster
 - [ ] Destribution support
 - [x] Better command line support for spider

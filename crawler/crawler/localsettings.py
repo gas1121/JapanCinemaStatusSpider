@@ -130,8 +130,9 @@ BOT_NAME = 'crawler'
 SPIDER_MODULES = [
     'crawler.cinemaspiders',
     'crawler.moviespiders',
+    'crawler.showingspiders',
 ]
-NEWSPIDER_MODULE = 'crawler.moviespiders'
+NEWSPIDER_MODULE = 'crawler.showingspiders'
 
 # Enables scheduling storing requests queue in redis.
 SCHEDULER = "crawling.distributed_scheduler.DistributedScheduler"
@@ -159,7 +160,10 @@ DOWNLOADER_MIDDLEWARES = {
     # custom cookies to not persist across crawl requests
     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
     'crawling.custom_cookies.CustomCookiesMiddleware': 700,
-    'scrapyproject.middlewares.proxy.ProxyDownloaderMiddleware': 751,
+    # TODO old setting need review
+    #'scrapyproject.middlewares.selenium.SeleniumDownloaderMiddleware': 543,
+    #'scrapyproject.middlewares.cookies.CustomCookiesMiddleware': 700,
+    'crawler.middlewares.proxy.ProxyDownloaderMiddleware': 751,
 }
 
 # Disable the built in logging in production
@@ -188,4 +192,20 @@ DATABASE = {
 }
 
 # add command to crawl showing data together
-COMMANDS_MODULE = 'scrapyproject.commands'
+COMMANDS_MODULE = 'crawler.commands'
+
+# TODO previous settings need review
+# Obey robots.txt rules
+#ROBOTSTXT_OBEY = False
+
+# add user agent
+"""
+DEFAULT_REQUEST_HEADERS = {
+   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+   'Accept-Language': 'en',
+   'User-Agent': 'Scrapy'
+}
+"""
+
+# also retry for 404 request
+#RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 404]
