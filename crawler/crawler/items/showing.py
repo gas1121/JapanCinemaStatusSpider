@@ -5,8 +5,7 @@ import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Identity, TakeFirst
 from crawler.models import Movie, Cinema
-from crawler.items import (standardize_cinema_name,
-                                 standardize_screen_name)
+from crawler.items import (standardize_cinema_name, standardize_screen_name)
 from crawler.utils import standardize_site_url
 
 

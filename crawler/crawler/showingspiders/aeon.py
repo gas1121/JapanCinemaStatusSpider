@@ -45,7 +45,8 @@ class AeonSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             request = response.follow(curr_cinema_url,
                                       callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto.load_item()
+            # store item as dict
+            request.meta["data_proto"] = dict(data_proto.load_item())
             yield request
 
     def parse_cinema(self, response):
@@ -161,7 +162,7 @@ class AeonSpider(ShowingSpider):
             schedule_url = response.meta['schedule_url']
             request = response.follow(
                 schedule_url, dont_filter=True, callback=self.parse_new_cookie)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            request.meta["data_proto"] = dict(booking_data_proto.load_item())
             request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
