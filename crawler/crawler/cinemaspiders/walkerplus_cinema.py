@@ -2,7 +2,7 @@
 import unicodedata
 import re
 from scrapyproject.items import standardize_screen_name
-from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
+from crawler.cinemaspiders.cinema_spider import CinemaSpider
 from scrapyproject.utils import extract_seat_number
 
 
@@ -12,7 +12,7 @@ class WalkerplusCinemaSpider(CinemaSpider):
     """
     name = "walkerplus_cinema"
     allowed_domains = ["movie.walkerplus.com"]
-    start_urls = ['http://movie.walkerplus.com/theater/']
+    #start_urls = ['http://movie.walkerplus.com/theater/']
 
     # settings for cinema_spider, sone are not used as we will override
     # screen data extract function

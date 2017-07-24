@@ -21,8 +21,8 @@ services:
       - PROXY_ADDRESS=${PROXY_ADDRESS:-10.0.2.2}
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}
-    # TODO only run movie spider temporarily
-    command: scrapy crawl walkerplus_movie
+    # TODO only run cinema spider temporarily
+    command: scrapy crawl walkerplus_cinema
   kafka_monitor:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#py3

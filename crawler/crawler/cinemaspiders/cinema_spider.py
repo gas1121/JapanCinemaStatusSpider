@@ -4,7 +4,8 @@ very similar, like: county->cinema->(detailed page)
 """
 import re
 import unicodedata
-import scrapy
+from crawling.spiders.redis_spider import RedisSpider
+
 from scrapyproject.items import (CinemaLoader, standardize_cinema_name,
                                  standardize_screen_name)
 from scrapyproject.utils import (CinemaDatabaseMixin,
@@ -12,7 +13,7 @@ from scrapyproject.utils import (CinemaDatabaseMixin,
                                  extract_seat_number)
 
 
-class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
+class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
 
     def __init__(self, *args, **kwargs):
         super(CinemaSpider, self).__init__(*args, **kwargs)
@@ -33,6 +34,23 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "county":
+                self.parse_county(response, result_list)
+            else:
+                self.parse_cinema(response, result_list)
+        for result in result_list:
+            yield result
+
+    def parse_mainpage(self, response, result_list):
+        """
         crawl county data
         """
         county_list = response.xpath(self.county_xpath)
@@ -42,14 +60,15 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
             county_name = county.xpath('.//text()').extract_first()
             county_name = standardize_county_name(county_name)
             url = county.xpath('./@href').extract_first()
-            request = response.follow(url, callback=self.parse_county)
+            request = response.follow(url, callback=self.parse)
+            request.meta['curr_step'] = "county"
             request.meta['county_name'] = county_name
-            yield request
+            result_list.append(request)
 
     def is_county_crawl(self, county):
         return True
 
-    def parse_county(self, response):
+    def parse_county(self, response, result_list):
         """
         parse cinemas for each county
         """
@@ -61,10 +80,11 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
                 continue
             url = curr_cinema.xpath('./@href').extract_first()
             url = self.adjust_cinema_url(response.urljoin(url))
-            request = response.follow(url, callback=self.parse_cinema)
+            request = response.follow(url, callback=self.parse)
+            request.meta['curr_step'] = "cinema"
             request.meta['county_name'] = response.meta['county_name']
             request.meta['cinema_name'] = cinema_name
-            yield request
+            result_list.append(request)
 
     def is_cinema_crawl(self, cinema_name):
         return True
@@ -75,7 +95,7 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
         """
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
         """
         parse cinema's info
         """
@@ -92,7 +112,7 @@ class CinemaSpider(scrapy.Spider, CinemaDatabaseMixin):
         cinema.add_value('screen_count', screen_count)
         cinema.add_value('total_seats', total_seats)
         cinema.add_value('source', self.name)
-        yield cinema.load_item()
+        result_list.append(cinema.load_item())
 
     def adjust_cinema_site(self, response, site):
         """

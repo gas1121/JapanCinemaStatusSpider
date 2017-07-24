@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
+from crawler.cinemaspiders.cinema_spider import CinemaSpider
 
 
 class YahooCinemaSpider(CinemaSpider):
@@ -8,7 +8,7 @@ class YahooCinemaSpider(CinemaSpider):
     """
     name = "yahoo_cinema"
     allowed_domains = ["movies.yahoo.co.jp"]
-    start_urls = ['http://movies.yahoo.co.jp/area/']
+    #start_urls = ['http://movies.yahoo.co.jp/area/']
 
     # settings for cinema_spider
     county_xpath = '//div[@id="allarea"]//a'

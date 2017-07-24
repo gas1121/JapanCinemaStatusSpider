@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-from scrapyproject.cinemaspiders.cinema_spider import CinemaSpider
+from crawler.cinemaspiders.cinema_spider import CinemaSpider
 from scrapyproject.utils import do_proxy_request
 
 
@@ -10,7 +10,7 @@ class EigaCinemaSpider(CinemaSpider):
     """
     name = "eiga_cinema"
     allowed_domains = ["eiga.com"]
-    start_urls = ['http://eiga.com/theater/']
+    #start_urls = ['http://eiga.com/theater/']
 
     # settings for cinema_spider
     county_xpath = '//dl[@id="list_b"]//a'
