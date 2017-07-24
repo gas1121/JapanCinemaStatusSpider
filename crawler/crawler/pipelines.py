@@ -81,6 +81,7 @@ class DataBasePipeline(object):
         a spider should not have both attributes
         """
         self.logger.info("process_item in DataBasePipeline")
+        self.logger.debug(item)
         if isinstance(item, CinemaItem):
             return self.process_cinema_item(item, spider)
         elif isinstance(item, ShowingItem):

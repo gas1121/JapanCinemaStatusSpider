@@ -17,7 +17,6 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
         """
         enter point for response process
         """
-        # TODO result is incorrect
         self._logger.debug("crawled url {}".format(response.request.url))
         result_list = []
         if "curr_step" not in response.meta:
@@ -26,10 +25,8 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
             curr_step = response.meta["curr_step"]
             if curr_step == "cinema":
                 self.parse_cinema(response, result_list)
-            elif curr_step == "sub_cinema":
-                self.parse_sub_cinema(response, result_list)
             else:
-                self.parse_city(response, result_list)
+                self.parse_sub_cinema(response, result_list)
         for result in result_list:
             yield result
 
@@ -80,7 +77,8 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
             for sub_page_url in sub_page_list:
                 request = response.follow(sub_page_url, callback=self.parse)
                 request.meta['curr_step'] = "sub_cinema"
-                request.meta['cinema'] = copy.deepcopy(cinema)
+                # pass item by dict type
+                request.meta['cinema'] = dict(copy.deepcopy(cinema))
                 result_list.append(request)
         else:
             self.parse_seat_number_list(response, cinema)
@@ -89,7 +87,7 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
     def parse_sub_cinema(self, response, result_list):
         self._logger.debug("{}: parse_sub_cinema in '{}'".format(
             self.name, response.url))
-        cinema = response.meta['cinema']
+        cinema = CinemaItem(response.meta['cinema'])
         # sub cinema use its own name
         cinema_name = response.xpath(
             '//div[@id="more-anchor-01"]/h4/text()').extract_first()

@@ -39,7 +39,7 @@ SCHEDULER_QUEUE_REFRESH = 10
 
 # throttled queue defaults per domain, x hits in a y second window
 QUEUE_HITS = int(os.getenv('QUEUE_HITS', 60))
-QUEUE_WINDOW = int(os.getenv('QUEUE_WINDOW', 60))
+QUEUE_WINDOW = int(os.getenv('QUEUE_WINDOW', 30))
 
 # we want the queue to produce a consistent pop flow
 QUEUE_MODERATED = str2bool(os.getenv('QUEUE_MODERATED', True))
