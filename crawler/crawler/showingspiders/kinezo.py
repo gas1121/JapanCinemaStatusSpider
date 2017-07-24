@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
-from scrapyproject.utils import KinezoUtil
+from crawler.showingspiders.showing_spider import ShowingSpider
+from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.utils import KinezoUtil
 
 
 class KinezoSpider(ShowingSpider):

@@ -3,7 +3,7 @@ import arrow
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Identity, TakeFirst
-from scrapyproject.items.showing import Showing
+from crawler.items.showing import Showing
 
 
 class ShowingBooking(scrapy.Item):

@@ -161,8 +161,8 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
     'crawling.custom_cookies.CustomCookiesMiddleware': 700,
     # TODO old setting need review
-    #'scrapyproject.middlewares.selenium.SeleniumDownloaderMiddleware': 543,
-    #'scrapyproject.middlewares.cookies.CustomCookiesMiddleware': 700,
+    #'crawler.middlewares.selenium.SeleniumDownloaderMiddleware': 543,
+    #'crawler.middlewares.cookies.CustomCookiesMiddleware': 700,
     'crawler.middlewares.proxy.ProxyDownloaderMiddleware': 751,
 }
 

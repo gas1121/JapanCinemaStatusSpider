@@ -3,9 +3,9 @@ import re
 import copy
 from crawling.spiders.redis_spider import RedisSpider
 
-from scrapyproject.items import (CinemaItem, standardize_cinema_name,
+from crawler.items import (CinemaItem, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import CinemaDatabaseMixin, TohoUtil
+from crawler.utils import CinemaDatabaseMixin, TohoUtil
 
 
 class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):

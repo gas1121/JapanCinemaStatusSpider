@@ -4,10 +4,10 @@ import unicodedata
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Identity, TakeFirst
-from scrapyproject.models import Movie, Cinema
-from scrapyproject.items import (standardize_cinema_name,
+from crawler.models import Movie, Cinema
+from crawler.items import (standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import standardize_site_url
+from crawler.utils import standardize_site_url
 
 
 class Showing(scrapy.Item):

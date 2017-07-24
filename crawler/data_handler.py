@@ -1,7 +1,7 @@
 import argparse
 import re
 import unicodedata
-from scrapyproject import models
+from crawler import models
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
 

@@ -6,12 +6,12 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scutils.log_factory import LogFactory
 
-from scrapyproject.models import (Cinema, Showing, ShowingBooking, Movie,
+from crawler.models import (Cinema, Showing, ShowingBooking, Movie,
                                   db_connect, drop_table_if_exist,
                                   create_table, Session)
-from scrapyproject.items import (CinemaItem, ShowingItem, ShowingBookingItem,
+from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
                                  MovieItem)
-from scrapyproject.utils import (use_cinema_database,
+from crawler.utils import (use_cinema_database,
                                  use_showing_database,
                                  use_movie_database)
 

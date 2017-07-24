@@ -2,9 +2,9 @@ from enum import Enum
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy import and_, or_, cast
-from scrapyproject.models import Session
-from scrapyproject.models.models import DeclarativeBase
-from scrapyproject.utils import ScreenUtils
+from crawler.models import Session
+from crawler.models.models import DeclarativeBase
+from crawler.utils import ScreenUtils
 
 
 class Cinema(DeclarativeBase):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
-from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
-from scrapyproject.utils import Cinema109Util
+from crawler.showingspiders.showing_spider import ShowingSpider
+from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.utils import Cinema109Util
 
 
 class Cinema109Spider(ShowingSpider):

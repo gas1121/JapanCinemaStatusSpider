@@ -2,9 +2,9 @@
 import unicodedata
 import json
 import arrow
-from scrapyproject.showingspiders.showing_spider import ShowingSpider
-from scrapyproject.items import (ShowingLoader, init_show_booking_loader)
-from scrapyproject.utils import TohoUtil
+from crawler.showingspiders.showing_spider import ShowingSpider
+from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.utils import TohoUtil
 
 
 class TohoV2Spider(ShowingSpider):

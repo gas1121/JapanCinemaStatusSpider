@@ -2,7 +2,7 @@ import copy
 from optparse import OptionGroup
 import arrow
 from scrapy.commands.crawl import Command
-from scrapyproject.showingspiders import set_independent_job_dir
+from crawler.showingspiders import set_independent_job_dir
 
 
 class CrawlCommand(Command):
@@ -75,6 +75,7 @@ spiders in single process"""
                              "TOHOシネマズ西宮OS", "TOHOシネマズ仙台",
                              "MOVIX仙台", "MOVIX三好", "MOVIXさいたま"]
             opts.spargs['cinema_list'] = sample_cinema
+        # TODO
         if opts.crawl_booking_data:
             set_independent_job_dir('job/showing_booking')
         else:

@@ -6,9 +6,9 @@ import re
 import unicodedata
 from crawling.spiders.redis_spider import RedisSpider
 
-from scrapyproject.items import (CinemaLoader, standardize_cinema_name,
+from crawler.items import (CinemaLoader, standardize_cinema_name,
                                  standardize_screen_name)
-from scrapyproject.utils import (CinemaDatabaseMixin,
+from crawler.utils import (CinemaDatabaseMixin,
                                  standardize_county_name,
                                  extract_seat_number)
 

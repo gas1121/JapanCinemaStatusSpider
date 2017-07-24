@@ -4,7 +4,7 @@ Base class for spiders crawling movie showings
 import unicodedata
 import arrow
 import scrapy
-from scrapyproject.utils import ShowingDatabaseMixin
+from crawler.utils import ShowingDatabaseMixin
 
 
 default_cinema = {

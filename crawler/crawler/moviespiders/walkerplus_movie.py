@@ -1,6 +1,6 @@
 from crawling.spiders.redis_spider import RedisSpider
-from scrapyproject.items import MovieLoader
-from scrapyproject.utils import MovieDatabaseMixin
+from crawler.items import MovieLoader
+from crawler.utils import MovieDatabaseMixin
 
 
 class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):

@@ -2,7 +2,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Identity, TakeFirst, MapCompose
-from scrapyproject.utils import standardize_site_url
+from crawler.utils import standardize_site_url
 
 
 class Cinema(scrapy.Item):

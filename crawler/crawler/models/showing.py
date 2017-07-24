@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy_utils import ArrowType
 from sqlalchemy import and_
-from scrapyproject.models import Session
-from scrapyproject.models.models import DeclarativeBase
+from crawler.models import Session
+from crawler.models.models import DeclarativeBase
 
 
 class Showing(DeclarativeBase):

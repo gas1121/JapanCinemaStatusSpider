@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy_utils import ArrowType
 from sqlalchemy.orm import relationship
-from scrapyproject.models.models import DeclarativeBase
-from scrapyproject.models.showing import Showing
+from crawler.models.models import DeclarativeBase
+from crawler.models.showing import Showing
 
 
 class ShowingBooking(DeclarativeBase):
