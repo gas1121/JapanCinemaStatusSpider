@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import KinezoUtil
 
 
@@ -10,9 +11,12 @@ class KinezoSpider(ShowingSpider):
     """
     name = "kinezo"
     allowed_domains = ['kinezo.jp']
+    """
     start_urls = [
         'http://kinezo.jp/pc/'
     ]
+    """
+    # TODO may useless now?
     # disallow concurrent requests to avoid cookie expiring
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
@@ -20,8 +24,30 @@ class KinezoSpider(ShowingSpider):
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        # TODO cookie issue?
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_start_page(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "main_page":
+                self.parse_main_page(response, result_list)
+            elif curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            else:
+                self.parse_normal_showing(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_start_page(self, response, result_list):
+        """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_start_page".format(self.name))
         theater_list = response.xpath(
             '//footer/p[position()>=2 and position() <=3]//a')
         # partner cinema is not included
@@ -37,25 +63,27 @@ class KinezoSpider(ShowingSpider):
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
-            request = response.follow(
-                curr_cinema_url, callback=self.parse_main_page)
-            request.meta["data_proto"] = data_proto.load_item()
+            request = response.follow(curr_cinema_url, callback=self.parse)
+            request.meta['curr_step'] = "main_page"
+            request.meta["dict_proto"] = dict(data_proto.load_item())
             request.meta["cinema_name_en"] = cinema_name_en
             request.meta["dont_merge_cookies"] = True
-            yield request
+            result_list.append(request)
 
-    def parse_main_page(self, response):
+    def parse_main_page(self, response, result_list):
         """
         cinema main page
 
         generate cookie here
         """
+        self._logger.debug("{} parse_main_page".format(self.name))
         cinema_name_en = response.meta["cinema_name_en"]
         schedule_url = self.generate_cinema_schedule_url(
             cinema_name_en, self.date)
-        request = response.follow(schedule_url, callback=self.parse_cinema)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        yield request
+        request = response.follow(schedule_url, callback=self.parse)
+        request.meta['curr_step'] = "cinema"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
+        result_list.append(request)
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
         """
@@ -66,21 +94,18 @@ class KinezoSpider(ShowingSpider):
                   d=show_day[6:])
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
         """
         cinema home page
         we have to pass this page to get independent cookie for each cinema
         """
+        self._logger.debug("{} parse_cinema".format(self.name))
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"])
-        result_list = []
+        data_proto.add_value(None, response.meta["dict_proto"])
         movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
         movie_section_list = response.xpath('//div[@class="theaterListWrap"]')
         for curr_movie in zip(movie_title_list, movie_section_list):
             self.parse_movie(response, curr_movie, data_proto, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
@@ -144,17 +169,21 @@ class KinezoSpider(ShowingSpider):
             booking_data_proto.add_value('book_seat_count', book_seat_count)
             booking_data_proto.add_time_data()
             result_list.append(booking_data_proto.load_item())
-            return
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./@href').extract_first()
-            request = response.follow(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            request = response.follow(url, callback=self.parse)
+            request.meta['curr_step'] = "normal_showing"
+            dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
+        self._logger.debug("{} parse_normal_showing".format(self.name))
+        print(response.text)
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
         time_text = response.xpath(
             '//span[@class="screenTime"]/text()').extract_first()
         time_list = time_text.split('-')
@@ -171,7 +200,7 @@ class KinezoSpider(ShowingSpider):
             '//li[@class="seatSell seatOff"]'))
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())
 
     def parse_time(self, time_str):
         time = time_str.split(":")

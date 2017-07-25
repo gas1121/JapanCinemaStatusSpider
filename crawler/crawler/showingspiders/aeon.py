@@ -5,7 +5,8 @@ import copy
 import demjson
 import scrapy
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import AeonUtil
 
 
@@ -15,9 +16,11 @@ class AeonSpider(ShowingSpider):
     """
     name = "aeon"
     allowed_domains = ["www.aeoncinema.com", "cinema.aeoncinema.com"]
+    """
     start_urls = [
         'http://www.aeoncinema.com/theater/',
     ]
+    """
 
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
@@ -25,8 +28,36 @@ class AeonSpider(ShowingSpider):
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        # TODO not tested
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            elif curr_step == "parse_cinema_schedule":
+                self.parse_cinema_schedule(response, result_list)
+            elif curr_step == "parse_new_cookie":
+                self.parse_new_cookie(response, result_list)
+            elif curr_step == "parse_agreement":
+                self.parse_agreement(response, result_list)
+            elif curr_step == "parse_normal_showing":
+                self.parse_normal_showing(response, result_list)
+            else:
+                self.parse_showing_json(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_mainpage(self, response, result_list):
+        """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_mainpage".format(self.name))
         theater_link_list = response.xpath(
             '//div[contains(@class,"area")]//dd//a')
         for theater_link in theater_link_list:
@@ -43,38 +74,34 @@ class AeonSpider(ShowingSpider):
             curr_cinema_url = response.urljoin(curr_cinema_url)
             data_proto.add_cinema_site(curr_cinema_url, cinema_name)
             data_proto.add_value('source', self.name)
-            request = response.follow(curr_cinema_url,
-                                      callback=self.parse_cinema)
-            # store item as dict
-            request.meta["data_proto"] = dict(data_proto.load_item())
-            yield request
+            request = response.follow(curr_cinema_url, callback=self.parse)
+            request.meta['curr_step'] = "cinema"
+            request.meta["dict_proto"] = dict(data_proto.load_item())
+            result_list.append(request)
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
         """
         get schedule page from cinema site
         """
+        self._logger.debug("{} parse_cinema".format(self.name))
         # get schedule url and replace date string
         schedule_url = response.xpath(
             '//a[contains(@href,"dt=")]/@href').extract_first()
         schedule_url = re.sub(
             r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
-        request = response.follow(schedule_url,
-                                  callback=self.parse_cinema_schedule)
-        request.meta["data_proto"] = response.meta['data_proto']
+        request = response.follow(schedule_url, callback=self.parse)
+        request.meta['curr_step'] = "parse_cinema_schedule"
+        request.meta["dict_proto"] = response.meta['dict_proto']
         request.meta["schedule_url"] = schedule_url
-        yield request
+        result_list.append(request)
 
-    def parse_cinema_schedule(self, response):
+    def parse_cinema_schedule(self, response, result_list):
         data_proto = ShowingLoader(response=response)
         data_proto.add_value(None, response.meta["data_proto"])
-        result_list = []
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
         for curr_movie in movie_section_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
@@ -161,13 +188,16 @@ class AeonSpider(ShowingSpider):
             # for each showing
             schedule_url = response.meta['schedule_url']
             request = response.follow(
-                schedule_url, dont_filter=True, callback=self.parse_new_cookie)
-            request.meta["data_proto"] = dict(booking_data_proto.load_item())
+                schedule_url, dont_filter=True, callback=self.parse)
             request.meta["showing_request"] = showing_request
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
             # add spider name to avoid conflict between spiders
             request.meta["cookiejar"] = self.name + performance_id
+            request.meta['curr_step'] = "parse_new_cookie"
+            dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
     def extract_showing_parameters(self, curr_showing):
@@ -207,7 +237,7 @@ class AeonSpider(ShowingSpider):
                 'isSpecial': is_special,
                 'isReserved': is_reserved,
                 'displayID': display_id
-            }, callback=self.parse_agreement)
+            }, callback=self.parse)
         # replace with real action generated by javascript
         theater_id = site_id
         page_id = "pc0005" if is_special == "1" else "pc0006"
@@ -218,17 +248,20 @@ class AeonSpider(ShowingSpider):
         request = request.replace(url=url)
         return request
 
-    def parse_new_cookie(self, response):
+    def parse_new_cookie(self, response, result_list):
         """
         generate cookie for showing page to use
         """
+        self._logger.debug("{} parse_new_cookie".format(self.name))
         request = response.meta['showing_request']
-        request.meta["data_proto"] = response.meta['data_proto']
+        request.meta['curr_step'] = "parse_agreement"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
-        yield request
+        result_list.append(request)
 
-    def parse_agreement(self, response):
+    def parse_agreement(self, response, result_list):
         # extract form action url
+        self._logger.debug("{} parse_agreement".format(self.name))
         script_text = response.xpath(
             '//script[contains(.,"pc.1.selectPerformance")]/text()'
             ).extract_first()
@@ -238,10 +271,11 @@ class AeonSpider(ShowingSpider):
             '//input[@name="displayID"]/@value').extract_first()
         url = self.generate_ticket_page_url(self, action, display_id)
         request = response.follow(url, method='POST', dont_filter=True,
-                                  callback=self.parse_normal_showing)
-        request.meta["data_proto"] = response.meta["data_proto"]
+                                  callback=self.parse)
+        request.meta['curr_step'] = "parse_normal_showing"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
-        yield request
+        result_list.append(request)
 
     def generate_ticket_page_url(self, response, action, display_id):
         return 'https://cinema.aeoncinema.com/wm/{action}'\
@@ -249,22 +283,25 @@ class AeonSpider(ShowingSpider):
                '&displayID={display_id}'.format(
                    action=action, display_id=display_id)
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
         """
         go to json data url
         """
+        self._logger.debug("{} parse_normal_showing".format(self.name))
         url = response.xpath(
             '//script[contains(@src,"pc.2.pinpoint.jsondata")]/@src'
         ).extract_first()
-        request = response.follow(url, callback=self.parse_showing_json)
-        request.meta["data_proto"] = response.meta["data_proto"]
+        request = response.follow(url, callback=self.parse)
+        request.meta['curr_step'] = "parse_showing_json"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
-        yield request
+        result_list.append(request)
 
-    def parse_showing_json(self, response):
+    def parse_showing_json(self, response, result_list):
         """
         extract showing info from json data
         """
+        self._logger.debug("{} parse_showing_json".format(self.name))
         # TODO D-Box seat need check if handled right
         script_text = copy.deepcopy(response.text)
         script_text = re.sub(r'[\t\r\n]', '', script_text, re.DOTALL)
@@ -272,7 +309,7 @@ class AeonSpider(ShowingSpider):
             r'if\( typeof.+?{}}WMC_E_DATA = ', '', script_text, re.DOTALL)
         json_data = demjson.decode(script_text)
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
 
         booked_seat_count = 0
         for i in range(len(json_data['SeatMaps']['FLAG'][0])):
@@ -282,4 +319,4 @@ class AeonSpider(ShowingSpider):
                     booked_seat_count += 1
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())

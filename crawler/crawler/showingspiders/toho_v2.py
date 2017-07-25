@@ -73,6 +73,7 @@ class TohoV2Spider(ShowingSpider):
         """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_mainpage".format(self.name))
         # TODO bug
         try:
             theater_list = json.loads(response.text)
@@ -115,6 +116,7 @@ class TohoV2Spider(ShowingSpider):
         return url
 
     def parse_cinema(self, response, result_list):
+        self._logger.debug("{} parse_cinema".format(self.name))
         # some cinemas may not open and will return empty response
         try:
             schedule_data = json.loads(response.text)
@@ -222,9 +224,9 @@ class TohoV2Spider(ShowingSpider):
             url = self.generate_showing_url(**showing_url_parameter)
             request = response.follow(url, callback=self.parse)
             request.meta['curr_step'] = "normal_showing"
-            data_dict_proto = ShowingBookingLoader.to_dict(
+            dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
-            request.meta["data_dict_proto"] = data_dict_proto
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
@@ -251,9 +253,10 @@ class TohoV2Spider(ShowingSpider):
                    fnc="1", pageid="2000J01", enter_kbn="")
 
     def parse_normal_showing(self, response, result_list):
+        self._logger.debug("{} parse_normal_showing".format(self.name))
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_dict_proto"])
+            response=response, item=response.meta["dict_proto"])
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
         result_list.append(result.load_item())

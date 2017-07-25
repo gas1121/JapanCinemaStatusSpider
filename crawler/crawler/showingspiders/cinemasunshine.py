@@ -3,7 +3,8 @@ import re
 import json
 import scrapy
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import CinemaSunshineUtil
 
 
@@ -12,14 +13,50 @@ class CinemaSunshineSpider(ShowingSpider):
     Cinema Sunshine spider.
     """
     name = "cinemasunshine"
+    """
     start_urls = [
         'http://www.cinemasunshine.co.jp/theater/'
     ]
+    """
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        # TODO cookie issue?
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            elif curr_step == "new_pre_ordering":
+                self.parse_new_pre_ordering(response, result_list)
+            elif curr_step == "pre_ordering":
+                self.parse_pre_ordering(response, result_list)
+            elif curr_step == "agreement":
+                self.parse_agreement(response, result_list)
+            elif curr_step == "select_ticket_count":
+                self.parse_select_ticket_count(response, result_list)
+            elif curr_step == "normal_showing":
+                self.parse_normal_showing(response, result_list)
+            elif curr_step == "new_redirect":
+                self.parse_new_redirect(response, result_list)
+            elif curr_step == "new_normal_showing":
+                self.parse_new_normal_showing(response, result_list)
+            else:
+                self.parse_new_normal_showing_json(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_mainpage(self, response, result_list):
+        """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_mainpage".format(self.name))
         theater_list = response.xpath('//li[@class="clearfix"]')
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
@@ -38,8 +75,9 @@ class CinemaSunshineSpider(ShowingSpider):
             json_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = response.follow(json_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto.load_item()
-            yield request
+            request.meta['curr_step'] = "cinema"
+            request.meta["dict_proto"] = dict(data_proto.load_item())
+            result_list.append(request)
 
     def generate_cinema_schedule_url(self, cinema_name, date):
         """
@@ -50,7 +88,8 @@ class CinemaSunshineSpider(ShowingSpider):
                 cinema_name=cinema_name, date=date)
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
+        self._logger.debug("{} parse_cinema".format(self.name))
         try:
             schedule_data = json.loads(response.text)
         except json.JSONDecodeError:
@@ -60,8 +99,7 @@ class CinemaSunshineSpider(ShowingSpider):
         if 'data' not in schedule_data or 'movie' not in schedule_data['data']:
             return
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"])
-        result_list = []
+        data_proto.add_value(None, response.meta["dict_proto"])
         movie_list = []
         if isinstance(schedule_data['data']['movie'], dict):
             movie_list.append(schedule_data['data']['movie'])
@@ -69,9 +107,6 @@ class CinemaSunshineSpider(ShowingSpider):
             movie_list = schedule_data['data']['movie']
         for curr_movie in movie_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
@@ -150,85 +185,98 @@ class CinemaSunshineSpider(ShowingSpider):
             url = curr_showing['url']
             if 'ticket-cinemasunshine.com' in url:
                 # new online booking system
-                request = response.follow(
-                    url, callback=self.parse_new_pre_ordering)
+                request = response.follow(url, callback=self.parse)
+                request.meta['curr_step'] = "new_pre_ordering"
             else:
-                request = response.follow(
-                    url, callback=self.parse_pre_ordering)
+                request = response.follow(url, callback=self.parse)
+                request.meta['curr_step'] = "pre_ordering"
             request.meta["dont_merge_cookies"] = True
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
-    def parse_pre_ordering(self, response):
+    def parse_pre_ordering(self, response, result_list):
         """
         redirect with form data
         """
+        self._logger.debug("{} parse_pre_ordering".format(self.name))
         # TODO form not found bug
         request = scrapy.FormRequest.from_response(
-            response, formxpath='//form', callback=self.parse_agreement)
-        request.meta["data_proto"] = response.meta["data_proto"]
+            response, formxpath='//form', callback=self.parse)
+        request.meta['curr_step'] = "agreement"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
-        yield request
+        result_list.append(request)
 
-    def parse_agreement(self, response):
+    def parse_agreement(self, response, result_list):
         """
         agreement page
         """
+        self._logger.debug("{} parse_agreement".format(self.name))
         check_value = response.xpath(
             '//input[@type="checkbox"]/@value').extract_first()
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form[@name="FORM1"]',
             formdata={'agre': 'agr', 'p_agree[]': check_value},
-            callback=self.parse_select_ticket_count)
-        request.meta["data_proto"] = response.meta["data_proto"]
+            callback=self.parse)
+        request.meta['curr_step'] = "select_ticket_count"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
-        yield request
+        result_list.append(request)
 
-    def parse_select_ticket_count(self, response):
+    def parse_select_ticket_count(self, response, result_list):
         """
         ticket number select page
         """
+        self._logger.debug("{} parse_select_ticket_count".format(self.name))
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form[@name="FORM1"]',
             formdata={'goArea': 'goArea', 'ninzu[]': "1"},
-            callback=self.parse_normal_showing)
-        request.meta["data_proto"] = response.meta["data_proto"]
+            callback=self.parse)
+        request.meta['curr_step'] = "normal_showing"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
-        yield request
+        result_list.append(request)
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
+        self._logger.debug("{} parse_normal_showing".format(self.name))
         # some cinemas are free seat ordered, so data may not be crawled
         booked_seat_count = len(response.xpath(
             '//img[contains(@src,"seat_102.gif")]'))
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())
 
-    def parse_new_pre_ordering(self, response):
+    def parse_new_pre_ordering(self, response, result_list):
+        self._logger.debug("{} parse_new_pre_ordering".format(self.name))
         showing_number = re.sub(r"^.*id=([0-9]+)$", r"\1", response.url)
         url = "https://ticket-cinemasunshine.com/purchase/transaction"
         form_data = {"id": showing_number}
         request = scrapy.FormRequest(
-            url, formdata=form_data, callback=self.parse_new_redirect)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        yield request
+            url, formdata=form_data, callback=self.parse)
+        request.meta['curr_step'] = "new_redirect"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
+        result_list.append(request)
 
-    def parse_new_redirect(self, response):
+    def parse_new_redirect(self, response, result_list):
+        self._logger.debug("{} parse_new_redirect".format(self.name))
         try:
             data = json.loads(response.text)
         except json.JSONDecodeError:
             return
-        request = response.follow(data["redirect"],
-                                  callback=self.parse_new_normal_showing)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        yield request
+        request = response.follow(data["redirect"], callback=self.parse)
+        request.meta['curr_step'] = "new_normal_showing"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
+        result_list.append(request)
 
-    def parse_new_normal_showing(self, response):
+    def parse_new_normal_showing(self, response, result_list):
         """
         new booking system
         """
+        self._logger.debug("{} parse_new_normal_showing".format(self.name))
         screen_div = response.xpath('//div[contains(@class,"screen-cover")]')
         theater_code = screen_div.xpath('./@data-theater').extract_first()
         date_jouei = screen_div.xpath('./@data-day').extract_first()
@@ -248,18 +296,20 @@ class CinemaSunshineSpider(ShowingSpider):
         url = 'https://ticket-cinemasunshine.com/purchase/'\
               'getScreenStateReserve'
         request = scrapy.FormRequest(
-            url, formdata=form_data,
-            callback=self.parse_new_normal_showing_json)
-        request.meta["data_proto"] = response.meta["data_proto"]
-        yield request
+            url, formdata=form_data, callback=self.parse)
+        request.meta['curr_step'] = "new_normal_showing_json"
+        request.meta["dict_proto"] = response.meta["dict_proto"]
+        result_list.append(request)
 
-    def parse_new_normal_showing_json(self, response):
+    def parse_new_normal_showing_json(self, response, result_list):
+        self._logger.debug("{} parse_new_normal_showing_json".format(
+            self.name))
         try:
             data = json.loads(response.text)
         except json.JSONDecodeError:
             return
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
         seat_map = data["result"]["screen"]["map"]
         total_seat_count = sum((x.count(1) + x.count(4) + x.count(5))
                                for x in seat_map)
@@ -268,4 +318,4 @@ class CinemaSunshineSpider(ShowingSpider):
         booked_seat_count = total_seat_count - empty_seat_count
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())

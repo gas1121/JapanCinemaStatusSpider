@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import Cinema109Util
 
 
@@ -11,14 +12,38 @@ class Cinema109Spider(ShowingSpider):
     """
     name = "cinema109"
     allowed_domains = ['109cinemas.net', 'cinema.109cinemas.net']
+    """
     start_urls = [
         'http://109cinemas.net/'
     ]
+    """
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        # TODO not tested
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            elif curr_step == "parse_normal_showing":
+                self.parse_normal_showing(response, result_list)
+            else:
+                self.parse_seat_json_api(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_mainpage(self, response, result_list):
+        """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_mainpage".format(self.name))
         theater_list = response.xpath('//section[@id="theatres"]//a')
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
@@ -38,8 +63,9 @@ class Cinema109Spider(ShowingSpider):
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = response.follow(schedule_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto.load_item()
-            yield request
+            request.meta['curr_step'] = "cinema"
+            request.meta["dict_proto"] = dict(data_proto.load_item())
+            result_list.append(request)
 
     def generate_cinema_schedule_url(self, cinema_name_en, show_day):
         """
@@ -50,16 +76,13 @@ class Cinema109Spider(ShowingSpider):
                   cinema_name_en=cinema_name_en, date=show_day)
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
+        self._logger.debug("{} parse_cinema".format(self.name))
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"])
-        result_list = []
+        data_proto.add_value(None, response.meta["dict_proto"])
         movie_section_list = response.xpath('//div[@id="timetable"]/article')
         for curr_movie in movie_section_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
@@ -134,14 +157,18 @@ class Cinema109Spider(ShowingSpider):
         else:
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./a/@href').extract_first()
-            request = response.follow(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            request = response.follow(url, callback=self.parse)
+            request.meta['curr_step'] = "parse_normal_showing"
+            dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
         """
         parse seat order page
         """
+        self._logger.debug("{} parse_normal_showing".format(self.name))
         # extract seat json api from javascript
         script_text = response.xpath(
             '//script[contains(.,"get seatmap data")]/text()').extract_first()
@@ -152,14 +179,15 @@ class Cinema109Spider(ShowingSpider):
         crt = re.findall(r'crt:\'(.+?)\'', post_json_data)[0]
         konyu_su = re.findall(r'konyu_su:\'(.+?)\'', post_json_data)[0]
         url = (url + '?crt=' + crt + '&konyu_su=' + konyu_su + '&mit=')
-        request = response.follow(url, method='POST',
-                                  callback=self.parse_seat_json_api)
-        request.meta["data_proto"] = response.meta['data_proto']
-        yield request
+        request = response.follow(url, method='POST', callback=self.parse)
+        request.meta['curr_step'] = "parse_seat_json_api"
+        request.meta["dict_proto"] = response.meta['dict_proto']
+        result_list.append(request)
 
-    def parse_seat_json_api(self, response):
+    def parse_seat_json_api(self, response, result_list):
+        self._logger.debug("{} parse_seat_json_api".format(self.name))
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
         booked_normal_seat_count = len(response.xpath(
             '//a[@class="seat seat-none"]'))
         booked_wheelseat_count = len(response.xpath(
@@ -171,4 +199,4 @@ class Cinema109Spider(ShowingSpider):
             booked_executive_seat_count)
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())

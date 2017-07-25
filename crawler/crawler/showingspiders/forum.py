@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import ForumUtil
 
 
@@ -10,14 +11,36 @@ class ForumSpider(ShowingSpider):
     forum spider.
     """
     name = "forum"
+    """
     start_urls = [
         'http://forum-movie.net/theater-list'
     ]
+    """
 
     def parse(self, response):
         """
+        enter point for response process
+        """
+        # TODO bug after for each showing url not added but not crawled
+        self._logger.debug("crawled url {}".format(response.request.url))
+        result_list = []
+        if "curr_step" not in response.meta:
+            self.parse_mainpage(response, result_list)
+        else:
+            curr_step = response.meta["curr_step"]
+            if curr_step == "cinema":
+                self.parse_cinema(response, result_list)
+            else:
+                self.parse_normal_showing(response, result_list)
+        for result in result_list:
+            if result:
+                yield result
+
+    def parse_mainpage(self, response, result_list):
+        """
         crawl theater list data first
         """
+        self._logger.debug("{} parse_mainpage".format(self.name))
         theater_div_list = response.xpath(
             '//div[@class="theater-list__inner"]')
         for theater_element in theater_div_list:
@@ -36,9 +59,10 @@ class ForumSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             schedule_url = self.generate_cinema_schedule_url(
                 curr_cinema_url, self.date)
-            request = response.follow(schedule_url, callback=self.parse_cinema)
-            request.meta["data_proto"] = data_proto.load_item()
-            yield request
+            request = response.follow(schedule_url, callback=self.parse)
+            request.meta['curr_step'] = "cinema"
+            request.meta["dict_proto"] = dict(data_proto.load_item())
+            result_list.append(request)
 
     def generate_cinema_schedule_url(self, curr_cinema_url, date):
         """
@@ -47,17 +71,14 @@ class ForumSpider(ShowingSpider):
         url = curr_cinema_url + "/by-date?date={date}".format(date=date)
         return url
 
-    def parse_cinema(self, response):
+    def parse_cinema(self, response, result_list):
+        self._logger.debug("{} parse_cinema".format(self.name))
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"])
-        result_list = []
+        data_proto.add_value(None, response.meta["dict_proto"])
         movie_section_list = response.xpath(
             '//section[@data-accordion-group="movie"]')
         for curr_movie in movie_section_list:
             self.parse_movie(response, curr_movie, data_proto, result_list)
-        for result in result_list:
-            if result:
-                yield result
 
     def parse_movie(self, response, curr_movie, data_proto, result_list):
         """
@@ -143,12 +164,16 @@ class ForumSpider(ShowingSpider):
             url = curr_showing.xpath(
                 './span[@class="purchase-block"]/a/@href').extract_first()
             request = response.follow(url, callback=self.parse_normal_showing)
-            request.meta["data_proto"] = booking_data_proto.load_item()
+            request.meta['curr_step'] = "normal_showing"
+            dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["dict_proto"] = dict_proto
             result_list.append(request)
 
-    def parse_normal_showing(self, response):
+    def parse_normal_showing(self, response, result_list):
+        self._logger.debug("{} parse_normal_showing".format(self.name))
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
+            response=response, item=response.meta["dict_proto"])
         # extract seat info from javascript
         script_text = response.xpath(
             '//script[contains(., "seat_info")]/text()').extract_first()
@@ -159,4 +184,4 @@ class ForumSpider(ShowingSpider):
         booked_seat_count = total_seat_count - unsold_seat_count
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        yield result.load_item()
+        result_list.append(result.load_item())
