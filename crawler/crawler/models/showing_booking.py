@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy_utils import ArrowType
 from sqlalchemy.orm import relationship
+import arrow
+
 from crawler.models.models import DeclarativeBase
 from crawler.models.showing import Showing
 
@@ -17,9 +19,12 @@ class ShowingBooking(DeclarativeBase):
     minutes_before = Column('minutes_before', Integer, nullable=False)
     record_time = Column('record_time', ArrowType, nullable=False)
 
-    def from_item(self, item):
-        self.book_status = item['book_status']
-        self.book_seat_count = item['book_seat_count']
-        self.minutes_before = item['minutes_before']
-        self.record_time = item['record_time']
-        self.showing = Showing(**(item['showing']))
+    @staticmethod
+    def from_item(item):
+        result = ShowingBooking()
+        result.book_status = item['book_status']
+        result.book_seat_count = item['book_seat_count']
+        result.minutes_before = item['minutes_before']
+        result.record_time = arrow.get(item['record_time'])
+        result.showing = Showing.from_item(item['showing'])
+        return result

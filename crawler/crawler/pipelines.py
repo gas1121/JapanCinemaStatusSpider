@@ -7,13 +7,13 @@
 from scutils.log_factory import LogFactory
 
 from crawler.models import (Cinema, Showing, ShowingBooking, Movie,
-                                  db_connect, drop_table_if_exist,
-                                  create_table, Session)
+                            db_connect, drop_table_if_exist,
+                            create_table, Session)
 from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
-                                 MovieItem)
+                           MovieItem)
 from crawler.utils import (use_cinema_database,
-                                 use_showing_database,
-                                 use_movie_database)
+                           use_showing_database,
+                           use_movie_database)
 
 
 class DataBasePipeline(object):
@@ -121,15 +121,14 @@ class DataBasePipeline(object):
         return item
 
     def process_showing_item(self, item, spider):
-        showing = Showing(**item)
+        showing = Showing.from_item(item)
         # if data do not exist in database, add it
         if not Showing.get_showing_if_exist(showing):
             self.add_item_to_database(showing)
         return item
 
     def process_showing_booking_item(self, item, spider):
-        showing_booking = ShowingBooking()
-        showing_booking.from_item(item)
+        showing_booking = ShowingBooking.from_item(item)
 
         # if showing exists use its id in database
         exist_showing = Showing.get_showing_if_exist(showing_booking.showing)
@@ -167,7 +166,8 @@ class DataBasePipeline(object):
         try:
             db_item = Session.merge(db_item)
             Session.commit()
+            self.logger.info("Item added to database")
         except:
-            self.logger.info("commit failed")
+            self.logger.info("Commit failed")
             Session.rollback()
             raise

@@ -20,21 +20,27 @@ class ShowingBookingLoader(ItemLoader):
     default_output_processor = TakeFirst()
 
     def add_time_data(self):
-        # TODO bug
-        print("add_time_data")
-        self.add_value('record_time', arrow.now())
-        print(self.get_output_value('showing')['start_time'])
-        print(self.get_output_value('record_time'))
-        time_before = (
-            self.get_output_value('showing')['start_time'] -
-            self.get_output_value('record_time'))
-        print("add_time_data 2")
+        self.add_value('record_time', arrow.now().format())
+        start_time = arrow.get(
+            self.get_output_value('showing')['start_time'])
+        record_time = arrow.get(self.get_output_value('record_time'))
+        time_before = start_time - record_time
         minutes_before = time_before.days*1440 + time_before.seconds//60
         self.add_value('minutes_before', minutes_before)
 
     def add_book_status(self, book_status, util):
         value = util.standardize_book_status(book_status)
         self.add_value('book_status', value)
+
+    @staticmethod
+    def to_dict(item):
+        """
+        need to convert 'showing' field to dict so ujson can
+        serialize it correctly
+        """
+        out_dict = dict(item)
+        out_dict['showing'] = dict(item['showing'])
+        return out_dict
 
 
 def init_show_booking_loader(response, item=None):
@@ -43,5 +49,8 @@ def init_show_booking_loader(response, item=None):
     """
     loader = ShowingBookingLoader(response=response)
     if item:
+        # get showing item from dict
+        showing = Showing(item['showing'])
         loader.add_value(None, item)
+        loader.add_value('showing', showing)
     return loader

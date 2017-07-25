@@ -70,13 +70,11 @@ class ShowingSpider(RedisSpider, ShowingDatabaseMixin):
 
     def get_time_from_text(self, hours, minutes):
         """
-        generate arrow object from given day and time text
+        generate time string from given day and time text
 
         as time like 24:40 can not be directly parsed, we need shift time
         properly
-
-        :param show_day: arrow object represent of 00:00 at show day.
         """
         time = arrow.get(self.date, 'YYYYMMDD').replace(tzinfo='UTC+9')
         time = time.shift(hours=hours, minutes=minutes)
-        return time
+        return time.format()

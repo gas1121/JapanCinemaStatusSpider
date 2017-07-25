@@ -3,7 +3,8 @@ import unicodedata
 import json
 import arrow
 from crawler.showingspiders.showing_spider import ShowingSpider
-from crawler.items import (ShowingLoader, init_show_booking_loader)
+from crawler.items import (ShowingLoader, ShowingBookingLoader,
+                           init_show_booking_loader)
 from crawler.utils import TohoUtil
 
 
@@ -221,8 +222,9 @@ class TohoV2Spider(ShowingSpider):
             url = self.generate_showing_url(**showing_url_parameter)
             request = response.follow(url, callback=self.parse)
             request.meta['curr_step'] = "normal_showing"
-            # TODO bug when convert item to dict here
-            request.meta["data_proto"] = dict(booking_data_proto.load_item())
+            data_dict_proto = ShowingBookingLoader.to_dict(
+                booking_data_proto.load_item())
+            request.meta["data_dict_proto"] = data_dict_proto
             result_list.append(request)
 
     def generate_showing_url(self, site_cd, show_day, theater_cd, screen_cd,
@@ -249,14 +251,9 @@ class TohoV2Spider(ShowingSpider):
                    fnc="1", pageid="2000J01", enter_kbn="")
 
     def parse_normal_showing(self, response, result_list):
-        print("parse_normal_showing")
         booked_seat_count = len(response.css('[alt~="購入済(選択不可)"]'))
-        print(booked_seat_count)
         result = init_show_booking_loader(
-            response=response, item=response.meta["data_proto"])
-        print(result)
-        print(dict(result))
+            response=response, item=response.meta["data_dict_proto"])
         result.add_value('book_seat_count', booked_seat_count)
         result.add_time_data()
-        print("2")
         result_list.append(result.load_item())
