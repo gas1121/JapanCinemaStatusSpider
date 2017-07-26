@@ -10,7 +10,6 @@ import shutil
 import time
 import schedule
 from subprocess import call
-from kafka_monitor import KafkaMonitor
 
 
 def create_crawl_job(url, spiderid, appid="testapp", crawlid="abc123"):
