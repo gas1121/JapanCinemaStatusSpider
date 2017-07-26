@@ -18,32 +18,12 @@ class Cinema109Spider(ShowingSpider):
     ]
     """
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        # TODO not tested
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            elif curr_step == "parse_normal_showing":
-                self.parse_normal_showing(response, result_list)
-            else:
-                self.parse_seat_json_api(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
+        # TODO not tested
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath('//section[@id="theatres"]//a')
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
@@ -63,7 +43,7 @@ class Cinema109Spider(ShowingSpider):
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = response.follow(schedule_url, callback=self.parse_cinema)
-            request.meta['curr_step'] = "cinema"
+            self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
 
@@ -158,7 +138,7 @@ class Cinema109Spider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./a/@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "parse_normal_showing"
+            self.set_next_func(request, self.parse_normal_showing)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
             request.meta["dict_proto"] = dict_proto
@@ -180,7 +160,7 @@ class Cinema109Spider(ShowingSpider):
         konyu_su = re.findall(r'konyu_su:\'(.+?)\'', post_json_data)[0]
         url = (url + '?crt=' + crt + '&konyu_su=' + konyu_su + '&mit=')
         request = response.follow(url, method='POST', callback=self.parse)
-        request.meta['curr_step'] = "parse_seat_json_api"
+        self.set_next_func(request, self.parse_seat_json_api)
         request.meta["dict_proto"] = response.meta['dict_proto']
         result_list.append(request)
 

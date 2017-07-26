@@ -19,44 +19,12 @@ class CinemaSunshineSpider(ShowingSpider):
     ]
     """
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        # TODO cookie issue?
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            elif curr_step == "new_pre_ordering":
-                self.parse_new_pre_ordering(response, result_list)
-            elif curr_step == "pre_ordering":
-                self.parse_pre_ordering(response, result_list)
-            elif curr_step == "agreement":
-                self.parse_agreement(response, result_list)
-            elif curr_step == "select_ticket_count":
-                self.parse_select_ticket_count(response, result_list)
-            elif curr_step == "normal_showing":
-                self.parse_normal_showing(response, result_list)
-            elif curr_step == "new_redirect":
-                self.parse_new_redirect(response, result_list)
-            elif curr_step == "new_normal_showing":
-                self.parse_new_normal_showing(response, result_list)
-            else:
-                self.parse_new_normal_showing_json(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
+        # TODO cookie issue?
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath('//li[@class="clearfix"]')
         for theater_element in theater_list:
             cinema_name = theater_element.xpath(
@@ -74,8 +42,8 @@ class CinemaSunshineSpider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-1]
             json_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
-            request = response.follow(json_url, callback=self.parse_cinema)
-            request.meta['curr_step'] = "cinema"
+            request = response.follow(json_url, callback=self.parse)
+            self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
 
@@ -186,10 +154,10 @@ class CinemaSunshineSpider(ShowingSpider):
             if 'ticket-cinemasunshine.com' in url:
                 # new online booking system
                 request = response.follow(url, callback=self.parse)
-                request.meta['curr_step'] = "new_pre_ordering"
+                self.set_next_func(request, self.parse_new_pre_ordering)
             else:
                 request = response.follow(url, callback=self.parse)
-                request.meta['curr_step'] = "pre_ordering"
+                self.set_next_func(request, self.parse_pre_ordering)
             request.meta["dont_merge_cookies"] = True
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
@@ -204,7 +172,7 @@ class CinemaSunshineSpider(ShowingSpider):
         # TODO form not found bug
         request = scrapy.FormRequest.from_response(
             response, formxpath='//form', callback=self.parse)
-        request.meta['curr_step'] = "agreement"
+        self.set_next_func(request, self.parse_agreement)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
         result_list.append(request)
@@ -220,7 +188,7 @@ class CinemaSunshineSpider(ShowingSpider):
             response, formxpath='//form[@name="FORM1"]',
             formdata={'agre': 'agr', 'p_agree[]': check_value},
             callback=self.parse)
-        request.meta['curr_step'] = "select_ticket_count"
+        self.set_next_func(request, self.parse_select_ticket_count)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
         result_list.append(request)
@@ -234,7 +202,7 @@ class CinemaSunshineSpider(ShowingSpider):
             response, formxpath='//form[@name="FORM1"]',
             formdata={'goArea': 'goArea', 'ninzu[]': "1"},
             callback=self.parse)
-        request.meta['curr_step'] = "normal_showing"
+        self.set_next_func(request, self.parse_normal_showing)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["dont_merge_cookies"] = True
         result_list.append(request)
@@ -257,7 +225,7 @@ class CinemaSunshineSpider(ShowingSpider):
         form_data = {"id": showing_number}
         request = scrapy.FormRequest(
             url, formdata=form_data, callback=self.parse)
-        request.meta['curr_step'] = "new_redirect"
+        self.set_next_func(request, self.parse_new_redirect)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         result_list.append(request)
 
@@ -268,7 +236,7 @@ class CinemaSunshineSpider(ShowingSpider):
         except json.JSONDecodeError:
             return
         request = response.follow(data["redirect"], callback=self.parse)
-        request.meta['curr_step'] = "new_normal_showing"
+        self.set_next_func(request, self.parse_new_normal_showing)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         result_list.append(request)
 
@@ -297,7 +265,7 @@ class CinemaSunshineSpider(ShowingSpider):
               'getScreenStateReserve'
         request = scrapy.FormRequest(
             url, formdata=form_data, callback=self.parse)
-        request.meta['curr_step'] = "new_normal_showing_json"
+        self.set_next_func(request, self.parse_new_normal_showing_json)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         result_list.append(request)
 

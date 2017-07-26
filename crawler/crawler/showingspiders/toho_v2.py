@@ -51,30 +51,12 @@ class TohoV2Spider(ShowingSpider):
     ]
     """
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            else:
-                self.parse_normal_showing(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
-        # TODO bug
+        self._logger.debug("{} parse_first_page".format(self.name))
+        # TODO concurrent bug
         try:
             theater_list = json.loads(response.text)
         except json.JSONDecodeError:
@@ -89,9 +71,8 @@ class TohoV2Spider(ShowingSpider):
             show_day = self.date
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
-            request = response.follow(curr_cinema_url,
-                                      callback=self.parse)
-            request.meta['curr_step'] = "cinema"
+            request = response.follow(curr_cinema_url, callback=self.parse)
+            self.set_next_func(request, self.parse_cinema)
             result_list.append(request)
 
     def get_cinema_name_list(self, curr_cinema):
@@ -223,7 +204,7 @@ class TohoV2Spider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = self.generate_showing_url(**showing_url_parameter)
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "normal_showing"
+            self.set_next_func(request, self.parse_normal_showing)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
             request.meta["dict_proto"] = dict_proto

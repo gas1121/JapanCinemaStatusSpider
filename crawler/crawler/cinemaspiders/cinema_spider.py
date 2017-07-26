@@ -4,16 +4,14 @@ very similar, like: county->cinema->(detailed page)
 """
 import re
 import unicodedata
-from crawling.spiders.redis_spider import RedisSpider
 
 from crawler.items import (CinemaLoader, standardize_cinema_name,
-                                 standardize_screen_name)
-from crawler.utils import (CinemaDatabaseMixin,
-                                 standardize_county_name,
-                                 extract_seat_number)
+                           standardize_screen_name)
+from crawler.utils import (ScrapyClusterSpider, CinemaDatabaseMixin,
+                           standardize_county_name, extract_seat_number)
 
 
-class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
+class CinemaSpider(ScrapyClusterSpider, CinemaDatabaseMixin):
 
     def __init__(self, *args, **kwargs):
         super(CinemaSpider, self).__init__(*args, **kwargs)
@@ -32,28 +30,11 @@ class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
         if not hasattr(self, 'seat_number_pattern'):
             self.seat_number_pattern = r'$invalid_match^'
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "county":
-                self.parse_county(response, result_list)
-            else:
-                self.parse_cinema(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl county data
         """
+        self._logger.debug("{} parse_first_page".format(self.name))
         county_list = response.xpath(self.county_xpath)
         for county in county_list:
             if not self.is_county_crawl(county):
@@ -62,7 +43,7 @@ class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
             county_name = standardize_county_name(county_name)
             url = county.xpath('./@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "county"
+            self.set_next_func(request, self.parse_county)
             request.meta['county_name'] = county_name
             result_list.append(request)
 
@@ -82,7 +63,7 @@ class CinemaSpider(RedisSpider, CinemaDatabaseMixin):
             url = curr_cinema.xpath('./@href').extract_first()
             url = self.adjust_cinema_url(response.urljoin(url))
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "cinema"
+            self.set_next_func(request, self.parse_cinema)
             request.meta['county_name'] = response.meta['county_name']
             request.meta['cinema_name'] = cinema_name
             result_list.append(request)

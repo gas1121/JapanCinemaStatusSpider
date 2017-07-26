@@ -26,38 +26,12 @@ class AeonSpider(ShowingSpider):
         'CONCURRENT_REQUESTS': 1,
     }
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        # TODO not tested
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            elif curr_step == "parse_cinema_schedule":
-                self.parse_cinema_schedule(response, result_list)
-            elif curr_step == "parse_new_cookie":
-                self.parse_new_cookie(response, result_list)
-            elif curr_step == "parse_agreement":
-                self.parse_agreement(response, result_list)
-            elif curr_step == "parse_normal_showing":
-                self.parse_normal_showing(response, result_list)
-            else:
-                self.parse_showing_json(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
+        # TODO not tested
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_link_list = response.xpath(
             '//div[contains(@class,"area")]//dd//a')
         for theater_link in theater_link_list:
@@ -75,7 +49,7 @@ class AeonSpider(ShowingSpider):
             data_proto.add_cinema_site(curr_cinema_url, cinema_name)
             data_proto.add_value('source', self.name)
             request = response.follow(curr_cinema_url, callback=self.parse)
-            request.meta['curr_step'] = "cinema"
+            self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
 
@@ -90,7 +64,7 @@ class AeonSpider(ShowingSpider):
         schedule_url = re.sub(
             r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
         request = response.follow(schedule_url, callback=self.parse)
-        request.meta['curr_step'] = "parse_cinema_schedule"
+        self.set_next_func(request, self.parse_cinema_schedule)
         request.meta["dict_proto"] = response.meta['dict_proto']
         request.meta["schedule_url"] = schedule_url
         result_list.append(request)
@@ -194,7 +168,7 @@ class AeonSpider(ShowingSpider):
                 curr_showing)
             # add spider name to avoid conflict between spiders
             request.meta["cookiejar"] = self.name + performance_id
-            request.meta['curr_step'] = "parse_new_cookie"
+            self.set_next_func(request, self.parse_new_cookie)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
             request.meta["dict_proto"] = dict_proto
@@ -254,7 +228,7 @@ class AeonSpider(ShowingSpider):
         """
         self._logger.debug("{} parse_new_cookie".format(self.name))
         request = response.meta['showing_request']
-        request.meta['curr_step'] = "parse_agreement"
+        self.set_next_func(request, self.parse_agreement)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         result_list.append(request)
@@ -272,7 +246,7 @@ class AeonSpider(ShowingSpider):
         url = self.generate_ticket_page_url(self, action, display_id)
         request = response.follow(url, method='POST', dont_filter=True,
                                   callback=self.parse)
-        request.meta['curr_step'] = "parse_normal_showing"
+        self.set_next_func(request, self.parse_normal_showing)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         result_list.append(request)
@@ -292,7 +266,7 @@ class AeonSpider(ShowingSpider):
             '//script[contains(@src,"pc.2.pinpoint.jsondata")]/@src'
         ).extract_first()
         request = response.follow(url, callback=self.parse)
-        request.meta['curr_step'] = "parse_showing_json"
+        self.set_next_func(request, self.parse_showing_json)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
         result_list.append(request)

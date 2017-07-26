@@ -1,43 +1,24 @@
 # -*- coding: utf-8 -*-
 import re
 import copy
-from crawling.spiders.redis_spider import RedisSpider
 
 from crawler.items import (CinemaItem, standardize_cinema_name,
-                                 standardize_screen_name)
-from crawler.utils import CinemaDatabaseMixin, TohoUtil
+                           standardize_screen_name)
+from crawler.utils import ScrapyClusterSpider, CinemaDatabaseMixin, TohoUtil
 
 
-class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
+class TohoCinemaSpider(ScrapyClusterSpider, CinemaDatabaseMixin):
     name = "toho_cinema"
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
     #start_urls = ['https://www.tohotheater.jp/theater/find.html']
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            else:
-                self.parse_sub_cinema(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl toho cinema info, mainly seats count of each screen
         example: https://www.tohotheater.jp/theater/064/institution.html
         https://hlo.tohotheater.jp/net/schedule/064/TNPI2000J01.do
         """
-        self._logger.debug("{}: parse_mainpage in '{}'".format(
+        self._logger.debug("{}: parse_first_page in '{}'".format(
             self.name, response.url))
         all_areas = response.xpath('//h3[contains(text(),"地区")]/..')
         for curr_area in all_areas:
@@ -53,7 +34,7 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
                     cinema_site = TohoUtil.generate_cinema_homepage_url(
                         cinema_number[0])
                     request = response.follow(tail_url, callback=self.parse)
-                    request.meta['curr_step'] = "cinema"
+                    self.set_next_func(request, self.parse_cinema)
                     request.meta['county'] = county
                     request.meta['site'] = cinema_site
                     result_list.append(request)
@@ -77,7 +58,7 @@ class TohoCinemaSpider(RedisSpider, CinemaDatabaseMixin):
         if sub_page_list:
             for sub_page_url in sub_page_list:
                 request = response.follow(sub_page_url, callback=self.parse)
-                request.meta['curr_step'] = "sub_cinema"
+                self.set_next_func(request, self.parse_sub_cinema)
                 # pass item by dict type
                 request.meta['cinema'] = dict(copy.deepcopy(cinema))
                 result_list.append(request)

@@ -18,32 +18,12 @@ class UnitedSpider(ShowingSpider):
     ]
     """
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        # TODO cookie issue?
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            elif curr_step == "4dx_confirm":
-                self.parse_4dx_confirm_page(response, result_list)
-            else:
-                self.parse_normal_showing(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
+        # TODO cookie issue?
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath(
             '//section[@class="rcol searchTheater"]//li')
         for theater_element in theater_list:
@@ -70,7 +50,7 @@ class UnitedSpider(ShowingSpider):
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.date)
             request = response.follow(schedule_url, callback=self.parse)
-            request.meta['curr_step'] = "cinema"
+            self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
 
@@ -175,10 +155,10 @@ class UnitedSpider(ShowingSpider):
             title = showing_data_proto.get_output_value('title')
             if '4DX' in title:
                 request = response.follow(url, callback=self.parse)
-                request.meta['curr_step'] = "4dx_confirm"
+                self.set_next_func(request, self.parse_4dx_confirm_page)
             else:
                 request = response.follow(url, callback=self.parse)
-                request.meta['curr_step'] = "normal_showing"
+                self.set_next_func(request, self.parse_normal_showing)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
             request.meta["dict_proto"] = dict_proto
@@ -190,7 +170,7 @@ class UnitedSpider(ShowingSpider):
         self._logger.debug("{} parse_4dx_confirm_page".format(self.name))
         url = response.xpath('//form/@action').extract_first()
         request = response.follow(url, method='POST', callback=self.parse)
-        request.meta['curr_step'] = "normal_showing"
+        self.set_next_func(request, self.parse_normal_showing)
         request.meta["dict_proto"] = response.meta['dict_proto']
         result_list.append(request)
 

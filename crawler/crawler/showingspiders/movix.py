@@ -25,31 +25,11 @@ class MovixSpider(ShowingSpider):
     ]
     """
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_mainpage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            elif curr_step == "schedule":
-                self.parse_schedule(response, result_list)
-            else:
-                self.parse_normal_showing(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_mainpage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_mainpage".format(self.name))
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath('//div[@class="theater_info"]//li/a')
         for theater_element in theater_list:
             curr_cinema_url = theater_element.xpath(
@@ -69,7 +49,7 @@ class MovixSpider(ShowingSpider):
             if not self.is_cinema_crawl([cinema_name]):
                 continue
             request = response.follow(curr_cinema_url, callback=self.parse)
-            request.meta['curr_step'] = "cinema"
+            self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
 
@@ -85,7 +65,7 @@ class MovixSpider(ShowingSpider):
             response.url, thnumber, self.date)
         request = response.follow(
             schedule_url, encoding='utf-8', callback=self.parse)
-        request.meta['curr_step'] = "schedule"
+        self.set_next_func(request, self.parse_schedule)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         result_list.append(request)
 
@@ -173,8 +153,8 @@ class MovixSpider(ShowingSpider):
             request = response.follow(url, callback=self.parse)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
+            self.set_next_func(request, self.parse_normal_showing)
             request.meta["dict_proto"] = dict_proto
-            request.meta['curr_step'] = "normal_showing"
             result_list.append(request)
 
     def parse_normal_showing(self, response, result_list):

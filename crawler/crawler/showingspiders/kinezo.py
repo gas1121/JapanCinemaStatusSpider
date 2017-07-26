@@ -22,32 +22,12 @@ class KinezoSpider(ShowingSpider):
         'CONCURRENT_REQUESTS': 1,
     }
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        # TODO cookie issue?
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_start_page(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "main_page":
-                self.parse_main_page(response, result_list)
-            elif curr_step == "cinema":
-                self.parse_cinema(response, result_list)
-            else:
-                self.parse_normal_showing(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_start_page(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        self._logger.debug("{} parse_start_page".format(self.name))
+        # TODO cookie issue?
+        self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath(
             '//footer/p[position()>=2 and position() <=3]//a')
         # partner cinema is not included
@@ -64,7 +44,7 @@ class KinezoSpider(ShowingSpider):
                 continue
             cinema_name_en = curr_cinema_url.split('/')[-1].split('?')[0]
             request = response.follow(curr_cinema_url, callback=self.parse)
-            request.meta['curr_step'] = "main_page"
+            self.set_next_func(request, self.parse_main_page)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             request.meta["cinema_name_en"] = cinema_name_en
             request.meta["dont_merge_cookies"] = True
@@ -81,7 +61,7 @@ class KinezoSpider(ShowingSpider):
         schedule_url = self.generate_cinema_schedule_url(
             cinema_name_en, self.date)
         request = response.follow(schedule_url, callback=self.parse)
-        request.meta['curr_step'] = "cinema"
+        self.set_next_func(request, self.parse_cinema)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         result_list.append(request)
 
@@ -173,7 +153,7 @@ class KinezoSpider(ShowingSpider):
             # normal, need to crawl book number on order page
             url = curr_showing.xpath('./@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "normal_showing"
+            self.set_next_func(request, self.parse_normal_showing)
             dict_proto = ShowingBookingLoader.to_dict(
                 booking_data_proto.load_item())
             request.meta["dict_proto"] = dict_proto

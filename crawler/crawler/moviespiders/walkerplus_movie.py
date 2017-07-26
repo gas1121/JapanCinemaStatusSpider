@@ -1,9 +1,8 @@
-from crawling.spiders.redis_spider import RedisSpider
 from crawler.items import MovieLoader
-from crawler.utils import MovieDatabaseMixin
+from crawler.utils import ScrapyClusterSpider, MovieDatabaseMixin
 
 
-class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
+class WalkerplusMovieSpider(ScrapyClusterSpider, MovieDatabaseMixin):
     """
     walkerplus site movie spider.
     also crawl cinema count on this week.
@@ -17,47 +16,25 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
     def __init__(self, *args, **kwargs):
         super(WalkerplusMovieSpider, self).__init__(*args, **kwargs)
 
-    def parse(self, response):
-        """
-        enter point for response process
-        """
-        self._logger.debug("crawled url {}".format(response.request.url))
-        result_list = []
-        if "curr_step" not in response.meta:
-            self.parse_datapage(response, result_list)
-        else:
-            curr_step = response.meta["curr_step"]
-            if curr_step == "datapage":
-                self.parse_datapage(response, result_list)
-            elif curr_step == "area":
-                self.parse_area(response, result_list)
-            elif curr_step == "sub_area":
-                self.parse_sub_area(response, result_list)
-            else:
-                self.parse_city(response, result_list)
-        for result in result_list:
-            if result:
-                yield result
-
-    def parse_datapage(self, response, result_list):
+    def parse_first_page(self, response, result_list):
         """
         crawl movie data page by page
         """
-        self._logger.debug("{}: parse_datapage in '{}'".format(
+        self._logger.debug("{}: parse_first_page in '{}'".format(
             self.name, response.url))
         movie_list = response.xpath('//div[@class="onScreenBoxContentMovie"]')
         for movie in movie_list:
             title = movie.xpath('./h3/a/text()').extract_first()
             url = movie.xpath('./dl/dd/a/@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "area"
+            self.set_next_func(request, self.parse_area)
             request.meta['title'] = title
             result_list.append(request)
         next_page = response.xpath(
             '//li[@class="next"]/a/@href').extract_first()
         if next_page:
             request = response.follow(next_page, callback=self.parse)
-            request.meta['curr_step'] = "datapage"
+            self.set_next_func(request, self.parse_first_page)
             result_list.append(request)
 
     def parse_area(self, response, result_list):
@@ -67,7 +44,7 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
         for area in area_list:
             url = area.xpath('./@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "sub_area"
+            self.set_next_func(request, self.parse_sub_area)
             request.meta['title'] = response.meta['title']
             result_list.append(request)
 
@@ -78,7 +55,7 @@ class WalkerplusMovieSpider(RedisSpider, MovieDatabaseMixin):
         for city in city_list:
             url = city.xpath('./@href').extract_first()
             request = response.follow(url, callback=self.parse)
-            request.meta['curr_step'] = "city"
+            self.set_next_func(request, self.parse_city)
             request.meta['title'] = response.meta['title']
             result_list.append(request)
 

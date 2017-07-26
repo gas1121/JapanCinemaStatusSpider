@@ -1,11 +1,10 @@
 """
-Base class for spiders crawling movie showings 
+Base class for spiders crawling movie showings
 """
 import unicodedata
 import arrow
-from crawling.spiders.redis_spider import RedisSpider
 
-from crawler.utils import ShowingDatabaseMixin
+from crawler.utils import ScrapyClusterSpider, ShowingDatabaseMixin
 
 
 default_cinema = {
@@ -21,7 +20,7 @@ default_cinema = {
 }
 
 
-class ShowingSpider(RedisSpider, ShowingDatabaseMixin):
+class ShowingSpider(ScrapyClusterSpider, ShowingDatabaseMixin):
     def __init__(self, *args, **kwargs):
         """
         Prepare common settings for showing spider.
