@@ -81,9 +81,9 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] シネマ・リオーネ古川 1010
 
 ## TODO list
+- [ ] move some command line options to zookeeper to allow spider change config
 - [ ] some request missing when run multiple spiders concurrently
 - [ ] cookie issue with somne spiders(aeon united)
-- [ ] move some command line options to scrapy cluster json api
 - [ ] Better integration with scrapy cluster
 - [ ] Destribution support
 - [x] Better command line support for spider

@@ -5,10 +5,21 @@ scrapyd do not support run multiple spider in a single call, and we want to
 use different log file each time we run spider.
 """
 
+import json
 import shutil
 import time
 import schedule
 from subprocess import call
+from kafka_monitor import KafkaMonitor
+
+
+def create_crawl_job(url, spiderid, appid="testapp", crawlid="abc123"):
+    data = {}
+    data["url"] = url
+    data["appid"] = appid
+    data["crawlid"] = crawlid
+    data["spiderid"] = spiderid
+    return json.dumps(data)
 
 
 def movie_crawl_job():
@@ -54,6 +65,9 @@ def showing_booking_sample_crawl_job():
 
 
 if __name__ == '__main__':
+    # TODO
+    kafka_monitor = KafkaMonitor("localsettings.py")
+    kafka_monitor.feed(create_crawl_job(url="", spiderid=""))
     # TODO rewrite schedule script as we now use scrapy cluster
     print('schedule start')
     # every time schedule script starts, crawl cinema and movie data first

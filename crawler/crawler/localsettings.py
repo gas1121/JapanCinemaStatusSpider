@@ -191,6 +191,9 @@ DATABASE = {
     'database': os.environ['POSTGRES_DB']
 }
 
+# make timeout a bit longer
+DOWNLOAD_TIMEOUT = 60
+
 # add command to crawl showing data together
 COMMANDS_MODULE = 'crawler.commands'
 
