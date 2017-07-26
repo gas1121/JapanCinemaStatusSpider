@@ -6,10 +6,10 @@ use different log file each time we run spider.
 """
 
 import json
-import shutil
 import time
 import schedule
-from subprocess import call
+from kafka import KafkaProducer
+from kazoo.client import KazooClient
 
 
 def create_crawl_job(url, spiderid, appid="testapp", crawlid="abc123"):
@@ -19,48 +19,6 @@ def create_crawl_job(url, spiderid, appid="testapp", crawlid="abc123"):
     data["crawlid"] = crawlid
     data["spiderid"] = spiderid
     return json.dumps(data)
-
-
-def movie_crawl_job():
-    try:
-        call(["scrapy", "crawl", "walkerplus_movie", "-s", "JOBDIR=job/movie"])
-    finally:
-        shutil.rmtree('job/movie', ignore_errors=True)
-
-
-def cinema_crawl_job():
-    try:
-        call(["scrapy", "crawl", "walkerplus_cinema", "-s",
-              "JOBDIR=job/cinema"])
-    finally:
-        shutil.rmtree('job/cinema', ignore_errors=True)
-
-
-def showing_crawl_job():
-    try:
-        call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-              "--crawl_all_cinemas", "--crawl_all_movies", ])
-    finally:
-        shutil.rmtree('job/showing', ignore_errors=True)
-
-
-def showing_booking_crawl_job():
-    try:
-        call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-              "--crawl_booking_data", "--crawl_all_cinemas",
-              "--crawl_all_movies", ])
-    finally:
-        shutil.rmtree('job/showing_booking', ignore_errors=True)
-
-
-def showing_booking_sample_crawl_job():
-    # TODO pass cinema list by arguments
-    try:
-        call(["scrapy", "crawl", "--all_showing", "--keep_old_data",
-              "--crawl_booking_data", "--crawl_all_movies",
-              "--sample_cinema"])
-    finally:
-        shutil.rmtree('job/showing_booking', ignore_errors=True)
 
 
 if __name__ == '__main__':
@@ -86,4 +44,4 @@ if __name__ == '__main__':
     schedule.every().saturday.at('22:00').do(showing_booking_crawl_job)
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(5)

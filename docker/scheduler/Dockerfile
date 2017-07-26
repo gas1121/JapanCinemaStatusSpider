@@ -8,8 +8,13 @@ ARG USE_MIRROR=0
 COPY docker/set_mirror.sh /tmp/
 RUN /tmp/set_mirror.sh $USE_MIRROR
 
+# install latest scutils
+
 # os setup
 RUN apt-get update
+RUN git clone -b py3 https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
+WORKDIR /temp/scrapy-cluster/utils
+RUN pip install .
 
 # install requirements
 
