@@ -12,9 +12,7 @@ class ScrapyClusterSpider(RedisSpider):
         self._logger.debug("crawled url {}".format(response.request.url))
         result_list = []
         if "curr_step" not in response.meta:
-            print("before")
             self.parse_first_page(response, result_list)
-            print("after")
         else:
             curr_step = response.meta["curr_step"]
             next_func = getattr(self, curr_step)

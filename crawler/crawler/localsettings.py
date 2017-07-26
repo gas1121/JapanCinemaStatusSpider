@@ -194,6 +194,15 @@ DATABASE = {
 # add command to crawl showing data together
 COMMANDS_MODULE = 'crawler.commands'
 
+# TODO temporarily enable scrapy log for debug
+import arrow
+SC_LOG_FILE = str(arrow.now().format('YYYYMMDD HH mm ss')) + ".log"
+LOG_ENABLED = True
+LOG_LEVEL = "DEBUG"
+LOG_FILE = SC_LOG_DIR + "/" + SC_LOG_FILE
+SC_LOG_STDOUT = False
+SC_LOG_LEVEL = "DEBUG"
+
 # TODO previous settings need review
 # Obey robots.txt rules
 #ROBOTSTXT_OBEY = False
