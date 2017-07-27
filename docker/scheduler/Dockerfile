@@ -13,7 +13,10 @@ RUN /tmp/set_mirror.sh $USE_MIRROR
 # os setup
 RUN apt-get update
 RUN git clone -b py3 https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
-WORKDIR /temp/scrapy-cluster/utils
+WORKDIR /temp/scrapy-cluster/kafka-monitor
+RUN pip install -r requirements.txt
+# install kafka_monitor.py as module
+COPY docker/scheduler/setup.py /temp/scrapy-cluster/kafka-monitor
 RUN pip install .
 
 # install requirements

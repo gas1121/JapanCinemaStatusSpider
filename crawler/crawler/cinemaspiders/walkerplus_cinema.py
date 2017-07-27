@@ -12,7 +12,7 @@ class WalkerplusCinemaSpider(CinemaSpider):
     """
     name = "walkerplus_cinema"
     allowed_domains = ["movie.walkerplus.com"]
-    #start_urls = ['http://movie.walkerplus.com/theater/']
+    # start_urls = ['http://movie.walkerplus.com/theater/']
 
     # settings for cinema_spider, sone are not used as we will override
     # screen data extract function
