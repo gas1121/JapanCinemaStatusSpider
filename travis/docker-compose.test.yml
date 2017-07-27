@@ -1,13 +1,13 @@
 version: "3"
 services:
   crawler:
-    image: gas1121/JapanCinemaStatusSpider:crawler-test
+    image: gas1121/japancinemastatusspider:crawler-test
     depends_on:
       - kafka
       - redis
       - zookeeper
   scheduler:
-    image: gas1121/JapanCinemaStatusSpider:scheduler-test
+    image: gas1121/japancinemastatusspider:scheduler-test
     depends_on:
       - kafka
       - redis

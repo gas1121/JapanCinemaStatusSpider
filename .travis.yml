@@ -13,6 +13,3 @@ services:
 
 script:
   - sudo ./travis/docker.sh
-
-after_success:
-  - coveralls
