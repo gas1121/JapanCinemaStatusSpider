@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gas1121/JapanCinemaStatusSpider?branch=dev)](https://travis-ci.org/gas1121/JapanCinemaStatusSpider) [![Coverage Status](https://coveralls.io/repos/github/gas1121/JapanCinemaStatusSpider/badge.svg?branch=dev)](https://coveralls.io/github/gas1121/JapanCinemaStatusSpider?branch=dev)
+
 # JapanCinemaStatusSpider
 A scrapy project to crawl movie booking data from several cinema company chains.
 
