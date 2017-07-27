@@ -9,9 +9,11 @@ class WalkerplusMovieSpider(ScrapyClusterSpider, MovieDatabaseMixin):
     """
     name = "walkerplus_movie"
     allowed_domains = ["movie.walkerplus.com"]
-    #start_urls = [
-    #    'http://movie.walkerplus.com/list/',
-    #]
+    """
+    start_urls = [
+        'http://movie.walkerplus.com/list/',
+    ]
+    """
 
     def __init__(self, *args, **kwargs):
         super(WalkerplusMovieSpider, self).__init__(*args, **kwargs)

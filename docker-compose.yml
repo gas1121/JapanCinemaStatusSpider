@@ -29,6 +29,10 @@ services:
       dockerfile: ./docker/scheduler/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
+    environment:
+      ZOOKEEPER_HOST: zookeeper:2181
+      JS_ZOOKEEPER_PATH: /japancinemastatusspider/spiders/
+      JS_ZOOKEEPER_ID: all
     volumes: 
       - ./scheduler:/app
     working_dir: /app
