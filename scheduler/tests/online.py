@@ -2,6 +2,10 @@ import unittest
 import json
 from kazoo.client import KazooClient
 
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from scheduler import utils
 
 

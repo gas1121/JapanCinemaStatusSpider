@@ -1,0 +1,15 @@
+sudo: required
+
+language: python
+python: '3.6'
+
+env:
+  - USE_MIRROR: 0
+
+install: true
+
+services:
+  - docker
+
+script:
+  - sudo ./travis/docker.sh;
