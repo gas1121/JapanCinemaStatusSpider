@@ -12,7 +12,7 @@ services:
   - docker
 
 script:
-  - sudo ./travis/docker.sh;
+  - sudo ./travis/docker.sh
 
 after_success:
   - coveralls
