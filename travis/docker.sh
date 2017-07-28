@@ -13,7 +13,7 @@ sudo docker-compose -f travis/docker-compose.test.yml up -d
 sleep 10
 
 # install package for test
-sudo docker-compose -f travis/docker-compose.test.yml exec pip install coverage coveralls
+sudo docker-compose -f travis/docker-compose.test.yml exec scheduler pip install coverage coveralls
 
 
 # run tests
