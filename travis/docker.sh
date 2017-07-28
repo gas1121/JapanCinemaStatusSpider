@@ -20,7 +20,7 @@ sudo docker-compose -f travis/docker-compose.test.yml exec scheduler pip install
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler nosetests -v --with-coverage --cover-erase
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler python tests/online.py
 # send coverage report
-sudo docker-compose -f travis/docker-compose.test.yml exec coveralls
+sudo docker-compose -f travis/docker-compose.test.yml exec scheduler coveralls
 # TODO combine different module coverage reports
 
 # spin down compose

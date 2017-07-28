@@ -2,6 +2,7 @@
 
 \selenium
 *.log
+*.lock
 
 .idea
 # VS Code
