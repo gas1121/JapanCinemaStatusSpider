@@ -26,7 +26,7 @@ curl -L https://gist.githubusercontent.com/gas1121/778f2665f62ddd7b61d462fa53ee4
 sudo chmod +x travis_test_script.sh
 ./travis_test_script.sh
 # combine coverage data
-sudo docker-compose -f travis/docker-compose.test.yml exec scheduler "cd /coverage && coverage combine /app/.coverage"
+sudo docker-compose -f travis/docker-compose.test.yml exec scheduler bash -c "cd /coverage && coverage combine /app/.coverage"
 # send coverage report
 pip install coveralls
 cd coverage
