@@ -32,6 +32,8 @@ RUN pip install .
 
 RUN mkdir -p /app
 COPY crawler /app
+COPY docker/run_tests.sh /app
+RUN chmod +x /app/run_tests.sh
 RUN pip install -r /app/requirements.txt
 WORKDIR /app
 

@@ -6,6 +6,8 @@ services:
       - kafka
       - redis
       - zookeeper
+    volumes:
+      - ./coverage:/coverage
     command: ping localhost
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
@@ -13,6 +15,8 @@ services:
       - kafka
       - redis
       - zookeeper
+    volumes:
+      - ./coverage:/coverage
     command: ping localhost
   redis:
     image: redis

@@ -6,6 +6,9 @@ set -e
 sudo docker build --rm=true --file docker/crawler/Dockerfile --tag=gas1121/japancinemastatusspider:crawler-test .
 sudo docker build --rm=true --file docker/scheduler/Dockerfile --tag=gas1121/japancinemastatusspider:scheduler-test .
 
+# create tempory dir to store combined coverage data
+mkdir -p coverage
+
 # start target service for testing
 sudo docker-compose -f travis/docker-compose.test.yml up -d
 
@@ -15,13 +18,14 @@ sleep 10
 # install package for test
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler pip install coverage coveralls
 
-
 # run tests
-sudo docker-compose -f travis/docker-compose.test.yml exec scheduler nosetests -v --with-coverage --cover-erase
-sudo docker-compose -f travis/docker-compose.test.yml exec scheduler python tests/online.py
+sudo docker-compose -f travis/docker-compose.test.yml exec scheduler ./run_tests.sh
+# combine coverage data
+sudo docker-compose -f travis/docker-compose.test.yml exec scheduler "cd /coverage && coverage combine /app/.coverage"
 # send coverage report
-sudo docker-compose -f travis/docker-compose.test.yml exec scheduler coveralls
-# TODO combine different module coverage reports
+pip install coveralls
+cd coverage
+coveralls
 
 # spin down compose
 sudo docker-compose -f travis/docker-compose.test.yml down
