@@ -2,11 +2,6 @@
 
 set -e
 
-# use gist for test purpose
-curl -L https://gist.githubusercontent.com/gas1121/778f2665f62ddd7b61d462fa53ee46fb/raw/travis_test_script.sh > travis_test_script.sh
-sudo chmod +x travis_test_script.sh
-. travis_test_script.sh
-
 # Build docker image
 sudo docker build --rm=true --file docker/crawler/Dockerfile --tag=gas1121/japancinemastatusspider:crawler-test .
 sudo docker build --rm=true --file docker/scheduler/Dockerfile --tag=gas1121/japancinemastatusspider:scheduler-test .
