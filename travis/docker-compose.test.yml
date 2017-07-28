@@ -6,14 +6,14 @@ services:
       - kafka
       - redis
       - zookeeper
-    #commands: ping localhost
+    commands: ping localhost
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
     depends_on:
       - kafka
       - redis
       - zookeeper
-    #commands: ping localhost
+    commands: ping localhost
   redis:
     image: redis
     ports:

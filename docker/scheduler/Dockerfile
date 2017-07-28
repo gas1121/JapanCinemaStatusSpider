@@ -22,9 +22,9 @@ RUN pip install .
 
 # install requirements
 
-COPY scheduler/requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt
 RUN mkdir -p /app
+COPY scheduler /app
+RUN pip install -r /app/requirements.txt
 WORKDIR /app
 
 CMD python run.py

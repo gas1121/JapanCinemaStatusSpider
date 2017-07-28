@@ -30,7 +30,10 @@ RUN pip install .
 
 # install other requirements
 
-COPY crawler/requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt
 RUN mkdir -p /app
+COPY crawler /app
+RUN pip install -r /app/requirements.txt
 WORKDIR /app
+
+# by default run walkerplus_movie spider, override this in compose file
+CMD scrapy crawl walkerplus_movie
