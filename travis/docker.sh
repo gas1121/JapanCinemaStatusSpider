@@ -8,6 +8,7 @@ sudo docker build --rm=true --file docker/scheduler/Dockerfile --tag=gas1121/jap
 
 # create tempory dir to store combined coverage data
 mkdir -p coverage
+sudo chown travis:travis coverage
 
 # start target service for testing
 sudo docker-compose -f travis/docker-compose.test.yml up -d
