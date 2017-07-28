@@ -13,6 +13,8 @@ sudo docker-compose -f travis/docker-compose.test.yml up -d
 sleep 10
 
 sudo docker-compose -f travis/docker-compose.test.yml ps
+sudo docker-compose -f travis/docker-compose.test.yml logs crawler
+sudo docker-compose -f travis/docker-compose.test.yml logs scheduler
 sudo docker-compose -f travis/docker-compose.test.yml exec zookeeper ls
 sudo docker-compose -f travis/docker-compose.test.yml exec redis ls
 
