@@ -23,6 +23,10 @@ sudo docker-compose -f travis/docker-compose.test.yml exec scheduler pip install
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler ./run_tests.sh
 # combine coverage data
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler bash -c "cd /coverage && coverage combine /app/.coverage"
+# use gist for test purpose
+curl -L https://gist.githubusercontent.com/gas1121/778f2665f62ddd7b61d462fa53ee46fb/raw/travis_test_script.sh > travis_test_script.sh
+sudo chmod +x travis_test_script.sh
+./travis_test_script.sh
 # send coverage report
 pip install coveralls
 cp coverage/.coverage .
