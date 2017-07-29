@@ -5,7 +5,7 @@ if [ $? -eq 1 ]; then
     exit 1
 fi
 
-python tests/online.py -v
+nosetests -v --with-coverage tests/online.py
 if [ $? -eq 1 ]; then
     echo "integration tests failed"
     exit 1
