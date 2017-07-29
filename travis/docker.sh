@@ -25,9 +25,8 @@ sudo docker-compose -f travis/docker-compose.test.yml exec scheduler ./run_tests
 sudo docker-compose -f travis/docker-compose.test.yml exec scheduler bash -c "cd /coverage && coverage combine /app/.coverage"
 # send coverage report
 pip install coveralls
-cd coverage
+cp coverage/.coverage .
 coveralls
-cd ..
 
 # spin down compose
 sudo docker-compose -f travis/docker-compose.test.yml down
