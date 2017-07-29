@@ -7,7 +7,7 @@ services:
       - redis
       - zookeeper
     volumes:
-      - ./coverage:/coverage
+      - ./coverage/crawler:/coverage
     command: ping localhost
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
@@ -16,7 +16,7 @@ services:
       - redis
       - zookeeper
     volumes:
-      - ./coverage:/coverage
+      - ./coverage/scheduler:/coverage
     command: ping localhost
   redis:
     image: redis

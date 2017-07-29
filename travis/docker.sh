@@ -7,8 +7,9 @@ sudo docker build --rm=true --file docker/crawler/Dockerfile --tag=gas1121/japan
 sudo docker build --rm=true --file docker/scheduler/Dockerfile --tag=gas1121/japancinemastatusspider:scheduler-test .
 
 # create tempory dir to store combined coverage data
-mkdir -p coverage
-sudo chown travis:travis coverage
+mkdir -p coverage/crawler
+mkdir -p coverage/scheduler
+sudo chown -R travis:travis coverage
 
 # start target service for testing
 sudo docker-compose -f travis/docker-compose.test.yml up -d
@@ -28,8 +29,10 @@ curl -L https://gist.githubusercontent.com/gas1121/778f2665f62ddd7b61d462fa53ee4
 sudo chmod +x travis_test_script.sh
 ./travis_test_script.sh
 # send coverage report
-pip install coveralls
-sudo mv ./coverage/.coverage .
+pip install coverage coveralls
+cd coverage && coverage combine scheduler/.coverage
+sudo mv .coverage ..
+cd ..
 sudo chown travis:travis .coverage
 coveralls
 
