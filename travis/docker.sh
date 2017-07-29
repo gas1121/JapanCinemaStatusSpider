@@ -29,7 +29,8 @@ sudo chmod +x travis_test_script.sh
 ./travis_test_script.sh
 # send coverage report
 pip install coveralls
-cp coverage/.coverage .
+sudo mv ./coverage/.coverage .
+sudo chown travis:travis .coverage
 coveralls
 
 # spin down compose
