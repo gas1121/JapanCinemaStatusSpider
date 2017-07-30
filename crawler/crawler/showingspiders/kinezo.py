@@ -20,6 +20,7 @@ class KinezoSpider(ShowingSpider):
     # disallow concurrent requests to avoid cookie expiring
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
+        'COOKIES_DEBUG': True,
     }
 
     def parse_first_page(self, response, result_list):

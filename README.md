@@ -84,7 +84,7 @@ Here is a list of useful site and some of them is used by this spider
 
 ## TODO list
 - [ ] move some command line options to zookeeper to allow spider change config
-- [ ] some request missing when run multiple spiders concurrently
+- [ ] some request missing when run multiple spiders concurrently?(maybe timeout issue)
 - [ ] cookie issue with somne spiders(aeon united)
 - [ ] Better integration with scrapy cluster
 - [ ] Destribution support

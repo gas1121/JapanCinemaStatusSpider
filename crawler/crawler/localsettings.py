@@ -39,7 +39,7 @@ SCHEDULER_QUEUE_REFRESH = 10
 
 # throttled queue defaults per domain, x hits in a y second window
 QUEUE_HITS = int(os.getenv('QUEUE_HITS', 60))
-QUEUE_WINDOW = int(os.getenv('QUEUE_WINDOW', 30))
+QUEUE_WINDOW = int(os.getenv('QUEUE_WINDOW', 70))
 
 # we want the queue to produce a consistent pop flow
 QUEUE_MODERATED = str2bool(os.getenv('QUEUE_MODERATED', True))
@@ -147,7 +147,15 @@ ITEM_PIPELINES = {
 }
 
 SPIDER_MIDDLEWARES = {
+    # reset some scrapy provided meta to default value
+    'crawler.spidermiddlewares.reset_meta.ResetMetaMiddleware': 98,
+    # make sure all requests's cookie is added into header before output
+    # to engine as it may go to another spider and local jar is useless
+    'crawler.spidermiddlewares.cookies.CookieMiddleware': 99,
+    # copy all meta from input reponse to output request expect changed
+    # in spider
     'crawling.meta_passthrough_middleware.MetaPassthroughMiddleware': 100,
+    # record response status code
     'crawling.redis_stats_middleware.RedisStatsMiddleware': 101
 }
 
@@ -158,11 +166,15 @@ DOWNLOADER_MIDDLEWARES = {
     # exceptions processed in reverse order
     'crawling.log_retry_middleware.LogRetryMiddleware': 520,
     # custom cookies to not persist across crawl requests
+    # this middleware prevents using of jar as request may come from
+    # another spider, so cookies is added to header in spider middleware
     'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': None,
     'crawling.custom_cookies.CustomCookiesMiddleware': 700,
-    # TODO old setting need review
-    #'crawler.middlewares.selenium.SeleniumDownloaderMiddleware': 543,
-    #'crawler.middlewares.cookies.CustomCookiesMiddleware': 700,
+    # turn off as js engine currently not used
+    'crawler.middlewares.selenium.SeleniumDownloaderMiddleware': None,
+    # turn off as cookie handling is different after using scrapy cluster
+    'crawler.middlewares.cookies.CustomCookiesMiddleware': None,
+    # provide optional proxy that support socks5
     'crawler.middlewares.proxy.ProxyDownloaderMiddleware': 751,
 }
 
