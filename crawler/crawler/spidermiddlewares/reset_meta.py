@@ -22,12 +22,15 @@ class ResetMetaMiddleware(object):
         '''
         reset some meta value to default if not setted in request
         '''
-        self.logger.debug("processing reset meta spider middleware")
+        self.logger.debug("{} processing".format(self.__class__.__name__))
         for x in result:
             # only operate on requests
             if isinstance(x, Request):
-                self.logger.debug("found request")
-                if 'dont_merge_cookies' not in x.meta:
-                    if 'dont_merge_cookies' in response.meta:
-                        x.meta['dont_merge_cookies'] = False
+                self.logger.debug("{} found request".format(
+                    self.__class__.__name__))
+                if ('dont_merge_cookies' not in x.meta and
+                        'dont_merge_cookies' in response.meta):
+                    x.meta['dont_merge_cookies'] = False
+            self.logger.debug("{} yield {}".format(
+                    self.__class__.__name__, x))
             yield x
