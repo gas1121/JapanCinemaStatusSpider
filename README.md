@@ -84,9 +84,10 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] シネマ・リオーネ古川 1010
 
 ## TODO list
+- [ ] can not get total seat count?
+- [ ] redis cookie pool
 - [ ] move some command line options to zookeeper to allow spider change config
 - [ ] some request missing when run multiple spiders concurrently?(maybe timeout issue)
-- [ ] cookie issue with somne spiders(aeon united)
 - [ ] Better integration with scrapy cluster
 - [ ] Destribution support
 - [x] Better command line support for spider

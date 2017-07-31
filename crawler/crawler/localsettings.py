@@ -175,7 +175,7 @@ DOWNLOADER_MIDDLEWARES = {
     # turn off as js engine currently not used
     'crawler.middlewares.selenium.SeleniumDownloaderMiddleware': None,
     # get cookies from redis to support cluster usage
-    'crawler.middlewares.cookies.CustomCookiesMiddleware': 700,
+    'crawler.middlewares.cookies.RedisCookiesMiddleware': 700,
     # provide optional proxy that support socks5
     'crawler.middlewares.proxy.ProxyDownloaderMiddleware': 751,
 }
