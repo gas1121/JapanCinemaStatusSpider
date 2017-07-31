@@ -6,7 +6,12 @@ services:
       - kafka
       - redis
       - zookeeper
+      - postgres
     command: ping localhost
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
     depends_on:
@@ -36,3 +41,12 @@ services:
     depends_on:
       - zookeeper
     restart: always
+  postgres:
+    image: library/postgres:alpine
+    expose:
+      - "5432"
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}

@@ -92,13 +92,13 @@ services:
       - pgdata:${PGDATA:-/var/lib/postgresql/data}
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-japancinemastatus}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-japancinemastatus}
-      - POSTGRES_DB=${POSTGRES_DB:-japancinemastatus}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - PGDATA=${PGDATA:-/var/lib/postgresql/data}
   psql:
     image: library/postgres:alpine
-    command: psql -h postgres -p 5432 -U ${POSTGRES_USER:-japancinemastatus} -W ${POSTGRES_PASSWORD:-japancinemastatus}
+    command: psql -h postgres -p 5432 -U ${POSTGRES_USER} -W ${POSTGRES_PASSWORD}
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
@@ -106,7 +106,7 @@ services:
     ports: 
       - "8081:8081"
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER:-japancinemastatus}:${POSTGRES_PASSWORD:-japancinemastatus}@postgres:5432/${POSTGRES_DB:-japancinemastatus}?sslmode=disable
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
   phantomjs:
     image: wernight/phantomjs:2
     expose:
