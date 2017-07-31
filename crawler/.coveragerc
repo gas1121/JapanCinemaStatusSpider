@@ -1,0 +1,7 @@
+[run]
+include=
+  *crawler*
+[report]
+omit=
+  *settings.py
+  tests/*.py
