@@ -198,9 +198,9 @@ DATABASE = {
     'drivername': 'postgres',
     'host': 'postgres',
     'port': '5432',
-    'username': os.environ['POSTGRES_USER'],
-    'password': os.environ['POSTGRES_PASSWORD'],
-    'database': os.environ['POSTGRES_DB']
+    'username': os.getenv('POSTGRES_USER', 'test'),
+    'password': os.getenv('POSTGRES_PASSWORD', 'test'),
+    'database': os.getenv('POSTGRES_DB', 'test')
 }
 
 # make timeout a bit longer

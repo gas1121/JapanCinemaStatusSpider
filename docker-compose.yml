@@ -15,9 +15,9 @@ services:
       - zookeeper
       - postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-japancinemastatus}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-japancinemastatus}
-      - POSTGRES_DB=${POSTGRES_DB:-japancinemastatus}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - PROXY_ADDRESS=${PROXY_ADDRESS:-10.0.2.2}
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}

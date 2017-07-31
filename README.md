@@ -12,6 +12,7 @@ A scrapy project to crawl movie booking data from several cinema company chains.
 
 ## Usage
 - set docker compose variables or use default
+- set up **POSTGRES_USER**,**POSTGRES_PASSWORD**,**POSTGRES_DB** variable in .env file
 - build **crawler** image
 - TODO run **crawler** service in **docker-compose** to start spider
 - you can use **psql** or **pgweb** in service in **docker-compose** file to visit database
