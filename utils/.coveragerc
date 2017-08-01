@@ -1,0 +1,7 @@
+[run]
+include=
+  *jcssutils*
+[report]
+omit=
+  *settings.py
+  tests/*.py
