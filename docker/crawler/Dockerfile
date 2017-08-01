@@ -31,11 +31,14 @@ RUN pip install .
 # install other requirements
 
 RUN mkdir -p /app
+# install utils
+COPY utils /utils
 COPY crawler /app
 COPY docker/run_tests.sh /app
 RUN chmod +x /app/run_tests.sh
-RUN pip install -r /app/requirements.txt
 WORKDIR /app
+RUN pip install -r requirements.txt
+RUN rm -rf /utils
 
 # by default run walkerplus_movie spider, override this in compose file
 CMD scrapy crawl walkerplus_movie

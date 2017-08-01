@@ -1,7 +1,7 @@
 from fuzzywuzzy import process
 from sqlalchemy import Column, Integer, String
+from jcssutils.db_utils import DeclarativeBase
 from crawler.models import Session
-from crawler.models.models import DeclarativeBase
 
 
 class Movie(DeclarativeBase):

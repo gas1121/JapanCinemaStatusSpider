@@ -41,3 +41,5 @@ twisted==17.1.0           # via scrapy
 urllib3==1.21.1           # via requests
 w3lib==1.17.0             # via parsel, scrapy
 zope.interface==4.4.1     # via twisted
+# utils dependency
+../utils

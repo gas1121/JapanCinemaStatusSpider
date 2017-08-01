@@ -3,7 +3,7 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy.orm import relationship
 import arrow
 
-from crawler.models.models import DeclarativeBase
+from jcssutils.db_utils import DeclarativeBase
 from crawler.models.showing import Showing
 
 

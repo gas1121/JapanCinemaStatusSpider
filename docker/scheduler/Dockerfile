@@ -23,10 +23,13 @@ RUN pip install .
 # install requirements
 
 RUN mkdir -p /app
+# install utils
+COPY utils /utils
 COPY scheduler /app
 COPY docker/run_tests.sh /app
 RUN chmod +x /app/run_tests.sh
-RUN pip install -r /app/requirements.txt
 WORKDIR /app
+RUN pip install -r requirements.txt
+RUN rm -rf /utils
 
 CMD python run.py

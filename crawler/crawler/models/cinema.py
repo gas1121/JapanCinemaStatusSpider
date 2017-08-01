@@ -2,8 +2,8 @@ from enum import Enum
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy import and_, or_, cast
+from jcssutils.db_utils import DeclarativeBase
 from crawler.models import Session
-from crawler.models.models import DeclarativeBase
 from crawler.utils import ScreenUtils
 
 
