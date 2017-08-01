@@ -4,7 +4,7 @@ Persist level for JapanCinemaStatusSpider
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-from jcssutils.db_utils import db_connect as _db_connect
+from jcssutils import db_connect as _db_connect
 from crawler import settings
 
 

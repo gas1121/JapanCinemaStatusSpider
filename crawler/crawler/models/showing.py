@@ -3,7 +3,7 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy import and_
 import arrow
 
-from jcssutils.db_utils import DeclarativeBase
+from jcssutils import DeclarativeBase
 from crawler.models import Session
 
 

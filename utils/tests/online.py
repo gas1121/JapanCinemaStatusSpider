@@ -4,8 +4,8 @@ import os
 from sqlalchemy import Column, Integer
 from sqlalchemy.engine.url import URL
 from sqlalchemy_utils import drop_database
-from jcssutils.db_utils import (DeclarativeBase, create_table,
-                                drop_table_if_exist, db_connect)
+from jcssutils import (DeclarativeBase, create_table,
+                       drop_table_if_exist, db_connect)
 
 
 class TestTable(DeclarativeBase):
