@@ -1,7 +1,6 @@
 arrow
 demjson
 fuzzywuzzy[speedup]
-schedule
 Scrapy
 selenium
 SQLAlchemy

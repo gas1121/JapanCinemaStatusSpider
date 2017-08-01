@@ -1,5 +1,14 @@
 version: "3"
 services:
+  utils:
+    image: gas1121/japancinemastatusspider:utils-test
+    depends_on:
+      - postgres
+    command: ping localhost
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}
   crawler:
     image: gas1121/japancinemastatusspider:crawler-test
     depends_on:

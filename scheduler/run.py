@@ -81,6 +81,7 @@ def showing_booking_sample_crawl_job():
 
 
 if __name__ == '__main__':
+    # TODO clean database when needed here instead of in spider
     settings = SettingsWrapper().load(local='localsettings.py')
     logger = LogFactory.get_instance(
         json=settings['LOG_JSON'], stdout=settings['LOG_STDOUT'],

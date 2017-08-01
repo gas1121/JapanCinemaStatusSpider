@@ -4,4 +4,8 @@
 #
 #    pip-compile --no-index --output-file scheduler/requirements.txt scheduler/requirements.in
 #
+psycopg2==2.7.3
 schedule==0.4.3
+six==1.10.0               # via sqlalchemy-utils
+sqlalchemy-utils==0.32.14
+sqlalchemy==1.1.12        # via sqlalchemy-utils
