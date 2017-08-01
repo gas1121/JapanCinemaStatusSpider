@@ -6,10 +6,9 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scutils.log_factory import LogFactory
 
-from jcssutils.db_utils import (db_connect, drop_table_if_exist,
-                                create_table)
-from crawler.models import (Cinema, Showing, ShowingBooking, Movie,
-                            Session)
+from jcssutils.db_utils import (drop_table_if_exist, create_table)
+from crawler.models import (db_connect, Cinema, Showing, ShowingBooking,
+                            Movie, Session)
 from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
                            MovieItem)
 from crawler.utils import (use_cinema_database,
