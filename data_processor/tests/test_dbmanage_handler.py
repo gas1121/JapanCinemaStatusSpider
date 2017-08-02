@@ -1,10 +1,6 @@
 import unittest
 from mock import MagicMock, patch
 
-import sys
-from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 from models.cinema import Cinema
 from models.movie import Movie
 from models.showing import Showing
