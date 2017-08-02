@@ -22,14 +22,20 @@ DeclarativeBase = declarative_base()
 def create_table(engine):
     """Create tables from given engine
     """
-    DeclarativeBase.metadata.create_all(engine)
+    con = engine.connect()
+    trans = con.begin()
+    DeclarativeBase.metadata.create_all(con)
+    trans.commit()
 
 
 def drop_table_if_exist(engine, TableClass):
     """Drop target table if exist
     """
     if engine.dialect.has_table(engine, TableClass.__table__):
-        TableClass.__table__.drop(engine)
+        con = engine.connect()
+        trans = con.begin()
+        TableClass.__table__.drop(con)
+        trans.commit()
 
 
 def db_connect(database=DATABASE):

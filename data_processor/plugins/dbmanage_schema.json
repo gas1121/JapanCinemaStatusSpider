@@ -1,10 +1,27 @@
 {
     "type": "object",
     "properties": {
-
+        "action": {
+            "type": "string",
+            "enum": [
+                "clear",
+                "init"
+            ]
+        },
+        "target": {
+            "type": "string",
+            "enum": [
+                "all",
+                "movie",
+                "cinema",
+                "showing"
+            ],
+            "default": "all"
+        }
     },
     "required": [
-
+        "action",
+        "target"
     ],
     "additionalProperties": false
 }
