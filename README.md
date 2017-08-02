@@ -84,7 +84,8 @@ Here is a list of useful site and some of them is used by this spider
  - [ ] シネマ・リオーネ古川 1010
 
 ## TODO list
-- [ ] rework on model for concurrent
+- [ ] use scrapy-cluster dev branch instead of forked branch
+- [ ] split a data processor module for handling kafka messages to database
 - [ ] can not get total seat count?
 - [ ] redis cookie pool
 - [ ] move some command line options to zookeeper to allow spider change config

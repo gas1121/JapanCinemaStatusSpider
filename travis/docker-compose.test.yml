@@ -28,6 +28,18 @@ services:
       - redis
       - zookeeper
     command: ping localhost
+  data_processor:
+    image: gas1121/japancinemastatusspider:data_processor-test
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}
+    command: ping localhost
+    depends_on:
+      - kafka
+      - redis
+      - zookeeper
+      - postgres
   redis:
     image: redis
     ports:

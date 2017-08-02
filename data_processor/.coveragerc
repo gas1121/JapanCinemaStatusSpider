@@ -1,0 +1,7 @@
+[run]
+include=
+  *plugins*
+[report]
+omit=
+  *settings.py
+  tests/*.py
