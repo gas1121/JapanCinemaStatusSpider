@@ -6,9 +6,10 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scutils.log_factory import LogFactory
 
-from jcssutils import (drop_table_if_exist, create_table)
-from crawler.models import (db_connect, Cinema, Showing, ShowingBooking,
-                            Movie, Session)
+# TODO models rework
+#from jcssutils import (drop_table_if_exist, create_table)
+#from crawler.models import (db_connect, Cinema, Showing, ShowingBooking,
+#                            Movie, Session)
 from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
                            MovieItem)
 from crawler.utils import (use_cinema_database,
@@ -57,6 +58,8 @@ class DataBasePipeline(object):
 
     def open_spider(self, spider):
         self.logger.debug("open_spider in DataBasePipeline")
+        # TODO model rework
+        """
         engine = db_connect()
         if not spider.keep_old_data:
             # drop data
@@ -68,11 +71,15 @@ class DataBasePipeline(object):
             elif use_movie_database(spider):
                 drop_table_if_exist(engine, Movie)
         create_table(engine)
+        """
 
     def close_spider(self, spider):
         self.logger.debug("close_spider in DataBasePipeline")
         # close global session when spider ends
+        # TODO model rework
+        """
         Session.remove()
+        """
 
     def process_item(self, item, spider):
         """
@@ -92,6 +99,8 @@ class DataBasePipeline(object):
             return self.process_movie_item(item, spider)
 
     def process_cinema_item(self, item, spider):
+        # TODO model rework
+        """
         cinema = Cinema(**item)
         exist_cinema = Cinema.get_cinema_if_exist(cinema)
         if not exist_cinema:
@@ -119,15 +128,23 @@ class DataBasePipeline(object):
                     cinema, merge_method=Cinema.MergeMethod.update_count)
                 self.add_item_to_database(exist_cinema)
         return item
+        """
+        return item
 
     def process_showing_item(self, item, spider):
+        # TODO model rework
+        """
         showing = Showing.from_item(item)
         # if data do not exist in database, add it
         if not Showing.get_showing_if_exist(showing):
             self.add_item_to_database(showing)
         return item
+        """
+        return item
 
     def process_showing_booking_item(self, item, spider):
+        # TODO model rework
+        """
         showing_booking = ShowingBooking.from_item(item)
 
         # if showing exists use its id in database
@@ -149,8 +166,12 @@ class DataBasePipeline(object):
         # then add self
         self.add_item_to_database(showing_booking)
         return item
+        """
+        return item
 
     def process_movie_item(self, item, spider):
+        # TODO model rework
+        """
         movie = Movie(**item)
         exist_movie = Movie.get_movie_if_exist(movie)
         if not exist_movie:
@@ -161,8 +182,12 @@ class DataBasePipeline(object):
             exist_movie.current_cinema_count += movie.current_cinema_count
             self.add_item_to_database(exist_movie)
         return item
+        """
+        return item
 
     def add_item_to_database(self, db_item):
+        # TODO model rework
+        """
         try:
             db_item = Session.merge(db_item)
             Session.commit()
@@ -171,3 +196,4 @@ class DataBasePipeline(object):
             self.logger.info("Commit failed")
             Session.rollback()
             raise
+        """

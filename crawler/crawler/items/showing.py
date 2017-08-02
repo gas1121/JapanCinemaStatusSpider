@@ -4,7 +4,8 @@ import unicodedata
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Identity, TakeFirst
-from crawler.models import Movie, Cinema
+# TODO models rework
+#from crawler.models import Movie, Cinema
 from crawler.items import (standardize_cinema_name, standardize_screen_name)
 from crawler.utils import standardize_site_url
 
@@ -54,7 +55,8 @@ class ShowingLoader(ItemLoader):
             title_en = unicodedata.normalize('NFKC', title_en)
         self.add_value('title', title)
         self.add_value('title_en', title_en)
-        self.add_value('real_title', Movie.get_by_title(title))
+        # TODO models rework
+        #self.add_value('real_title', Movie.get_by_title(title))
 
     def get_title_list(self):
         title = self.get_output_value('title')
@@ -66,6 +68,9 @@ class ShowingLoader(ItemLoader):
         cinema_name = self.get_output_value('cinema_name')
         cinema_site = self.get_output_value('cinema_site')
         screen = self.get_output_value('screen')
+        # TODO models rework
+        """
         self.add_value('total_seat_count', Cinema.get_screen_seat_count(
                 cinema_name=cinema_name, cinema_site=cinema_site,
                 screen=screen))
+        """
