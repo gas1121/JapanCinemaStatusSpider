@@ -3,8 +3,7 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy import and_
 import arrow
 
-from jcssutils import DeclarativeBase
-from crawler.models import Session
+from models import DeclarativeBase, Session
 
 
 class Showing(DeclarativeBase):

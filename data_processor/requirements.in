@@ -1,0 +1,5 @@
+arrow
+fuzzywuzzy[speedup]
+SQLAlchemy
+SQLAlchemy-Utils
+psycopg2

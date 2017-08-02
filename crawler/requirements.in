@@ -1,9 +1,5 @@
 arrow
 demjson
-fuzzywuzzy[speedup]
 Scrapy
 selenium
-SQLAlchemy
-SQLAlchemy-Utils
 requests[socks]
-psycopg2

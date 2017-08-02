@@ -2,9 +2,8 @@ from enum import Enum
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy import and_, or_, cast
-from jcssutils import DeclarativeBase
 from jcssutils import ScreenUtils
-from crawler.models import Session
+from models import DeclarativeBase, Session
 
 
 class Cinema(DeclarativeBase):

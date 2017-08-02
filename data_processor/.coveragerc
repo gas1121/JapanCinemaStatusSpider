@@ -1,6 +1,7 @@
 [run]
 include=
   plugins/*
+  models/*
 [report]
 omit=
   *settings.py

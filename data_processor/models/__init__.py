@@ -1,11 +1,20 @@
-"""
-utils for database related operations
-"""
-from sqlalchemy.engine.url import URL
+import os
 from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
+
+DATABASE = {
+    'drivername': 'postgres',
+    'host': 'postgres',
+    'port': '5432',
+    'username': os.getenv('POSTGRES_USER', 'test'),
+    'password': os.getenv('POSTGRES_PASSWORD', 'test'),
+    'database': os.getenv('POSTGRES_DB', 'test')
+}
 
 DeclarativeBase = declarative_base()
 
@@ -23,13 +32,15 @@ def drop_table_if_exist(engine, TableClass):
         TableClass.__table__.drop(engine)
 
 
-def db_connect(database):
+def db_connect(database=DATABASE):
     """Get a sqlalchemy engine connected to targe database.
     If database is not yet exist, will create first
-
-    @param database: a dict contains settings for database
     """
     engine = create_engine(URL(**database))
     if not database_exists(engine.url):
         create_database(engine.url)
     return engine
+
+
+# global session for project
+Session = scoped_session(sessionmaker(bind=db_connect()))

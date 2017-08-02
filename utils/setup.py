@@ -1,11 +1,7 @@
 from setuptools import setup, find_packages
 
 
-install_requires = [
-    'SQLAlchemy',
-    'SQLAlchemy-Utils',
-    'psycopg2',
-]
+install_requires = []
 tests_require = []
 lint_requires = [
     'pep8',

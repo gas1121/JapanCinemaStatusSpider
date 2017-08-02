@@ -3,8 +3,8 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy.orm import relationship
 import arrow
 
-from jcssutils import DeclarativeBase
-from crawler.models.showing import Showing
+from models import DeclarativeBase
+from models.showing import Showing
 
 
 class ShowingBooking(DeclarativeBase):
