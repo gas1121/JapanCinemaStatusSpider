@@ -18,6 +18,8 @@ WORKDIR /temp/scrapy-cluster/kafka-monitor
 RUN pip install -r requirements.txt
 # install kafka_monitor.py as module
 COPY docker/data_processor/setup.py /temp/scrapy-cluster/kafka-monitor
+# rename plugins folder name
+RUN mv plugins kafka_monitor_plugins
 RUN pip install .
 
 # install requirements

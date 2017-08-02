@@ -1,8 +1,11 @@
-# THIS FILE SHOULD STAY IN SYNC WITH /kafka-monitor/settings.py
+# Override some setting from kefka_monitor to work as pipeline to database
 
 import os
+
+
 def str2bool(v):
     return str(v).lower() in ('true', '1') if type(v) == str else bool(v)
+
 
 # Redis host information
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
@@ -10,9 +13,10 @@ REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
 
 # Kafka server information
-KAFKA_HOSTS = [x.strip() for x in os.getenv('KAFKA_HOSTS', 'kafka:9092').split(',')]
-KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'demo.incoming')
-KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'demo-group')
+KAFKA_HOSTS = [x.strip() for x in os.getenv(
+    'KAFKA_HOSTS', 'kafka:9092').split(',')]
+KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'jcss.crawled')
+KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'data_processor')
 KAFKA_FEED_TIMEOUT = 10
 KAFKA_CONSUMER_AUTO_OFFSET_RESET = 'earliest'
 KAFKA_CONSUMER_TIMEOUT = 50
@@ -25,14 +29,11 @@ KAFKA_PRODUCER_BUFFER_BYTES = 4 * 1024 * 1024  # 4MB before blocking
 # plugin setup
 PLUGIN_DIR = 'plugins/'
 PLUGINS = {
-    'plugins.scraper_handler.ScraperHandler': 100,
-    'plugins.action_handler.ActionHandler': 200,
-    'plugins.stats_handler.StatsHandler': 300,
-    'plugins.zookeeper_handler.ZookeeperHandler': 400,
+    'plugins.dbmanage_handler.DbManageHandler': 100,
 }
 
 # logging setup
-LOGGER_NAME = 'kafka-monitor'
+LOGGER_NAME = 'data_processor'
 LOG_DIR = os.getenv('LOG_DIR', 'logs')
 LOG_FILE = 'kafka_monitor.log'
 LOG_MAX_BYTES = 10 * 1024 * 1024
