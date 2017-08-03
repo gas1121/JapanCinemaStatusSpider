@@ -1,6 +1,7 @@
 import os
 import json
 from kazoo.client import KazooClient
+from kafka_monitor import KafkaMonitor
 
 
 zookeeper_host = os.getenv("ZOOKEEPER_HOST", "zookeeper:2181")
@@ -16,6 +17,17 @@ def create_crawl_job(url, spiderid, appid="testapp", crawlid="abc123"):
     data["crawlid"] = crawlid
     data["spiderid"] = spiderid
     return data
+
+
+def send_job_to_kafka(topic, job):
+    kafka_monitor = KafkaMonitor("localsettings.py")
+    kafka_monitor.setup()
+    # set kafka topic
+    kafka_monitor.settings['KAFKA_INCOMING_TOPIC'] = topic
+    kafka_monitor.logger.info("begin to send job to kafka", job)
+    kafka_monitor.feed(job)
+    kafka_monitor.close()
+    kafka_monitor.logger.info("job done")
 
 
 def change_spider_config(spiderid=None, use_sample=False,

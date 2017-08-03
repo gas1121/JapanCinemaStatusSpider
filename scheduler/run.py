@@ -6,11 +6,11 @@ use different log file each time we run spider.
 """
 import time
 import schedule
-from kafka_monitor import KafkaMonitor
 from scutils.log_factory import LogFactory
 from scutils.settings_wrapper import SettingsWrapper
 
-from scheduler.utils import create_crawl_job, change_spider_config
+from scheduler.utils import (create_crawl_job, send_job_to_kafka,
+                             change_spider_config)
 
 showing_job_list = [
     {"url": "http://www.aeoncinema.com/theater/", "spiderid": "aeon"},
@@ -25,63 +25,76 @@ showing_job_list = [
 ]
 
 
-def cinema_crawl_job():
-    kafka_monitor = KafkaMonitor("localsettings.py")
-    kafka_monitor.setup()
-    kafka_monitor.logger.info("begin cinema crawl job")
-    kafka_monitor.feed(create_crawl_job(
+def cinema_crawl_job(logger, settings):
+    logger.info("begin cinema crawl job")
+    # TODO job order issue
+    # clear cinema data first
+    clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
+    clear_job = {
+        'action': 'clear',
+        'target': 'cinema',
+    }
+    send_job_to_kafka(clear_topic, clear_job)
+    crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+    crawl_job = create_crawl_job(
         url="http://movie.walkerplus.com/theater/",
-        spiderid="walkerplus_cinema"))
-    kafka_monitor.close()
+        spiderid="walkerplus_cinema")
+    send_job_to_kafka(crawl_topic, crawl_job)
 
 
-def movie_crawl_job():
-    kafka_monitor = KafkaMonitor("localsettings.py")
-    kafka_monitor.setup()
-    kafka_monitor.logger.info("begin movie crawl job")
-    kafka_monitor.feed(create_crawl_job(
-        url="http://movie.walkerplus.com/list/", spiderid="walkerplus_movie"))
-    kafka_monitor.close()
+def movie_crawl_job(logger, settings):
+    logger.info("begin movie crawl job")
+    # TODO job order issue
+    # clear movie data first
+    clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
+    clear_job = {
+        'action': 'clear',
+        'target': 'movie',
+    }
+    send_job_to_kafka(clear_topic, clear_job)
+    crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+    crawl_job = create_crawl_job(
+        url="http://movie.walkerplus.com/list/", spiderid="walkerplus_movie")
+    send_job_to_kafka(crawl_topic, crawl_job)
 
 
-def showing_crawl_job():
-    kafka_monitor = KafkaMonitor("localsettings.py")
-    kafka_monitor.setup()
-    kafka_monitor.logger.info("begin showing crawl job")
+def showing_crawl_job(logger, settings):
+    logger.info("begin showing crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=False, crawl_booking_data=False)
-    for job in showing_job_list:
-        kafka_monitor.feed(create_crawl_job(
-            url=job["url"], spiderid=job["spiderid"]))
-    kafka_monitor.close()
+
+    for job_data in showing_job_list:
+        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+        crawl_job = create_crawl_job(
+            url=job_data["url"], spiderid=job_data["spiderid"])
+        send_job_to_kafka(crawl_topic, crawl_job)
 
 
-def showing_booking_crawl_job():
-    kafka_monitor = KafkaMonitor("localsettings.py")
-    kafka_monitor.setup()
-    kafka_monitor.logger.info("begin showing booking crawl job")
+def showing_booking_crawl_job(logger, settings):
+    logger.info("begin showing booking crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=False, crawl_booking_data=True)
-    for job in showing_job_list:
-        kafka_monitor.feed(create_crawl_job(
-            url=job["url"], spiderid=job["spiderid"]))
-    kafka_monitor.close()
+
+    for job_data in showing_job_list:
+        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+        crawl_job = create_crawl_job(
+            url=job_data["url"], spiderid=job_data["spiderid"])
+        send_job_to_kafka(crawl_topic, crawl_job)
 
 
-def showing_booking_sample_crawl_job():
-    kafka_monitor = KafkaMonitor("localsettings.py")
-    kafka_monitor.setup()
-    kafka_monitor.logger.info("begin showing booking sample crawl job")
+def showing_booking_sample_crawl_job(logger, settings):
+    logger.info("begin showing booking sample crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=True, crawl_booking_data=True)
-    for job in showing_job_list:
-        kafka_monitor.feed(create_crawl_job(
-            url=job["url"], spiderid=job["spiderid"]))
-    kafka_monitor.close()
+
+    for job_data in showing_job_list:
+        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+        crawl_job = create_crawl_job(
+            url=job_data["url"], spiderid=job_data["spiderid"])
+        send_job_to_kafka(crawl_topic, crawl_job)
 
 
 if __name__ == '__main__':
-    # TODO clean database when needed here instead of in spider
     settings = SettingsWrapper().load(local='localsettings.py')
     logger = LogFactory.get_instance(
         json=settings['LOG_JSON'], stdout=settings['LOG_STDOUT'],
@@ -89,21 +102,33 @@ if __name__ == '__main__':
         dir=settings['LOG_DIR'], file=settings['LOG_FILE'],
         bytes=settings['LOG_MAX_BYTES'], backups=settings['LOG_BACKUPS'])
     logger.info("scheduler started")
+    # if JCSS_CLEAR_SHOWING_AT_INIT is True, clear showing data
+    if settings['JCSS_CLEAR_SHOWING_AT_INIT']:
+        clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
+        clear_job = {
+            'action': 'clear',
+            'target': 'showing',
+        }
+        send_job_to_kafka(clear_topic, clear_job)
     # every time schedule script starts, crawl cinema and movie data first
-    cinema_crawl_job()
-    movie_crawl_job()
+    cinema_crawl_job(logger, settings)
+    movie_crawl_job(logger, settings)
     logger.info("initial job finished")
     # crawl movie and cinema info every week
-    schedule.every().monday.at('19:00').do(movie_crawl_job)
-    schedule.every().monday.at('20:00').do(cinema_crawl_job)
+    schedule.every().monday.at('19:00').do(movie_crawl_job, logger, settings)
+    schedule.every().monday.at('20:00').do(cinema_crawl_job, logger, settings)
     # crawl showing data at utc 21:00(6:00 jpn) everyday
     schedule.every().day.at('21:00').do(showing_crawl_job)
     # crawl showing booking data at utc 11:00(20:00 jpn) every friday and
     # saturday for weekend information
-    schedule.every().friday.at('11:00').do(showing_booking_sample_crawl_job)
-    schedule.every().friday.at('22:00').do(showing_booking_crawl_job)
-    schedule.every().saturday.at('11:00').do(showing_booking_sample_crawl_job)
-    schedule.every().saturday.at('22:00').do(showing_booking_crawl_job)
+    schedule.every().friday.at('11:00').do(
+        showing_booking_sample_crawl_job, logger, settings)
+    schedule.every().friday.at('22:00').do(
+        showing_booking_crawl_job, logger, settings)
+    schedule.every().saturday.at('11:00').do(
+        showing_booking_sample_crawl_job, logger, settings)
+    schedule.every().saturday.at('22:00').do(
+        showing_booking_crawl_job, logger, settings)
     while True:
         schedule.run_pending()
         time.sleep(5)

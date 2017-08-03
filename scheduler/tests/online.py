@@ -17,6 +17,10 @@ class TestChangeSpiderConfig(unittest.TestCase):
         self.zookeeper = KazooClient(hosts=utils.zookeeper_host)
         self.zookeeper.start()
 
+    def test_send_job_to_kafka(self):
+        # TODO
+        pass
+
     def test_change_spider_config(self):
         self.assertFalse(self.zookeeper.exists(utils.zookeeper_file_path))
         utils.change_spider_config()

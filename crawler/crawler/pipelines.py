@@ -17,7 +17,7 @@ class CrawledItemToKafkaPipiline(object):
     def __init__(self, logger, producer, topic):
         self.logger = logger
         self.logger.debug("Setup {}".format(
-            CrawledItemToKafkaPipiline.__class__.__name__))
+            self.__class__.__name__))
         self.producer = producer
         self.topic = topic
 
@@ -38,7 +38,7 @@ class CrawledItemToKafkaPipiline(object):
                 # exiting because this is a different thread from the crawlers
                 # and we want to ensure we can connect to Kafka when we boot
                 sys.exit(1)
-        topic = settings['JCSS_KAFKA_ITEM_TOPIC']
+        topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
         return cls(logger, producer, topic)
 
     @classmethod
@@ -47,11 +47,11 @@ class CrawledItemToKafkaPipiline(object):
 
     def open_spider(self, spider):
         self.logger.debug("open_spider in {}".format(
-            CrawledItemToKafkaPipiline.__class__.__name__))
+            self.__class__.__name__))
 
     def close_spider(self, spider):
         self.logger.debug("close_spider in {}".format(
-            CrawledItemToKafkaPipiline.__class__.__name__))
+            self.__class__.__name__))
         self.producer.flush()
         self.producer.close(timeout=10)
 
@@ -86,7 +86,7 @@ class CrawledItemToKafkaPipiline(object):
 
     def process_item(self, item, spider):
         self.logger.debug("process_item in {}".format(
-            CrawledItemToKafkaPipiline.__class__.__name__))
+            self.__class__.__name__))
         data = dict(item)
         try:
             message = ujson.dumps(data, sort_keys=True)

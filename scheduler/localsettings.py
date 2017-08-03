@@ -59,3 +59,12 @@ STATS_TIMES = [
 # main thread sleep time
 SLEEP_TIME = 0.01
 HEARTBEAT_TIMEOUT = 120
+
+# JapanCinemaStatusSpider Settings
+# ~~~~~~~~~~~~~~~
+# clear showing and showing booking data when scheduler starts
+JCSS_CLEAR_SHOWING_AT_INIT = os.getenv('JCSS_CLEAR_SHOWING_AT_INIT', False)
+
+# kafka topic that crawled item is sended to
+JCSS_DATA_PROCESSOR_TOPIC = os.getenv(
+    'JCSS_DATA_PROCESSOR_TOPIC', 'jcss.crawled')

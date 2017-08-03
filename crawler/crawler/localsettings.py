@@ -198,7 +198,8 @@ DNSCACHE_ENABLED = True
 # ~~~~~~~~~~~~~~~
 
 # kafka topic that crawled item is sended to
-JCSS_KAFKA_ITEM_TOPIC = os.getenv('JCSS_KAFKA_ITEM_TOPIC', 'jcss.crawled')
+JCSS_DATA_PROCESSOR_TOPIC = os.getenv(
+    'JCSS_DATA_PROCESSOR_TOPIC', 'jcss.crawled')
 
 # make timeout a bit longer
 DOWNLOAD_TIMEOUT = 60

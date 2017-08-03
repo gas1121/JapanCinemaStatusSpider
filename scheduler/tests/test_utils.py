@@ -3,7 +3,7 @@ import unittest
 from scheduler import utils
 
 
-class TestCreateCrawlJob(unittest.TestCase):
+class TestUtils(unittest.TestCase):
     def test_create_crawl_job(self):
         url = "testurl"
         spiderid = "testspiderid"
@@ -15,3 +15,11 @@ class TestCreateCrawlJob(unittest.TestCase):
         self.assertEqual(data["spiderid"], spiderid)
         self.assertEqual(data["appid"], appid)
         self.assertEqual(data["crawlid"], crawlid)
+
+    def test_send_job_to_kafka(self):
+        # TODO
+        pass
+
+    def test_change_spider_config(self):
+        # TODO
+        pass
