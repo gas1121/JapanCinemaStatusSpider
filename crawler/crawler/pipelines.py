@@ -1,24 +1,104 @@
 # -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-from scutils.log_factory import LogFactory
-
-# TODO models rework
-#from jcssutils import (drop_table_if_exist, create_table)
-#from crawler.models import (db_connect, Cinema, Showing, ShowingBooking,
-#                            Movie, Session)
+import sys
+import traceback
+from kafka import KafkaProducer
+from kafka.errors import KafkaTimeoutError
+import ujson
 from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
                            MovieItem)
-from crawler.utils import (use_cinema_database,
-                           use_showing_database,
-                           use_movie_database)
+from crawler.utils import sc_log_setup
+from crawler.utils import (use_cinema_database, use_showing_database)
+# TODO showing,cinema models rework
 
 
 class CrawledItemToKafkaPipiline(object):
-    pass
+    """Pipeline to submit crawled item to target kafka topic
+    """
+    def __init__(self, logger, producer, topic):
+        self.logger = logger
+        self.logger.debug("Setup {}".format(
+            CrawledItemToKafkaPipiline.__class__.__name__))
+        self.producer = producer
+        self.topic = topic
+
+    @classmethod
+    def from_settings(cls, settings):
+        logger = sc_log_setup(settings)
+        try:
+            producer = KafkaProducer(
+                bootstrap_servers=settings['KAFKA_HOSTS'],
+                retries=3,
+                linger_ms=settings['KAFKA_PRODUCER_BATCH_LINGER_MS'],
+                buffer_memory=settings['KAFKA_PRODUCER_BUFFER_BYTES'],
+                value_serializer=lambda m: m.encode('utf-8'))
+        except Exception as e:
+                logger.error("Unable to connect to Kafka in Pipeline"
+                             ", raising exit flag.")
+                # this is critical so we choose to exit.
+                # exiting because this is a different thread from the crawlers
+                # and we want to ensure we can connect to Kafka when we boot
+                sys.exit(1)
+        topic = settings['JCSS_KAFKA_ITEM_TOPIC']
+        return cls(logger, producer, topic)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls.from_settings(crawler.settings)
+
+    def open_spider(self, spider):
+        self.logger.debug("open_spider in {}".format(
+            CrawledItemToKafkaPipiline.__class__.__name__))
+
+    def close_spider(self, spider):
+        self.logger.debug("close_spider in {}".format(
+            CrawledItemToKafkaPipiline.__class__.__name__))
+        self.producer.flush()
+        self.producer.close(timeout=10)
+
+    def _clean_item(self, item):
+        '''
+        Cleans the item to be logged
+        '''
+        item_copy = dict(item)
+        item_copy['action'] = 'ack'
+        item_copy['logger'] = self.logger.name
+
+        return item_copy
+
+    def _kafka_success(self, item, spider, response):
+        '''
+        Callback for successful send
+        '''
+        item['success'] = True
+        item = self._clean_item(item)
+        item['spiderid'] = spider.name
+        self.logger.info("Sent item to Kafka", item)
+
+    def _kafka_failure(self, item, spider, response):
+        '''
+        Callback for failed send
+        '''
+        item['success'] = False
+        item['exception'] = traceback.format_exc()
+        item['spiderid'] = spider.name
+        item = self._clean_item(item)
+        self.logger.error("Failed to send item to Kafka", item)
+
+    def process_item(self, item, spider):
+        self.logger.debug("process_item in {}".format(
+            CrawledItemToKafkaPipiline.__class__.__name__))
+        data = dict(item)
+        try:
+            message = ujson.dumps(data, sort_keys=True)
+        except:
+            self.logger.error("item failed to dump into json")
+        try:
+            future = self.producer.send(self.topic, message)
+            future.add_callback(self._kafka_success, data, spider)
+            future.add_errback(self._kafka_failure, data, spider)
+        except KafkaTimeoutError:
+            self.logger.warning("Caught KafkaTimeoutError exception")
+        return item
 
 
 class DataBasePipeline(object):
@@ -26,35 +106,15 @@ class DataBasePipeline(object):
     pipeline to add item to database
     will keep exist data if spider has attribute 'keep_old_data'
     """
-    def __init__(self, logger, database):
+    def __init__(self, logger):
         # TODO change db management as we now use scrapy cluster
         self.logger = logger
-        self.database = database
-        # keep crawled movie to sum cinema count
-        self.crawled_movies = {}
         self.logger.debug("Setup before DataBasePipeline")
 
     @classmethod
     def from_settings(cls, settings):
-        my_level = settings.get('SC_LOG_LEVEL', 'INFO')
-        my_name = settings.get('SC_LOGGER_NAME', 'sc-logger')
-        my_output = settings.get('SC_LOG_STDOUT', True)
-        my_json = settings.get('SC_LOG_JSON', False)
-        my_dir = settings.get('SC_LOG_DIR', 'logs')
-        my_bytes = settings.get('SC_LOG_MAX_BYTES', '10MB')
-        my_file = settings.get('SC_LOG_FILE', 'main.log')
-        my_backups = settings.get('SC_LOG_BACKUPS', 5)
-
-        logger = LogFactory.get_instance(json=my_json,
-                                         name=my_name,
-                                         stdout=my_output,
-                                         level=my_level,
-                                         dir=my_dir,
-                                         file=my_file,
-                                         bytes=my_bytes,
-                                         backups=my_backups)
-
-        return cls(logger, database=settings.get('DATABASE'))
+        logger = sc_log_setup(settings)
+        return cls(logger)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -92,7 +152,7 @@ class DataBasePipeline(object):
         a spider should not have both attributes
         """
         self.logger.info("process_item in DataBasePipeline")
-        self.logger.debug(item)
+        """
         if isinstance(item, CinemaItem):
             return self.process_cinema_item(item, spider)
         elif isinstance(item, ShowingItem):
@@ -101,6 +161,8 @@ class DataBasePipeline(object):
             return self.process_showing_booking_item(item, spider)
         elif isinstance(item, MovieItem):
             return self.process_movie_item(item, spider)
+        """
+        return item
 
     def process_cinema_item(self, item, spider):
         # TODO model rework

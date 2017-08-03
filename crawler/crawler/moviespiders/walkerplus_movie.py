@@ -1,8 +1,8 @@
 from crawler.items import MovieLoader
-from crawler.utils import ScrapyClusterSpider, MovieDatabaseMixin
+from crawler.utils import ScrapyClusterSpider
 
 
-class WalkerplusMovieSpider(ScrapyClusterSpider, MovieDatabaseMixin):
+class WalkerplusMovieSpider(ScrapyClusterSpider):
     """
     walkerplus site movie spider.
     also crawl cinema count on this week.

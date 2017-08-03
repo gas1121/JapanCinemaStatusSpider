@@ -139,11 +139,12 @@ SCHEDULER = "crawling.distributed_scheduler.DistributedScheduler"
 
 
 
-# Store scraped item in redis for post-processing.
+# turn off: Store scraped item in redis for post-processing.
 ITEM_PIPELINES = {
-    #'crawling.pipelines.KafkaPipeline': 100,
-    #'crawling.pipelines.LoggingBeforePipeline': 1,
-    'crawler.pipelines.DataBasePipeline': 300,
+    # 'crawling.pipelines.KafkaPipeline': 100,
+    # 'crawling.pipelines.LoggingBeforePipeline': 1,
+    # send crawled item to target kafka topic for post processing
+    'crawler.pipelines.CrawledItemToKafkaPipiline': 300,
 }
 
 SPIDER_MIDDLEWARES = {
@@ -195,15 +196,9 @@ DNSCACHE_ENABLED = True
 
 # JapanCinemaStatusSpider Settings
 # ~~~~~~~~~~~~~~~
-# database settings
-DATABASE = {
-    'drivername': 'postgres',
-    'host': 'postgres',
-    'port': '5432',
-    'username': os.getenv('POSTGRES_USER', 'test'),
-    'password': os.getenv('POSTGRES_PASSWORD', 'test'),
-    'database': os.getenv('POSTGRES_DB', 'test')
-}
+
+# kafka topic that crawled item is sended to
+JCSS_KAFKA_ITEM_TOPIC = os.getenv('JCSS_KAFKA_ITEM_TOPIC', 'jcss.crawled')
 
 # make timeout a bit longer
 DOWNLOAD_TIMEOUT = 60
