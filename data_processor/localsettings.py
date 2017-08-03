@@ -15,7 +15,7 @@ REDIS_DB = int(os.getenv('REDIS_DB', 0))
 # Kafka server information
 KAFKA_HOSTS = [x.strip() for x in os.getenv(
     'KAFKA_HOSTS', 'kafka:9092').split(',')]
-KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'jcss.crawled')
+KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'jcss.data_processor')
 KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'data_processor')
 KAFKA_FEED_TIMEOUT = 10
 KAFKA_CONSUMER_AUTO_OFFSET_RESET = 'earliest'
@@ -60,3 +60,8 @@ STATS_TIMES = [
 # main thread sleep time
 SLEEP_TIME = 0.01
 HEARTBEAT_TIMEOUT = 120
+
+# JapanCinemaStatusSpider Settings
+# ~~~~~~~~~~~~~~~
+JCSS_DATA_PROCESSOR_OUT_TOPIC = os.getenv(
+    'JCSS_DATA_PROCESSOR_OUT_TOPIC', 'jcss.data_processer_out')
