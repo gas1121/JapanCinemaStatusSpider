@@ -4,8 +4,8 @@ from models import db_connect, add_item_to_database, Session
 from models.movie import Movie
 
 
-class ScrapedMovieHandler(BaseHandler):
-    schema = "scraped_movie_schema.json"
+class CrawledMovieHandler(BaseHandler):
+    schema = "crawled_movie_schema.json"
 
     def setup(self, settings):
         """

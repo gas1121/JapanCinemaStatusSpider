@@ -18,7 +18,7 @@ from models.movie import Movie
 from models.showing import Showing
 from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
-from plugins.scraped_movie_handler import ScrapedMovieHandler
+from plugins.crawled_movie_handler import CrawledMovieHandler
 
 
 class DatabaseMixin(object):
@@ -120,9 +120,9 @@ class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
 class TestScrapedMovieHandler(DatabaseMixin, unittest.TestCase):
     def test_handle(self):
         engine = db_connect(self.database)
-        with patch('plugins.scraped_movie_handler.Session', scoped_session(
+        with patch('plugins.crawled_movie_handler.Session', scoped_session(
                         sessionmaker(bind=engine))) as Session_mock:
-            handler = ScrapedMovieHandler()
+            handler = CrawledMovieHandler()
             handler.logger = MagicMock()
             handler.setup(MagicMock())
             handler.engine = engine

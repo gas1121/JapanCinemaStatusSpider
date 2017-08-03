@@ -17,6 +17,10 @@ from crawler.utils import (use_cinema_database,
                            use_movie_database)
 
 
+class CrawledItemToKafkaPipiline(object):
+    pass
+
+
 class DataBasePipeline(object):
     """
     pipeline to add item to database
