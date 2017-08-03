@@ -50,3 +50,14 @@ def db_connect(database=DATABASE):
 
 # global session for project
 Session = scoped_session(sessionmaker(bind=db_connect()))
+
+
+def add_item_to_database(db_item):
+    """Add a item to database
+    """
+    try:
+        db_item = Session.merge(db_item)
+        Session.commit()
+    except:
+        Session.rollback()
+        raise

@@ -6,6 +6,7 @@ from models.movie import Movie
 from models.showing import Showing
 from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
+from plugins.scraped_movie_handler import ScrapedMovieHandler
 
 
 class TestPlugins(unittest.TestCase):
@@ -36,3 +37,35 @@ class TestPlugins(unittest.TestCase):
             handler.engine, ShowingBooking)
         drop_table_if_exist_mock.assert_any_call(handler.engine, Showing)
         create_table_mock.assert_called_once_with(handler.engine)
+
+    @patch('plugins.scraped_movie_handler.add_item_to_database')
+    @patch('plugins.scraped_movie_handler.db_connect')
+    def test_scraped_movie_handler(self, db_connect_mock,
+                                   add_item_to_database_mock):
+        handler = ScrapedMovieHandler()
+        handler.logger = MagicMock()
+        handler.setup(MagicMock())
+        data = {
+            "title": "Your Name.",
+            "current_cinema_count": 1
+        }
+        Movie.get_movie_if_exist = MagicMock(return_value=None)
+        handler.handle(data)
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
+        self.assertEqual(len(args), 1)
+        self.assertEqual(args[0].current_cinema_count, 1)
+
+        exist_data = {
+            "title": "Your Name.",
+            "current_cinema_count": 3
+        }
+        exist_movie = Movie(**exist_data)
+        Movie.get_movie_if_exist = MagicMock(return_value=exist_movie)
+        handler.handle(data)
+        self.assertEqual(add_item_to_database_mock.call_count, 2)
+        expected_count = \
+            data["current_cinema_count"] + exist_data["current_cinema_count"]
+        args, kwargs = add_item_to_database_mock.call_args_list[1]
+        self.assertEqual(len(args), 1)
+        self.assertEqual(args[0].current_cinema_count, expected_count)

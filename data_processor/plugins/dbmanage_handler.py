@@ -15,7 +15,8 @@ class DbManageHandler(BaseHandler):
         Setup db connection
         """
         self.engine = db_connect()
-        self.logger.debug("Connected to Database in ActionHandler")
+        self.logger.debug("Connected to Database in {}".format(
+            self.__class__.__name__))
         self.table_map = {
             'all': [Cinema, Movie, ShowingBooking, Showing],
             'movie': [Movie],

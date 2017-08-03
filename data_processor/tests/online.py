@@ -3,28 +3,25 @@ from mock import MagicMock, patch
 import os
 import json
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.engine.url import URL
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import drop_database
 from kafka_monitor import KafkaMonitor
 from scutils.method_timer import MethodTimer
 
 from models import (DeclarativeBase, create_table,
-                    drop_table_if_exist, db_connect)
+                    drop_table_if_exist, db_connect, add_item_to_database)
 from models.cinema import Cinema
 from models.movie import Movie
 from models.showing import Showing
 from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
+from plugins.scraped_movie_handler import ScrapedMovieHandler
 
 
-class TestTable(DeclarativeBase):
-    __tablename__ = "test_table"
-
-    id = Column(Integer, primary_key=True)
-
-
-class TestModels(unittest.TestCase):
+class DatabaseMixin(object):
     def setUp(self):
         self.database = {
             'drivername': 'postgres',
@@ -36,6 +33,18 @@ class TestModels(unittest.TestCase):
         }
         self.url = URL(**self.database)
 
+    def tearDown(self):
+        drop_database(self.url)
+
+
+class TestTable(DeclarativeBase):
+    __tablename__ = "test_table"
+
+    id = Column(Integer, primary_key=True)
+    data = Column('data', String)
+
+
+class TestModels(DatabaseMixin, unittest.TestCase):
     def test_db_connect(self):
         engine = db_connect(self.database)
         self.assertEqual(engine.name, 'postgresql')
@@ -61,22 +70,24 @@ class TestModels(unittest.TestCase):
         self.assertFalse(engine.dialect.has_table(
             engine, TestTable.__tablename__))
 
-    def tearDown(self):
-        drop_database(self.url)
+    def test_add_item_to_database(self):
+        engine = db_connect(self.database)
+        with patch('models.Session', scoped_session(
+                        sessionmaker(bind=engine))) as Session_mock:
+            self.assertFalse(engine.dialect.has_table(
+                engine, TestTable.__tablename__))
+            create_table(engine)
+            self.assertTrue(engine.dialect.has_table(
+                engine, TestTable.__tablename__))
+            item = TestTable()
+            item.data = "test data"
+            add_item_to_database(item)
+            result = Session_mock.query(TestTable).all()
+            self.assertEquals(len(result), 1)
+            self.assertEquals(result[0].data, "test data")
 
 
-class TestDbManageHandler(unittest.TestCase):
-    def setUp(self):
-        self.database = {
-            'drivername': 'postgres',
-            'host': 'postgres',
-            'port': '5432',
-            'username': os.getenv('POSTGRES_USER', 'test'),
-            'password': os.getenv('POSTGRES_PASSWORD', 'test'),
-            'database': 'test'
-        }
-        self.url = URL(**self.database)
-
+class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
     @patch('plugins.dbmanage_handler.db_connect')
     def test_handle(self, db_connect_mock):
         handler = DbManageHandler()
@@ -106,8 +117,31 @@ class TestDbManageHandler(unittest.TestCase):
         self.assertTrue(handler.engine.dialect.has_table(
             handler.engine, Showing.__table__))
 
-    def tearDown(self):
-        drop_database(self.url)
+
+class TestScrapedMovieHandler(DatabaseMixin, unittest.TestCase):
+    def test_handle(self):
+        engine = db_connect(self.database)
+        with patch('models.Session', scoped_session(
+                        sessionmaker(bind=engine))) as Session_mock:
+            handler = ScrapedMovieHandler()
+            handler.logger = MagicMock()
+            handler.setup(MagicMock())
+            handler.engine = engine
+            self.assertEqual(handler.engine.name, 'postgresql')
+            data = {
+                "title": "Your Name.",
+                "current_cinema_count": 2
+            }
+            create_table(handler.engine)
+            self.assertTrue(handler.engine.dialect.has_table(
+                handler.engine, Movie.__table__))
+            result = Session_mock.query(Movie).all()
+            self.assertFalse(result)
+            handler.handle(data)
+            result = Session_mock.query(Movie).all()
+            self.assertEquals(len(result), 1)
+            self.assertEquals(result[0].title, "Your Name.")
+            self.assertEquals(result[0].current_cinema_count, 2)
 
 
 # setup custom class to handle our requests

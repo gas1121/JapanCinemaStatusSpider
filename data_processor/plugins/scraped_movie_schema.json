@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "current_cinema_count": {
+            "type": "integer",
+            "default": 0
+        }
+    },
+    "required": [
+        "title",
+        "current_cinema_count"
+    ],
+    "additionalProperties": false
+}
