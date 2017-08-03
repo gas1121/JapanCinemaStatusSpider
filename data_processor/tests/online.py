@@ -72,19 +72,18 @@ class TestModels(DatabaseMixin, unittest.TestCase):
 
     def test_add_item_to_database(self):
         engine = db_connect(self.database)
-        with patch('models.Session', scoped_session(
-                        sessionmaker(bind=engine))) as Session_mock:
-            self.assertFalse(engine.dialect.has_table(
-                engine, TestTable.__tablename__))
-            create_table(engine)
-            self.assertTrue(engine.dialect.has_table(
-                engine, TestTable.__tablename__))
-            item = TestTable()
-            item.data = "test data"
-            add_item_to_database(item)
-            result = Session_mock.query(TestTable).all()
-            self.assertEquals(len(result), 1)
-            self.assertEquals(result[0].data, "test data")
+        test_session = sessionmaker(bind=engine)()
+        self.assertFalse(engine.dialect.has_table(
+            engine, TestTable.__tablename__))
+        create_table(engine)
+        self.assertTrue(engine.dialect.has_table(
+            engine, TestTable.__tablename__))
+        item = TestTable()
+        item.data = "test data"
+        add_item_to_database(test_session, item)
+        result = test_session.query(TestTable).all()
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0].data, "test data")
 
 
 class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
@@ -121,7 +120,7 @@ class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
 class TestScrapedMovieHandler(DatabaseMixin, unittest.TestCase):
     def test_handle(self):
         engine = db_connect(self.database)
-        with patch('models.Session', scoped_session(
+        with patch('plugins.scraped_movie_handler.Session', scoped_session(
                         sessionmaker(bind=engine))) as Session_mock:
             handler = ScrapedMovieHandler()
             handler.logger = MagicMock()

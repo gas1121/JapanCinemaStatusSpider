@@ -48,16 +48,16 @@ def db_connect(database=DATABASE):
     return engine
 
 
-# global session for project
-Session = scoped_session(sessionmaker(bind=db_connect()))
-
-
-def add_item_to_database(db_item):
-    """Add a item to database
+def add_item_to_database(session, db_item):
+    """Add a item to database with given session
     """
     try:
-        db_item = Session.merge(db_item)
-        Session.commit()
+        db_item = session.merge(db_item)
+        session.commit()
     except:
-        Session.rollback()
+        session.rollback()
         raise
+
+
+# global session for project
+Session = scoped_session(sessionmaker(bind=db_connect()))

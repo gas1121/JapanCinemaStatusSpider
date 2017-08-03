@@ -1,6 +1,6 @@
 from kafka_monitor_plugins.base_handler import BaseHandler
 
-from models import db_connect, add_item_to_database
+from models import db_connect, add_item_to_database, Session
 from models.movie import Movie
 
 
@@ -22,13 +22,13 @@ class ScrapedMovieHandler(BaseHandler):
         @param dict: a valid dictionary object
         """
         movie = Movie(**dict)
-        exist_movie = Movie.get_movie_if_exist(movie)
+        exist_movie = Movie.get_movie_if_exist(Session, movie)
         if exist_movie:
             # if movie exist in database, sum cinema count
             exist_movie.current_cinema_count += movie.current_cinema_count
             movie = exist_movie
         try:
-            add_item_to_database(movie)
+            add_item_to_database(Session, movie)
             self.logger.info('Movie added to database', extra=dict)
         except:
             self.logger.info('Movie failed add to database', extra=dict)

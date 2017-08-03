@@ -1,6 +1,6 @@
 from fuzzywuzzy import process
 from sqlalchemy import Column, Integer, String
-from models import DeclarativeBase, Session
+from models import DeclarativeBase
 
 
 class Movie(DeclarativeBase):
@@ -13,22 +13,23 @@ class Movie(DeclarativeBase):
                                   default=0)
 
     @staticmethod
-    def get_movie_if_exist(item):
+    def get_movie_if_exist(session, item):
         """
         Get movie if exists else return None.
         Judged by title
         """
-        query = Session.query(Movie).filter(
+        print(session.bind.url)
+        query = session.query(Movie).filter(
             Movie.title == item.title).with_for_update()
         result = query.first()
         return result
 
     @staticmethod
-    def get_by_title(title):
+    def get_by_title(session, title):
         """
         fuzzy search movie item from database
         """
-        query = Session.query(Movie.title)
+        query = session.query(Movie.title)
         result = query.all()
         title_list = [title for title, in result]
         one_item = process.extractOne(title, title_list)

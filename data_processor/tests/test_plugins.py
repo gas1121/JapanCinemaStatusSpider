@@ -53,8 +53,8 @@ class TestPlugins(unittest.TestCase):
         handler.handle(data)
         self.assertEqual(add_item_to_database_mock.call_count, 1)
         args, kwargs = add_item_to_database_mock.call_args_list[0]
-        self.assertEqual(len(args), 1)
-        self.assertEqual(args[0].current_cinema_count, 1)
+        self.assertEqual(len(args), 2)
+        self.assertEqual(args[1].current_cinema_count, 1)
 
         exist_data = {
             "title": "Your Name.",
@@ -67,5 +67,5 @@ class TestPlugins(unittest.TestCase):
         expected_count = \
             data["current_cinema_count"] + exist_data["current_cinema_count"]
         args, kwargs = add_item_to_database_mock.call_args_list[1]
-        self.assertEqual(len(args), 1)
-        self.assertEqual(args[0].current_cinema_count, expected_count)
+        self.assertEqual(len(args), 2)
+        self.assertEqual(args[1].current_cinema_count, expected_count)
