@@ -37,15 +37,17 @@ class CrawledCinemaHandler(BaseHandler):
             if cinema.source != exist_cinema.source:
                 # replace when new cinema data crawled more screens
                 if cinema.screen_count > exist_cinema.screen_count:
-                    exist_cinema.merge(
-                        cinema, merge_method=Cinema.MergeMethod.replace)
+                    cinema = Cinema.merge(
+                        exist_cinema, cinema,
+                        merge_method=Cinema.MergeMethod.replace)
                 else:
-                    exist_cinema.merge(
-                        cinema, merge_method=Cinema.MergeMethod.info_only)
+                    cinema = Cinema.merge(
+                        exist_cinema, cinema,
+                        merge_method=Cinema.MergeMethod.info_only)
             elif cinema.site:
-                exist_cinema.merge(
-                    cinema, merge_method=Cinema.MergeMethod.update_count)
-            cinema = exist_cinema
+                cinema = Cinema.merge(
+                    exist_cinema, cinema,
+                    merge_method=Cinema.MergeMethod.update_count)
         try:
             add_item_to_database(Session, cinema)
             self.logger.info('Cinema added to database', extra=dict)

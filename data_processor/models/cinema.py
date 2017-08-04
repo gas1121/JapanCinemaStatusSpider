@@ -75,24 +75,26 @@ class Cinema(DeclarativeBase):
         update_count = 2  # also update screen count and total seat number
         replace = 3  # replace all data
 
-    def merge(self, new_cinema, merge_method):
+    @staticmethod
+    def merge(base_cinema, target_cinema, merge_method):
         """
         merge data from new crawled cinema data depends on strategy
         """
-        if merge_method == self.MergeMethod.info_only:
-            self.names.extend(x for x in new_cinema.names if
-                              x not in self.names)
-            new_cinema.screens.update(self.screens)
-            self.screens = new_cinema.screens
-        elif merge_method == self.MergeMethod.update_count:
-            self.names.extend(x for x in new_cinema.names if
-                              x not in self.names)
-            for new_screen in new_cinema.screens:
-                if new_screen not in self.screens:
-                    curr_seat_count = int(new_cinema.screens[new_screen])
-                    self.screens[new_screen] = curr_seat_count
-                    self.screen_count += 1
-                    self.total_seats += curr_seat_count
+        if merge_method == base_cinema.MergeMethod.info_only:
+            base_cinema.names.extend(x for x in target_cinema.names if
+                                     x not in base_cinema.names)
+            target_cinema.screens.update(base_cinema.screens)
+            base_cinema.screens = target_cinema.screens
+        elif merge_method == base_cinema.MergeMethod.update_count:
+            base_cinema.names.extend(x for x in target_cinema.names if
+                                     x not in base_cinema.names)
+            for new_screen in target_cinema.screens:
+                if new_screen not in base_cinema.screens:
+                    curr_seat_count = int(target_cinema.screens[new_screen])
+                    base_cinema.screens[new_screen] = curr_seat_count
+                    base_cinema.screen_count += 1
+                    base_cinema.total_seats += curr_seat_count
         else:
-            new_cinema.id = self.id
-            self = new_cinema
+            target_cinema.id = base_cinema.id
+            base_cinema = target_cinema
+        return base_cinema
