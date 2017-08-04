@@ -30,6 +30,7 @@ KAFKA_PRODUCER_BUFFER_BYTES = 4 * 1024 * 1024  # 4MB before blocking
 PLUGIN_DIR = 'plugins/'
 PLUGINS = {
     'plugins.dbmanage_handler.DbManageHandler': 100,
+    'plugins.crawled_movie_handler.CrawledMovieHandler': 200,
 }
 
 # logging setup

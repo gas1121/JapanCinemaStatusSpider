@@ -21,7 +21,9 @@ class CrawledMovieHandler(BaseHandler):
 
         @param dict: a valid dictionary object
         """
-        movie = Movie(**dict)
+        # remove 'ts' item in input dict
+        movie_dict = {k: v for k, v in dict.items() if k != 'ts'}
+        movie = Movie(**movie_dict)
         exist_movie = Movie.get_movie_if_exist(Session, movie)
         if exist_movie:
             # if movie exist in database, sum cinema count

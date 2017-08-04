@@ -26,6 +26,7 @@ showing_job_list = [
 
 
 def cinema_crawl_job(logger, settings):
+    # TODO maybe clean related key in redis is needed
     logger.info("begin cinema crawl job")
     # clear cinema data first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
@@ -42,6 +43,7 @@ def cinema_crawl_job(logger, settings):
 
 
 def movie_crawl_job(logger, settings):
+    # TODO maybe clean related key in redis is needed
     logger.info("begin movie crawl job")
     # clear movie data first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
@@ -57,6 +59,7 @@ def movie_crawl_job(logger, settings):
 
 
 def showing_crawl_job(logger, settings):
+    # TODO maybe clean related key in redis is needed
     logger.info("begin showing crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=False, crawl_booking_data=False)
@@ -69,6 +72,7 @@ def showing_crawl_job(logger, settings):
 
 
 def showing_booking_crawl_job(logger, settings):
+    # TODO maybe clean related key in redis is needed
     logger.info("begin showing booking crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=False, crawl_booking_data=True)
@@ -81,6 +85,7 @@ def showing_booking_crawl_job(logger, settings):
 
 
 def showing_booking_sample_crawl_job(logger, settings):
+    # TODO maybe clean related key in redis is needed
     logger.info("begin showing booking sample crawl job")
     # change spider config with zookeeper
     change_spider_config(use_sample=True, crawl_booking_data=True)
