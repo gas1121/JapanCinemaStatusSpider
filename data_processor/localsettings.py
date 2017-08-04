@@ -63,5 +63,3 @@ HEARTBEAT_TIMEOUT = 120
 
 # JapanCinemaStatusSpider Settings
 # ~~~~~~~~~~~~~~~
-JCSS_DATA_PROCESSOR_OUT_TOPIC = os.getenv(
-    'JCSS_DATA_PROCESSOR_OUT_TOPIC', 'jcss.data_processer_out')
