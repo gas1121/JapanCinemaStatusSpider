@@ -7,6 +7,7 @@ from models.showing import Showing
 from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
 from plugins.crawled_movie_handler import CrawledMovieHandler
+from plugins.crawled_cinema_handler import CrawledCinemaHandler
 
 
 class TestPlugins(unittest.TestCase):
@@ -70,3 +71,12 @@ class TestPlugins(unittest.TestCase):
         args, kwargs = add_item_to_database_mock.call_args_list[1]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].current_cinema_count, expected_count)
+
+    @patch('plugins.crawled_cinema_handler.add_item_to_database')
+    @patch('plugins.crawled_cinema_handler.db_connect')
+    def test_scraped_movie_handler(self, db_connect_mock,
+                                   add_item_to_database_mock):
+        handler = CrawledCinemaHandler()
+        handler.logger = MagicMock()
+        handler.setup(MagicMock())
+        # TODO test cast

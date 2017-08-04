@@ -19,6 +19,7 @@ from models.showing import Showing
 from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
 from plugins.crawled_movie_handler import CrawledMovieHandler
+from plugins.crawled_cinema_handler import CrawledCinemaHandler
 
 
 class DatabaseMixin(object):
@@ -141,6 +142,12 @@ class TestScrapedMovieHandler(DatabaseMixin, unittest.TestCase):
             self.assertEquals(len(result), 1)
             self.assertEquals(result[0].title, "Your Name.")
             self.assertEquals(result[0].current_cinema_count, 2)
+
+
+class TestScrapedCinemaHandler(DatabaseMixin, unittest.TestCase):
+    def test_handle(self):
+        engine = db_connect(self.database)
+        # TODO test case
 
 
 # setup custom class to handle our requests

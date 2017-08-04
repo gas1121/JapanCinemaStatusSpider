@@ -1,0 +1,47 @@
+{
+    "type": "object",
+    "properties": {
+        "names": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string"
+            }
+        },
+        "county": {
+            "type": "string"
+        },
+        "company": {
+            "type": "string"
+        },
+        "site": {
+            "type": "string"
+        },
+        "screens": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "screen_count": {
+            "type": "integer",
+            "default": 0
+        },
+        "total_seats": {
+            "type": "integer",
+            "default": 0
+        },
+        "source": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "names",
+        "county",
+        "screens",
+        "screen_count",
+        "total_seats",
+        "source"
+    ],
+    "additionalProperties": false
+}

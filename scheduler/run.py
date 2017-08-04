@@ -98,6 +98,7 @@ def showing_booking_sample_crawl_job(logger, settings):
 
 
 if __name__ == '__main__':
+    # TODO set per site throttle to make crawl faster
     settings = SettingsWrapper().load(local='localsettings.py')
     logger = LogFactory.get_instance(
         json=settings['LOG_JSON'], stdout=settings['LOG_STDOUT'],

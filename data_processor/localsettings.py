@@ -31,6 +31,7 @@ PLUGIN_DIR = 'plugins/'
 PLUGINS = {
     'plugins.dbmanage_handler.DbManageHandler': 100,
     'plugins.crawled_movie_handler.CrawledMovieHandler': 200,
+    'plugins.crawled_cinema_handler.CrawledCinemaHandler': 300,
 }
 
 # logging setup
