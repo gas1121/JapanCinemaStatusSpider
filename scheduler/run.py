@@ -27,7 +27,6 @@ showing_job_list = [
 
 def cinema_crawl_job(logger, settings):
     logger.info("begin cinema crawl job")
-    # TODO job order issue
     # clear cinema data first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
     clear_job = {
@@ -44,7 +43,6 @@ def cinema_crawl_job(logger, settings):
 
 def movie_crawl_job(logger, settings):
     logger.info("begin movie crawl job")
-    # TODO job order issue
     # clear movie data first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
     clear_job = {

@@ -1,5 +1,5 @@
 import unittest
-from mock import MagicMock, patch
+from mock import MagicMock, patch, call
 
 from models.cinema import Cinema
 from models.movie import Movie
@@ -31,11 +31,12 @@ class TestPlugins(unittest.TestCase):
         }
         handler.handle(data)
         self.assertEqual(drop_table_if_exist_mock.call_count, 4)
-        drop_table_if_exist_mock.assert_any_call(handler.engine, Cinema)
-        drop_table_if_exist_mock.assert_any_call(handler.engine, Movie)
-        drop_table_if_exist_mock.assert_any_call(
-            handler.engine, ShowingBooking)
-        drop_table_if_exist_mock.assert_any_call(handler.engine, Showing)
+        drop_table_if_exist_mock.assert_has_calls([
+            call(handler.engine, Cinema),
+            call(handler.engine, Movie),
+            call(handler.engine, ShowingBooking),
+            call(handler.engine, Showing),
+        ])
         create_table_mock.assert_called_once_with(handler.engine)
 
     @patch('plugins.crawled_movie_handler.add_item_to_database')
