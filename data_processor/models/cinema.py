@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy import and_, or_, cast
 from jcssutils import ScreenUtils
-from models import DeclarativeBase, Session
+from models import DeclarativeBase
 
 
 class Cinema(DeclarativeBase):
@@ -26,7 +26,7 @@ class Cinema(DeclarativeBase):
     source = Column('source', String, nullable=False)
 
     @staticmethod
-    def get_cinema_if_exist(item):
+    def get_cinema_if_exist(session, item):
         """
         Get cinema if it already exists in database, otherwise return None
 
@@ -38,7 +38,7 @@ class Cinema(DeclarativeBase):
         Some cinemas may be treated as different cinemas when crawled from
         different site but we will leave them there now.
         """
-        query = Session.query(Cinema).filter(and_(
+        query = session.query(Cinema).filter(and_(
             Cinema.county == item.county, or_(
                 and_(item.site is not None, Cinema.site == item.site),
                 and_(item.names is not None, Cinema.names.overlap(
@@ -48,16 +48,16 @@ class Cinema(DeclarativeBase):
         return result
 
     @staticmethod
-    def get_by_name(cinema_name):
-        query = Session.query(Cinema).filter(
+    def get_by_name(session, cinema_name):
+        query = session.query(Cinema).filter(
             Cinema.names.any(cinema_name)
         )
         cinema = query.first()
         return cinema
 
     @staticmethod
-    def get_screen_seat_count(cinema_name, cinema_site, screen):
-        query = Session.query(Cinema).filter(or_(
+    def get_screen_seat_count(session, cinema_name, cinema_site, screen):
+        query = session.query(Cinema).filter(or_(
                 and_(cinema_site is not None, Cinema.site == cinema_site),
                 and_(cinema_name is not None, Cinema.names.overlap(
                     cast([cinema_name], ARRAY(String))))

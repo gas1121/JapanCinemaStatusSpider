@@ -24,7 +24,7 @@ class CrawledCinemaHandler(BaseHandler):
         # remove 'ts' item in input dict
         cinema_dict = {k: v for k, v in dict.items() if k != 'ts'}
         cinema = Cinema(**cinema_dict)
-        exist_cinema = Cinema.get_cinema_if_exist(cinema)
+        exist_cinema = Cinema.get_cinema_if_exist(Session, cinema)
         if exist_cinema:
             # if cinema exists in database, check if it should be merged
             # to exist record.
