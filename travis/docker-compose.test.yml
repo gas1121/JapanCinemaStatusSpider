@@ -6,8 +6,8 @@ services:
       - postgres
     command: ping localhost
     environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=testdefault
+      - POSTGRES_PASSWORD=testdefault
       - POSTGRES_DB=testdefault
   crawler:
     image: gas1121/japancinemastatusspider:crawler-test
@@ -18,8 +18,8 @@ services:
       - postgres
     command: ping localhost
     environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=testdefault
+      - POSTGRES_PASSWORD=testdefault
       - POSTGRES_DB=testdefault
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
@@ -31,8 +31,8 @@ services:
   data_processor:
     image: gas1121/japancinemastatusspider:data_processor-test
     environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=testdefault
+      - POSTGRES_PASSWORD=testdefault
       - POSTGRES_DB=testdefault
     command: ping localhost
     depends_on:
@@ -68,6 +68,6 @@ services:
       - "5432"
     restart: always
     environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=testdefault
+      - POSTGRES_PASSWORD=testdefault
       - POSTGRES_DB=testdefault

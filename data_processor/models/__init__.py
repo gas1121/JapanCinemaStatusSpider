@@ -11,9 +11,9 @@ DATABASE = {
     'drivername': 'postgres',
     'host': 'postgres',
     'port': '5432',
-    'username': os.getenv('POSTGRES_USER', 'test'),
-    'password': os.getenv('POSTGRES_PASSWORD', 'test'),
-    'database': os.getenv('POSTGRES_DB', 'test'),
+    'username': os.getenv('POSTGRES_USER', 'testdefault'),
+    'password': os.getenv('POSTGRES_PASSWORD', 'testdefault'),
+    'database': os.getenv('POSTGRES_DB', 'testdefault'),
 }
 
 DeclarativeBase = declarative_base()
@@ -44,6 +44,8 @@ def db_connect(database=DATABASE):
     """Get a sqlalchemy engine connected to targe database.
     If database is not yet exist, will create first
     """
+    print(DATABASE)
+    print(database)
     engine = create_engine(URL(**database))
     print(engine.url)
     print(database_exists(engine.url))

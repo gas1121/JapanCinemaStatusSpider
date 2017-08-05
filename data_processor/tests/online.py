@@ -27,8 +27,8 @@ class DatabaseMixin(object):
             'drivername': 'postgres',
             'host': 'postgres',
             'port': '5432',
-            'username': os.getenv('POSTGRES_USER', 'test'),
-            'password': os.getenv('POSTGRES_PASSWORD', 'test'),
+            'username': os.getenv('POSTGRES_USER', 'testdefault'),
+            'password': os.getenv('POSTGRES_PASSWORD', 'testdefault'),
             'database': 'test'
         }
         self.url = URL(**self.database)
