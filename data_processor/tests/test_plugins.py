@@ -145,5 +145,37 @@ class TestPlugins(unittest.TestCase):
         self.assertEqual(args[1].total_seats, proto_data['total_seats'])
         self.assertEqual(args[1].source, proto_data['source'])
 
-        # TODO test case for same source, no site with exist cinema
-        # TODO test case for same source, site with exist cinema
+        # same source, no site with exist cinema
+        exist_data = deepcopy(proto_data)
+        exist_data["screens"] = {
+                "screen1": "100",
+            }
+        exist_data["site"] = None
+        exist_data["screen_count"] = 1
+        exist_data["total_seats"] = 100
+        exist_movie = Cinema(**exist_data)
+        exist_func_mock.return_value = exist_movie
+        data = deepcopy(proto_data)
+        handler.handle(data)
+        self.assertEqual(add_item_to_database_mock.call_count, 4)
+        args, kwargs = add_item_to_database_mock.call_args_list[3]
+        self.assertEqual(len(args), 2)
+        self.assertEqual(args[1].total_seats, proto_data['total_seats'])
+        self.assertEqual(args[1].source, proto_data['source'])
+        # same source, site with exist cinema
+        exist_data = deepcopy(proto_data)
+        exist_data["screens"] = {
+                "screen4": "400",
+            }
+        exist_data["screen_count"] = 1
+        exist_data["total_seats"] = 400
+        exist_movie = Cinema(**exist_data)
+        exist_func_mock.return_value = exist_movie
+        data = deepcopy(proto_data)
+        handler.handle(data)
+        self.assertEqual(add_item_to_database_mock.call_count, 5)
+        args, kwargs = add_item_to_database_mock.call_args_list[4]
+        self.assertEqual(len(args), 2)
+        expect_total_seats = exist_data["total_seats"] +\
+            proto_data['total_seats']
+        self.assertEqual(args[1].total_seats, expect_total_seats)

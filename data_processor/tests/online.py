@@ -146,7 +146,36 @@ class TestScrapedMovieHandler(DatabaseMixin, unittest.TestCase):
 class TestScrapedCinemaHandler(DatabaseMixin, unittest.TestCase):
     def test_handle(self):
         engine = db_connect(self.database)
-        # TODO test case
+        with patch('plugins.crawled_cinema_handler.Session', scoped_session(
+                        sessionmaker(bind=engine))) as Session_mock:
+            handler = CrawledCinemaHandler()
+            handler.logger = MagicMock()
+            handler.setup(MagicMock())
+            handler.engine = engine
+            self.assertEqual(handler.engine.name, 'postgresql')
+            data = {
+                "names": ["cinema_name_1"],
+                "county": "test_county",
+                "company": "test_company",
+                "site": "test_site",
+                "screens": {
+                    "screen1": "100",
+                    "screen2": "200",
+                },
+                "screen_count": 2,
+                "total_seats": 300,
+                "source": "test_source",
+            }
+            create_table(handler.engine)
+            self.assertTrue(handler.engine.dialect.has_table(
+                handler.engine, Cinema.__table__))
+            result = Session_mock.query(Cinema).all()
+            self.assertFalse(result)
+            handler.handle(data)
+            result = Session_mock.query(Cinema).all()
+            self.assertEquals(len(result), 1)
+            self.assertEquals(result[0].county, "test_county")
+            self.assertEquals(result[0].total_seats, 300)
 
 
 # setup custom class to handle our requests
