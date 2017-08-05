@@ -46,7 +46,6 @@ class TestTable(DeclarativeBase):
 
 class TestModels(DatabaseMixin, unittest.TestCase):
     def test_db_connect(self):
-        print(self.url)
         engine = db_connect(self.database)
         self.assertEqual(engine.name, 'postgresql')
 
