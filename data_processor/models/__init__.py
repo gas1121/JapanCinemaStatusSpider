@@ -45,8 +45,11 @@ def db_connect(database=DATABASE):
     If database is not yet exist, will create first
     """
     engine = create_engine(URL(**database))
+    print(engine.url)
+    print(database_exists(engine.url))
     if not database_exists(engine.url):
         create_database(engine.url)
+    print(database_exists(engine.url))
     return engine
 
 
