@@ -6,9 +6,9 @@ services:
       - postgres
     command: ping localhost
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-test}
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=testdefault
   crawler:
     image: gas1121/japancinemastatusspider:crawler-test
     depends_on:
@@ -18,9 +18,9 @@ services:
       - postgres
     command: ping localhost
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-test}
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=testdefault
   scheduler:
     image: gas1121/japancinemastatusspider:scheduler-test
     depends_on:
@@ -31,9 +31,9 @@ services:
   data_processor:
     image: gas1121/japancinemastatusspider:data_processor-test
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-test}
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=testdefault
     command: ping localhost
     depends_on:
       - kafka
@@ -68,6 +68,6 @@ services:
       - "5432"
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-test}
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=testdefault
