@@ -7,6 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
 
+# make sure database is same as username so we can connect the database
+# created by postgres docker container when start up
 DATABASE = {
     'drivername': 'postgres',
     'host': 'postgres',
@@ -44,14 +46,9 @@ def db_connect(database=DATABASE):
     """Get a sqlalchemy engine connected to targe database.
     If database is not yet exist, will create first
     """
-    print(DATABASE)
-    print(database)
     engine = create_engine(URL(**database))
-    print(engine.url)
-    print(database_exists(engine.url))
     if not database_exists(engine.url):
         create_database(engine.url)
-    print(database_exists(engine.url))
     return engine
 
 
