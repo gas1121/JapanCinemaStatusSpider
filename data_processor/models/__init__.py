@@ -26,6 +26,7 @@ def create_table(engine):
     trans = con.begin()
     DeclarativeBase.metadata.create_all(con)
     trans.commit()
+    con.close()
 
 
 def drop_table_if_exist(engine, TableClass):
@@ -36,6 +37,7 @@ def drop_table_if_exist(engine, TableClass):
         trans = con.begin()
         TableClass.__table__.drop(con)
         trans.commit()
+        con.close()
 
 
 def db_connect(database=DATABASE):
