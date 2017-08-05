@@ -13,7 +13,8 @@ DATABASE = {
     'port': '5432',
     'username': os.getenv('POSTGRES_USER', 'test'),
     'password': os.getenv('POSTGRES_PASSWORD', 'test'),
-    'database': os.getenv('POSTGRES_DB', 'test')
+    #'database': os.getenv('POSTGRES_DB', 'test'),
+    'database': 'test-temp',
 }
 
 DeclarativeBase = declarative_base()
