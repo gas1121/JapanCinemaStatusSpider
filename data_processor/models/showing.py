@@ -3,7 +3,7 @@ from sqlalchemy_utils import ArrowType
 from sqlalchemy import and_
 import arrow
 
-from models import DeclarativeBase, Session
+from models import DeclarativeBase
 
 
 class Showing(DeclarativeBase):
@@ -34,7 +34,7 @@ class Showing(DeclarativeBase):
         return Showing(**item_dict)
 
     @staticmethod
-    def get_showing_if_exist(model_item):
+    def get_showing_if_exist(session, model_item):
         """
         Get showing if exists else return None.
         Judged by cinema site, screen and start time
@@ -43,7 +43,7 @@ class Showing(DeclarativeBase):
         start_time = model_item.start_time.to('utc')
         pre_start_time = start_time.shift(minutes=-1)
         post_start_time = start_time.shift(minutes=+1)
-        query = Session.query(Showing).filter(and_(
+        query = session.query(Showing).filter(and_(
             Showing.screen == model_item.screen,
             Showing.cinema_site == model_item.cinema_site,
             Showing.start_time > pre_start_time,

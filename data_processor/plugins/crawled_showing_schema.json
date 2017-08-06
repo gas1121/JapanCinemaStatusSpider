@@ -1,0 +1,55 @@
+{
+    "type": "object",
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "title_en": {
+            "type": "string"
+        },
+        "real_title": {
+            "type": "string"
+        },
+        "start_time": {
+            "type": "string"
+        },
+        "end_time": {
+            "type": "string"
+        },
+        "cinema_name": {
+            "type": "string"
+        },
+        "cinema_site": {
+            "type": "string"
+        },
+        "screen": {
+            "type": "string"
+        },
+        "seat_type": {
+            "type": "string",
+            "enum": [
+                "FreeSeat",
+                "NormalSeat"
+            ],
+            "default": "FreeSeat"
+        },
+        "total_seat_count": {
+            "type": "integer",
+            "default": 0
+        },
+        "source": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "title",
+        "start_time",
+        "cinema_name",
+        "cinema_site",
+        "screen",
+        "seat_type",
+        "total_seat_count",
+        "source"
+    ],
+    "additionalProperties": false
+}

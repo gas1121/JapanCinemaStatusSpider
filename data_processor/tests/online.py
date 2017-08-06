@@ -131,6 +131,10 @@ class TestCinema(DatabaseMixin, unittest.TestCase):
             self.session, "cinema_name_1", "test_site", "screen3")
         self.assertEqual(result, 0)
 
+        result = Cinema.get_screen_seat_count(
+            self.session, "cinema_name_2", "another_site", "screen1")
+        self.assertEqual(result, 0)
+
 
 class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
     @patch('plugins.dbmanage_handler.db_connect')
