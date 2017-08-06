@@ -3,6 +3,7 @@ from mock import MagicMock, patch
 import os
 import json
 
+import arrow
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import scoped_session
@@ -19,6 +20,8 @@ from models.showing_booking import ShowingBooking
 from plugins.dbmanage_handler import DbManageHandler
 from plugins.crawled_movie_handler import CrawledMovieHandler
 from plugins.crawled_cinema_handler import CrawledCinemaHandler
+from plugins.crawled_showing_handler import CrawledShowingHandler
+from plugins.crawled_showing_booking_handler import CrawledShowingBookingHandler
 
 
 class DatabaseMixin(object):
@@ -226,6 +229,101 @@ class TestScrapedCinemaHandler(DatabaseMixin, unittest.TestCase):
             self.assertEquals(len(result), 1)
             self.assertEquals(result[0].county, "test_county")
             self.assertEquals(result[0].total_seats, 300)
+
+
+class TestScrapedShowingHandler(DatabaseMixin, unittest.TestCase):
+    def test_handle(self):
+        engine = db_connect(self.database)
+        with patch('plugins.crawled_showing_handler.Session', scoped_session(
+                        sessionmaker(bind=engine))) as Session_mock:
+            handler = CrawledShowingHandler()
+            handler.logger = MagicMock()
+            handler.setup(MagicMock())
+            handler.engine = engine
+            self.assertEqual(handler.engine.name, 'postgresql')
+            data = {
+                "title": "Your Name.",
+                "title_en": "Your Name.",
+                "real_title": "Your Name.",
+                "start_time": arrow.get(
+                    "201608271200", 'YYYYMMDDhhmm').format(),
+                "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
+                "cinema_name": "test_cinema",
+                "cinema_site": "test_site",
+                "screen": "test_screen",
+                "seat_type": "FreeSeat",
+                "total_seat_count": 300,
+                "source": "test_source",
+            }
+            create_table(handler.engine)
+            self.assertTrue(handler.engine.dialect.has_table(
+                handler.engine, Showing.__table__))
+            result = Session_mock.query(Showing).all()
+            self.assertFalse(result)
+            handler.handle(data)
+            result = Session_mock.query(Showing).all()
+            self.assertEquals(len(result), 1)
+            self.assertEquals(result[0].screen, "test_screen")
+
+            # should not add to database if alread exists
+            handler.handle(data)
+            result = Session_mock.query(Showing).all()
+            self.assertEquals(len(result), 1)
+
+
+class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
+    def test_handle(self):
+        engine = db_connect(self.database)
+        with patch('plugins.crawled_showing_booking_handler.Session',
+                   scoped_session(sessionmaker(bind=engine))) as Session_mock:
+            handler = CrawledShowingBookingHandler()
+            handler.logger = MagicMock()
+            handler.setup(MagicMock())
+            handler.engine = engine
+            self.assertEqual(handler.engine.name, 'postgresql')
+            showing_data = {
+                "title": "Your Name.",
+                "title_en": "Your Name.",
+                "real_title": "Your Name.",
+                "start_time": arrow.get(
+                    "201608271200", 'YYYYMMDDhhmm').format(),
+                "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
+                "cinema_name": "test_cinema",
+                "cinema_site": "test_site",
+                "screen": "test_screen",
+                "seat_type": "FreeSeat",
+                "total_seat_count": 300,
+                "source": "test_source",
+            }
+            data = {
+                "showing": showing_data,
+                "book_status": "PlentyLeft",
+                "book_seat_count": 55,
+                "minutes_before": 60,
+                "record_time": arrow.get(
+                    "201608271100", 'YYYYMMDDhhmm').format(),
+            }
+            create_table(handler.engine)
+            self.assertTrue(handler.engine.dialect.has_table(
+                handler.engine, ShowingBooking.__table__))
+            result = Session_mock.query(ShowingBooking).all()
+            self.assertFalse(result)
+            handler.handle(data)
+            result = Session_mock.query(ShowingBooking).all()
+            self.assertEquals(len(result), 1)
+            self.assertEquals(result[0].minutes_before, 60)
+            showing_result = Session_mock.query(Showing).all()
+            self.assertEquals(len(showing_result), 1)
+            self.assertEquals(showing_result[0].screen, "test_screen")
+
+            # should use exist showing
+            data["showing"]["real_title"] = "new_title"
+            handler.handle(data)
+            result = Session_mock.query(ShowingBooking).all()
+            self.assertEquals(len(result), 2)
+            showing_result = Session_mock.query(Showing).all()
+            self.assertEquals(len(showing_result), 1)
+            self.assertEquals(showing_result[0].real_title, "new_title")
 
 
 # setup custom class to handle our requests
