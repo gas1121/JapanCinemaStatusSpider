@@ -7,11 +7,11 @@ import unicodedata
 
 from crawler.items import (CinemaLoader, standardize_cinema_name,
                            standardize_screen_name)
-from crawler.utils import (ScrapyClusterSpider, CinemaDatabaseMixin,
-                           standardize_county_name, extract_seat_number)
+from crawler.utils import (ScrapyClusterSpider, standardize_county_name,
+                           extract_seat_number)
 
 
-class CinemaSpider(ScrapyClusterSpider, CinemaDatabaseMixin):
+class CinemaSpider(ScrapyClusterSpider):
 
     def __init__(self, *args, **kwargs):
         super(CinemaSpider, self).__init__(*args, **kwargs)

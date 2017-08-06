@@ -4,11 +4,7 @@ import traceback
 from kafka import KafkaProducer
 from kafka.errors import KafkaTimeoutError
 import ujson
-from crawler.items import (CinemaItem, ShowingItem, ShowingBookingItem,
-                           MovieItem)
 from crawler.utils import sc_log_setup
-from crawler.utils import (use_cinema_database, use_showing_database)
-# TODO showing,cinema models rework
 
 
 class CrawledItemToKafkaPipiline(object):

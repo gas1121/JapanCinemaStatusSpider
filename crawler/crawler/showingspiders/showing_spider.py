@@ -4,7 +4,7 @@ Base class for spiders crawling movie showings
 import unicodedata
 import arrow
 
-from crawler.utils import ScrapyClusterSpider, ShowingDatabaseMixin
+from crawler.utils import ScrapyClusterSpider
 
 
 default_cinema = {
@@ -20,7 +20,7 @@ default_cinema = {
 }
 
 
-class ShowingSpider(ScrapyClusterSpider, ShowingDatabaseMixin):
+class ShowingSpider(ScrapyClusterSpider):
     def __init__(self, *args, **kwargs):
         """
         Prepare common settings for showing spider.

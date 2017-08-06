@@ -30,25 +30,3 @@ class ScrapyClusterSpider(RedisSpider):
         set next parse function to call when response returns
         """
         request.meta["curr_step"] = func.__name__
-
-
-class CinemaDatabaseMixin:
-    """
-    mixin to make spider use database's cinema table
-    """
-    use_cinema_database = True
-
-
-class ShowingDatabaseMixin:
-    """
-    mixin to make spider use database's showing table
-    """
-    use_showing_database = True
-
-
-def use_cinema_database(spider):
-    return hasattr(spider, "use_cinema_database")
-
-
-def use_showing_database(spider):
-    return hasattr(spider, "use_showing_database")

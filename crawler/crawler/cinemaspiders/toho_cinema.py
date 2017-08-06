@@ -4,10 +4,10 @@ import copy
 
 from crawler.items import (CinemaItem, standardize_cinema_name,
                            standardize_screen_name)
-from crawler.utils import ScrapyClusterSpider, CinemaDatabaseMixin, TohoUtil
+from crawler.utils import ScrapyClusterSpider, TohoUtil
 
 
-class TohoCinemaSpider(ScrapyClusterSpider, CinemaDatabaseMixin):
+class TohoCinemaSpider(ScrapyClusterSpider):
     name = "toho_cinema"
     allowed_domains = ["hlo.tohotheater.jp", "www.tohotheater.jp"]
     #start_urls = ['https://www.tohotheater.jp/theater/find.html']

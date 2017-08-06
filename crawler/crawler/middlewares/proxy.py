@@ -6,7 +6,7 @@ from crawler.utils import sc_log_setup
 class ProxyDownloaderMiddleware(object):
     """
     middleware for sites that need proxy to visit
-    enabled when spider has attribute 'keep_old_data'
+    enabled when spider has attribute 'use_proxy'
     """
     def __init__(self, settings):
         '''

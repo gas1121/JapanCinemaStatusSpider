@@ -23,8 +23,6 @@ spiders in single process"""
                          help="use setting's proxy when crawling")
         group.add_option("--require_js", action="store_true", default=False,
                          help="use phantomjs to process page")
-        group.add_option("--keep_old_data", action="store_true",
-                         default=False, help="keep old data when crawling")
         group.add_option("--crawl_all_cinemas", action="store_true",
                          default=False, help="crawl all cinemas")
         group.add_option("--crawl_all_movies", action="store_true",
@@ -54,7 +52,6 @@ spiders in single process"""
         opts.spargs = {}
         opts.spargs['use_proxy'] = opts.use_proxy
         opts.spargs['require_js'] = opts.require_js
-        opts.spargs['keep_old_data'] = opts.keep_old_data
         opts.spargs['crawl_all_cinemas'] = opts.crawl_all_cinemas
         opts.spargs['crawl_all_movies'] = opts.crawl_all_movies
         opts.spargs['crawl_booking_data'] = opts.crawl_booking_data

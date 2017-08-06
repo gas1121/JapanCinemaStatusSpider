@@ -1,6 +1,6 @@
 import unittest
 
-from crawler.pipelines import DataBasePipeline
+from crawler.pipelines import CrawledItemToKafkaPipiline
 
 
 class TestShowingSpider(unittest.TestCase):
