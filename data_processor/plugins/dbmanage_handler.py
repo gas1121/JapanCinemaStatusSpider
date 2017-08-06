@@ -38,5 +38,4 @@ class DbManageHandler(BaseHandler):
                 drop_table_if_exist(self.engine, table_class)
             # create table
             create_table(self.engine)
-            # TODO after finish create a kafka message to notify scheduler
         self.logger.info('db action finished', extra=dict)

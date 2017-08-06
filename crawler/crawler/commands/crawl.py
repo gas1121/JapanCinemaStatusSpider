@@ -5,6 +5,7 @@ from scrapy.commands.crawl import Command
 
 
 class CrawlCommand(Command):
+    # TODO rewrite this command to use as entrance of all spider to work
     def short_desc(self):
         return "Override default crawl command, support more options"
 

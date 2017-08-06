@@ -31,10 +31,18 @@ def send_job_to_kafka(topic, job):
 
 
 def change_spider_config(spiderid=None, use_sample=False,
-                         crawl_booking_data=False):
+                         crawl_booking_data=False, use_proxy=False,
+                         require_js=False, crawl_all_cinemas=False,
+                         crawl_all_movies=False, movie_list=['君の名は。'],
+                         cinema_list=['TOHOシネマズ海老名'], date=None):
     """
     change spider config with zookeeper
     """
+    sample_cinema = ["TOHOシネマズ府中", "TOHOシネマズ海老名",
+                     "TOHOシネマズ西宮OS", "TOHOシネマズ仙台",
+                     "MOVIX仙台", "MOVIX三好", "MOVIXさいたま"]
+    # TODO set date to tomorrow as default
+    # TODO do all spider config by zookeeper
     zookeeper = KazooClient(hosts=zookeeper_host)
     zookeeper.start()
     file_name = zookeeper_file_id
