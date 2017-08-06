@@ -17,6 +17,7 @@ class Cinema(DeclarativeBase):
     company = Column('company', String)
     site = Column('site', String)
     # screens are handled as same as names
+    # TODO make all value as int
     screens = Column('screens', JSONB, nullable=False)
     # as screens may contain multiple versions of single screen,
     # we use next two column to help identify a cinema

@@ -86,6 +86,52 @@ class TestModels(DatabaseMixin, unittest.TestCase):
         self.assertEquals(result[0].data, "test data")
 
 
+class TestCinema(DatabaseMixin, unittest.TestCase):
+    def setUp(self):
+        DatabaseMixin.setUp(self)
+        data = {
+            "names": ["cinema_name_1"],
+            "county": "test_county",
+            "company": "test_company",
+            "site": "test_site",
+            "screens": {
+                "cinema_name_1#screen1": "100",
+                "cinema_name_1#screen2": "200",
+            },
+            "screen_count": 2,
+            "total_seats": 300,
+            "source": "test_source",
+        }
+        self.engine = db_connect(self.database)
+        create_table(self.engine)
+        self.session = sessionmaker(bind=self.engine)()
+        self.cinema = Cinema(**data)
+        add_item_to_database(self.session, self.cinema)
+
+    def test_get_cinema_if_exist(self):
+        test_cinema = Cinema()
+        test_cinema.county = "test_county"
+        test_cinema.site = "test_site"
+        result = Cinema.get_cinema_if_exist(self.session, test_cinema)
+        self.assertEqual(result.total_seats, self.cinema.total_seats)
+
+    def test_get_by_name(self):
+        result = Cinema.get_by_name(self.session, "cinema_name_1")
+        self.assertEqual(result.total_seats, self.cinema.total_seats)
+
+        result = Cinema.get_by_name(self.session, "another_cinema")
+        self.assertEqual(result, None)
+
+    def test_get_screen_seat_count(self):
+        result = Cinema.get_screen_seat_count(
+            self.session, "cinema_name_1", "test_site", "screen1")
+        self.assertEqual(result, '100')
+
+        result = Cinema.get_screen_seat_count(
+            self.session, "cinema_name_1", "test_site", "screen3")
+        self.assertEqual(result, 0)
+
+
 class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
     @patch('plugins.dbmanage_handler.db_connect')
     def test_handle(self, db_connect_mock):
