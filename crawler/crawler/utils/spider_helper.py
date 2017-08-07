@@ -1,4 +1,5 @@
 import sys
+import json
 
 from kazoo.handlers.threading import KazooTimeoutError
 from scutils.zookeeper_watcher import ZookeeperWatcher
@@ -11,6 +12,7 @@ class ScrapyClusterSpider(RedisSpider):
     """
     def __init__(self, *args, **kwargs):
         self.assign_path = self.settings.get('JCSS_ZOOKEEPER_PATH')
+        self.loaded_config = {}
         try:
             self.zoo_watcher = ZookeeperWatcher(
                                 hosts=self.settings.get('ZOOKEEPER_HOSTS'),
@@ -24,48 +26,43 @@ class ScrapyClusterSpider(RedisSpider):
             sys.exit(1)
 
     def change_config(self, config_string):
-        # TODO
-        """
         if config_string and len(config_string) > 0:
-            loaded_config = yaml.safe_load(config_string)
-            self.logger.info("Zookeeper config changed", extra=loaded_config)
-            self.load_domain_config(loaded_config)
-            self.update_domain_queues()
+            self.loaded_config = json.loads(config_string)
+            self._logger.info(
+                "{}: config changed".format(self.name),
+                extra=self.loaded_config)
         elif config_string is None or len(config_string) == 0:
-            self.error_config("Zookeeper config wiped")
-
-        self.create_queues()
-        """
-        pass
+            self.error_config("{}: config wiped".format(self.name))
 
     def error_config(self, message):
-        # TODO
-        """
         extras = {}
         extras['message'] = message
-        extras['revert_window'] = self.window
-        extras['revert_hits'] = self.hits
-        extras['spiderid'] = self.spider.name
-        self.logger.info("Lost config from Zookeeper", extra=extras)
+        extras['spiderid'] = self.name
+        self._logger.info(
+            "{}: lost config from Zookeeper".format(self.name), extra=extras)
         # lost connection to zookeeper, reverting back to defaults
-        for key in self.domain_config:
-            final_key = "{name}:{domain}:queue".format(
-                    name=self.spider.name,
-                    domain=key)
-            self.queue_dict[final_key][0].window = self.window
-            self.queue_dict[final_key][0].limit = self.hits
-
-        self.domain_config = {}
-        """
-        pass
+        self.loaded_config = {}
+        self.loaded_config['use_sample'] = False
+        self.loaded_config['crawl_booking_data'] = False
+        self.loaded_config['use_proxy'] = False
+        self.loaded_config['require_js'] = False
+        self.loaded_config['crawl_all_cinemas'] = False
+        self.loaded_config['crawl_all_movies'] = False
+        self.loaded_config['movie_list'] = []
+        self.loaded_config['cinema_list'] = []
+        self.loaded_config['date'] = '20170101'
 
     def parse(self, response):
         """
         enter point for response processing
         """
+        print("parse")
         self._logger.debug("crawled url {}".format(response.request.url))
         result_list = []
         if "curr_step" not in response.meta:
+            print("test")
+            print(self.parse_first_page)
+            print(self.parse_first_page())
             self.parse_first_page(response, result_list)
         else:
             curr_step = response.meta["curr_step"]
