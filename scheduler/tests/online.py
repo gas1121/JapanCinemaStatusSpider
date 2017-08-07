@@ -5,7 +5,7 @@ from time import sleep
 from kazoo.client import KazooClient
 from kafka import KafkaConsumer
 
-from scheduler import utils
+from scheduler.utils import send_job_to_kafka, change_spider_config
 
 
 # TODO add online test for run.py
@@ -28,7 +28,7 @@ class TestSendJobToKafka(unittest.TestCase):
         job = {
             "data": "test"
         }
-        utils.send_job_to_kafka(self.topic, job)
+        send_job_to_kafka(self.topic, job)
 
         m = next(self.consumer)
         the_dict = json.loads(m.value)
@@ -44,22 +44,31 @@ class TestSendJobToKafka(unittest.TestCase):
 class TestChangeSpiderConfig(unittest.TestCase):
     def setUp(self):
         # set up zookeeper connection
-        utils.zookeeper_file_path = "/test/"
-        utils.zookeeper_file_id = "all"
-        self.full_path = utils.zookeeper_file_path + utils.zookeeper_file_id
-        self.zookeeper = KazooClient(hosts=utils.zookeeper_host)
+        self.settings = {
+            'JCSS_ZOOKEEPER_HOST': 'zookeeper:2181',
+            'JCSS_ZOOKEEPER_PATH': '/test/',
+            'JCSS_SAMPLE_CINEMAS': ['cinema1', 'cinema2'],
+        }
+        self.spiderid = 'testspider'
+        self.full_path = self.settings['JCSS_ZOOKEEPER_PATH'] + self.spiderid
+        self.zookeeper = KazooClient(
+            hosts=self.settings['JCSS_ZOOKEEPER_HOST'])
         self.zookeeper.start()
 
     def test_change_spider_config(self):
-        self.assertFalse(self.zookeeper.exists(utils.zookeeper_file_path))
-        utils.change_spider_config()
+        self.assertFalse(
+            self.zookeeper.exists(self.settings['JCSS_ZOOKEEPER_PATH']))
+        change_spider_config(
+            spiderid=self.spiderid, settings=self.settings)
         self.assertTrue(self.zookeeper.exists(self.full_path))
         data = self.zookeeper.get(self.full_path)[0]
         d = json.loads(data.decode('utf-8'))
         self.assertEqual(d["use_sample"], False)
         self.assertEqual(d["crawl_booking_data"], False)
 
-        utils.change_spider_config(use_sample=True, crawl_booking_data=True)
+        change_spider_config(
+            spiderid=self.spiderid, settings=self.settings,
+            use_sample=True, crawl_booking_data=True)
         data = self.zookeeper.get(self.full_path)[0]
         d = json.loads(data.decode('utf-8'))
         self.assertEqual(d["use_sample"], True)
@@ -67,7 +76,8 @@ class TestChangeSpiderConfig(unittest.TestCase):
 
     def tearDown(self):
         # clean zookeeper test data
-        self.zookeeper.delete(utils.zookeeper_file_path, recursive=True)
+        self.zookeeper.delete(
+            self.settings['JCSS_ZOOKEEPER_PATH'], recursive=True)
         self.zookeeper.stop()
         self.zookeeper.close()
 

@@ -69,3 +69,16 @@ JCSS_CLEAR_SHOWING_AT_INIT = os.getenv('JCSS_CLEAR_SHOWING_AT_INIT', False)
 # kafka topic that crawled item is sended to
 JCSS_DATA_PROCESSOR_TOPIC = os.getenv(
     'JCSS_DATA_PROCESSOR_TOPIC', 'jcss.data_processor')
+
+# zookeeper host
+JCSS_ZOOKEEPER_HOST = os.getenv("ZOOKEEPER_HOST", "zookeeper:2181")
+
+# zookeeper path to store spider config
+JCSS_ZOOKEEPER_PATH = os.getenv(
+    "JCSS_ZOOKEEPER_PATH", "/japancinemastatusspider/spiders/")
+
+# sample cinema for a quick showing crawl job
+JCSS_SAMPLE_CINEMAS = [
+    "TOHOシネマズ府中", "TOHOシネマズ海老名", "TOHOシネマズ西宮OS",
+    "TOHOシネマズ仙台", "MOVIX仙台", "MOVIX三好", "MOVIXさいたま"
+]

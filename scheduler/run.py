@@ -117,7 +117,6 @@ def cinema_crawl_job(logger, settings):
     # TODO maybe clean related key in redis is needed
     # config spider properly
     # TODO job to change config ex. date for spider before crawl
-    change_spider_config()
     # send crawl job
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     crawl_job = create_crawl_job(
@@ -147,12 +146,13 @@ def movie_crawl_job(logger, settings):
 def showing_crawl_job(logger, settings):
     logger.info("begin showing crawl job")
     # TODO maybe clean related key in redis is needed
-    # config spider properly
-    # TODO job to change config ex. date for spider before crawl
-    change_spider_config(use_sample=False, crawl_booking_data=False)
 
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
+        # config spider properly
+        # TODO job to change config ex. date for spider before crawl
+        change_spider_config(
+            spider_id, settings, use_sample=False, crawl_booking_data=False)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
@@ -161,12 +161,13 @@ def showing_crawl_job(logger, settings):
 def showing_booking_crawl_job(logger, settings):
     logger.info("begin showing booking crawl job")
     # TODO maybe clean related key in redis is needed
-    # config spider properly
-    # TODO job to change config ex. date for spider before crawl
-    change_spider_config(use_sample=False, crawl_booking_data=True)
 
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
+        # config spider properly
+        # TODO job to change config ex. date for spider before crawl
+        change_spider_config(
+            spider_id, settings, use_sample=False, crawl_booking_data=True)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
@@ -175,12 +176,14 @@ def showing_booking_crawl_job(logger, settings):
 def showing_booking_sample_crawl_job(logger, settings):
     logger.info("begin showing booking sample crawl job")
     # TODO maybe clean related key in redis is needed
-    # config spider properly
-    # TODO job to change config ex. date for spider before crawl
-    change_spider_config(use_sample=True, crawl_booking_data=True)
 
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
+        # config spider properly
+        # TODO job to change config ex. date for spider before crawl
+        change_spider_config(
+            spider_id, settings, use_sample=True, crawl_booking_data=True)
+
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
