@@ -5,10 +5,38 @@ from time import sleep
 from kazoo.client import KazooClient
 from kafka import KafkaConsumer
 
+from run import cinema_crawl_job
 from scheduler.utils import send_job_to_kafka, change_spider_config
 
 
-# TODO add online test for run.py
+class TestRun(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_cinema_crawl_job(self):
+        # TODO
+        pass
+
+    def test_movie_crawl_job(self):
+        # TODO
+        pass
+
+    def test_showing_crawl_job(self):
+        # TODO
+        pass
+
+    def test_showing_booking_crawl_job(self):
+        # TODO
+        pass
+
+    def test_showing_booking_sample_crawl_job(self):
+        # TODO
+        pass
+
+    def tearDown(self):
+        pass
+
+
 class TestSendJobToKafka(unittest.TestCase):
     def setUp(self):
         # setup consumer

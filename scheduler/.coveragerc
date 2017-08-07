@@ -1,6 +1,7 @@
 [run]
 include=
   *scheduler*
+  run.py
 [report]
 omit=
   *settings.py
