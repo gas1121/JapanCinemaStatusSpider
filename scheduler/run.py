@@ -9,32 +9,116 @@ import schedule
 from scutils.log_factory import LogFactory
 from scutils.settings_wrapper import SettingsWrapper
 
-from scheduler.utils import (create_crawl_job, send_job_to_kafka,
-                             change_spider_config)
+from scheduler.utils import (create_crawl_job, create_domain_throttle_job,
+                             send_job_to_kafka, change_spider_config)
 
-showing_job_list = [
-    {"url": "http://www.aeoncinema.com/theater/", "spiderid": "aeon"},
-    {"url": "https://hlo.tohotheater.jp/responsive/json/theater_list.json", "spiderid": "toho_v2"},
-    {"url": "http://www.unitedcinemas.jp/index.html", "spiderid": "united"},
-    {"url": "http://www.smt-cinema.com/theater/", "spiderid": "movix"},
-    {"url": "http://kinezo.jp/pc/", "spiderid": "kinezo"},
-    {"url": "http://109cinemas.net/", "spiderid": "cinema109"},
-    {"url": "http://www.korona.co.jp/cinema/", "spiderid": "korona"},
-    {"url": "http://www.cinemasunshine.co.jp/theater/", "spiderid": "cinemasunshine"},
-    {"url": "http://forum-movie.net/theater-list", "spiderid": "forum"},
-]
+
+spider_setting = {
+    "walkerplus_cinema": {
+        "url": "http://movie.walkerplus.com/theater/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "walkerplus_movie": {
+        "url": "http://movie.walkerplus.com/list/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "aeon": {
+        "url": "http://www.aeoncinema.com/theater/",
+        "throttle": {
+            "hits": 50,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "toho_v2": {
+        "url": "https://hlo.tohotheater.jp/responsive/json/theater_list.json",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "united": {
+        "url": "http://www.unitedcinemas.jp/index.html",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "movix": {
+        "url": "http://www.smt-cinema.com/theater/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "kinezo": {
+        "url": "http://kinezo.jp/pc/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "cinema109": {
+        "url": "http://109cinemas.net/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "korona": {
+        "url": "http://www.korona.co.jp/cinema/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "cinemasunshine": {
+        "url": "http://www.cinemasunshine.co.jp/theater/",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+    "forum": {
+        "url": "http://forum-movie.net/theater-list",
+        "throttle": {
+            "hits": 60,
+            "window": 60,
+            "scale": 1.0,
+        },
+    },
+}
 
 
 def cinema_crawl_job(logger, settings):
-    # TODO maybe clean related key in redis is needed
     logger.info("begin cinema crawl job")
-    # clear cinema data first
+    # clear cinema data in database first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
     clear_job = {
         'action': 'clear',
         'target': 'cinema',
     }
     send_job_to_kafka(clear_topic, clear_job)
+    # TODO maybe clean related key in redis is needed
+    # config spider properly
+    # TODO job to change config ex. date for spider before crawl
+    change_spider_config()
+    # send crawl job
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     crawl_job = create_crawl_job(
         url="http://movie.walkerplus.com/theater/",
@@ -43,7 +127,6 @@ def cinema_crawl_job(logger, settings):
 
 
 def movie_crawl_job(logger, settings):
-    # TODO maybe clean related key in redis is needed
     logger.info("begin movie crawl job")
     # clear movie data first
     clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
@@ -52,6 +135,9 @@ def movie_crawl_job(logger, settings):
         'target': 'movie',
     }
     send_job_to_kafka(clear_topic, clear_job)
+    # TODO maybe clean related key in redis is needed
+    # config spider properly
+    # TODO job to change config ex. date for spider before crawl
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     crawl_job = create_crawl_job(
         url="http://movie.walkerplus.com/list/", spiderid="walkerplus_movie")
@@ -59,53 +145,67 @@ def movie_crawl_job(logger, settings):
 
 
 def showing_crawl_job(logger, settings):
-    # TODO maybe clean related key in redis is needed
     logger.info("begin showing crawl job")
-    # change spider config with zookeeper
+    # TODO maybe clean related key in redis is needed
+    # config spider properly
+    # TODO job to change config ex. date for spider before crawl
     change_spider_config(use_sample=False, crawl_booking_data=False)
 
-    for job_data in showing_job_list:
-        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
-        crawl_job = create_crawl_job(
-            url=job_data["url"], spiderid=job_data["spiderid"])
+    crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+    for spider_id in spider_setting:
+        url = spider_setting[spider_id]['url']
+        crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
 
 
 def showing_booking_crawl_job(logger, settings):
-    # TODO maybe clean related key in redis is needed
     logger.info("begin showing booking crawl job")
-    # change spider config with zookeeper
+    # TODO maybe clean related key in redis is needed
+    # config spider properly
+    # TODO job to change config ex. date for spider before crawl
     change_spider_config(use_sample=False, crawl_booking_data=True)
 
-    for job_data in showing_job_list:
-        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
-        crawl_job = create_crawl_job(
-            url=job_data["url"], spiderid=job_data["spiderid"])
+    crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+    for spider_id in spider_setting:
+        url = spider_setting[spider_id]['url']
+        crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
 
 
 def showing_booking_sample_crawl_job(logger, settings):
-    # TODO maybe clean related key in redis is needed
     logger.info("begin showing booking sample crawl job")
-    # change spider config with zookeeper
+    # TODO maybe clean related key in redis is needed
+    # config spider properly
+    # TODO job to change config ex. date for spider before crawl
     change_spider_config(use_sample=True, crawl_booking_data=True)
 
-    for job_data in showing_job_list:
-        crawl_topic = settings['KAFKA_INCOMING_TOPIC']
-        crawl_job = create_crawl_job(
-            url=job_data["url"], spiderid=job_data["spiderid"])
+    crawl_topic = settings['KAFKA_INCOMING_TOPIC']
+    for spider_id in spider_setting:
+        url = spider_setting[spider_id]['url']
+        crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
 
 
 if __name__ == '__main__':
-    # TODO set per site throttle to make crawl faster
     settings = SettingsWrapper().load(local='localsettings.py')
+
     logger = LogFactory.get_instance(
         json=settings['LOG_JSON'], stdout=settings['LOG_STDOUT'],
         level=settings['LOG_LEVEL'], name=settings['LOGGER_NAME'],
         dir=settings['LOG_DIR'], file=settings['LOG_FILE'],
         bytes=settings['LOG_MAX_BYTES'], backups=settings['LOG_BACKUPS'])
     logger.info("scheduler started")
+
+    # set per site throttle to make crawl faster
+    for spider_id in spider_setting:
+        url = spider_setting[spider_id]["url"]
+        hits = spider_setting[spider_id]["throttle"]["hits"]
+        window = spider_setting[spider_id]["throttle"]["window"]
+        scale = spider_setting[spider_id]["throttle"]["scale"]
+        throttle_job = create_domain_throttle_job(
+            url=url, hits=hits, window=window, scale=scale)
+        send_job_to_kafka(settings['KAFKA_INCOMING_TOPIC'], throttle_job)
+
     # if JCSS_CLEAR_SHOWING_AT_INIT is True, clear showing data
     if settings['JCSS_CLEAR_SHOWING_AT_INIT']:
         clear_topic = settings['JCSS_DATA_PROCESSOR_TOPIC']
@@ -114,15 +214,17 @@ if __name__ == '__main__':
             'target': 'showing',
         }
         send_job_to_kafka(clear_topic, clear_job)
+
     # every time schedule script starts, crawl cinema and movie data first
     cinema_crawl_job(logger, settings)
     movie_crawl_job(logger, settings)
     logger.info("initial job finished")
+
     # crawl movie and cinema info every week
     schedule.every().monday.at('19:00').do(movie_crawl_job, logger, settings)
     schedule.every().monday.at('20:00').do(cinema_crawl_job, logger, settings)
     # crawl showing data at utc 21:00(6:00 jpn) everyday
-    schedule.every().day.at('21:00').do(showing_crawl_job)
+    schedule.every().day.at('21:00').do(showing_crawl_job, logger, settings)
     # crawl showing booking data at utc 11:00(20:00 jpn) every friday and
     # saturday for weekend information
     schedule.every().friday.at('11:00').do(

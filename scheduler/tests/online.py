@@ -8,6 +8,7 @@ from kafka import KafkaConsumer
 from scheduler import utils
 
 
+# TODO add online test for run.py
 class TestSendJobToKafka(unittest.TestCase):
     def setUp(self):
         # setup consumer

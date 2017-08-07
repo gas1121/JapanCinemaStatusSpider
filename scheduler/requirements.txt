@@ -4,6 +4,9 @@
 #
 #    pip-compile --no-index --output-file scheduler/requirements.txt scheduler/requirements.in
 #
+arrow==0.10.0
+python-dateutil==2.6.1    # via arrow
 schedule==0.4.3
+six==1.10.0               # via python-dateutil
 # utils dependency
 ../utils

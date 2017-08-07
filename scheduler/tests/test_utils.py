@@ -2,11 +2,17 @@ import unittest
 from mock import MagicMock, patch
 import json
 
+import arrow
+
 from scheduler.utils import (create_crawl_job, send_job_to_kafka,
-                             change_spider_config)
+                             change_spider_config, sample_cinema)
 
 
 class TestUtils(unittest.TestCase):
+    def test_create_domain_throttle_job(self):
+        # TODO test
+        pass
+
     def test_create_crawl_job(self):
         url = "testurl"
         spiderid = "testspiderid"
@@ -43,6 +49,13 @@ class TestUtils(unittest.TestCase):
         expected_data = json.dumps({
             "use_sample": False,
             "crawl_booking_data": False,
+            "use_proxy": False,
+            "require_js": False,
+            "crawl_all_cinemas": False,
+            "crawl_all_movies": False,
+            "movie_list": ['君の名は。'],
+            "cinema_list": ['TOHOシネマズ海老名'],
+            "date": arrow.now().format('YYYYMMDD'),
         }).encode('utf-8')
         instance_mock.ensure_path.assert_called_once_with(expected_path)
         instance_mock.set.assert_called_once_with(expected_path, expected_data)
@@ -60,5 +73,12 @@ class TestUtils(unittest.TestCase):
         expected_data = json.dumps({
             "use_sample": True,
             "crawl_booking_data": False,
+            "use_proxy": False,
+            "require_js": False,
+            "crawl_all_cinemas": False,
+            "crawl_all_movies": False,
+            "movie_list": ['君の名は。'],
+            "cinema_list": sample_cinema,
+            "date": arrow.now().format('YYYYMMDD'),
         }).encode('utf-8')
         instance_mock.set.assert_called_with(expected_path, expected_data)
