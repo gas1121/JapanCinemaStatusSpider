@@ -5,13 +5,15 @@ import json
 import arrow
 
 from scheduler.utils import (create_crawl_job, send_job_to_kafka,
-                             change_spider_config)
+                             change_spider_config, create_domain_throttle_job)
 
 
 class TestUtils(unittest.TestCase):
     def test_create_domain_throttle_job(self):
-        # TODO test
-        pass
+        url = "testurl"
+        data = create_domain_throttle_job(url=url)
+        self.assertEqual(data["url"], url)
+        self.assertEqual(data["action"], "domain-update")
 
     def test_create_crawl_job(self):
         url = "testurl"
@@ -44,7 +46,11 @@ class TestUtils(unittest.TestCase):
         settings = {
             'JCSS_ZOOKEEPER_HOST': 'test',
             'JCSS_ZOOKEEPER_PATH': '/test/',
+            'JCSS_DEFAULT_MOVIES': ['movie1'],
             'JCSS_SAMPLE_CINEMAS': ['cinema1', 'cinema2'],
+            'JCSS_DEFAULT_CINEMAS': {
+                'testid': ['defaultcinema']
+            },
         }
         change_spider_config(
             spiderid="testid", settings=settings, use_sample=False,
@@ -58,8 +64,8 @@ class TestUtils(unittest.TestCase):
             "require_js": False,
             "crawl_all_cinemas": False,
             "crawl_all_movies": False,
-            "movie_list": ['君の名は。'],
-            "cinema_list": ['TOHOシネマズ海老名'],
+            "movie_list": ['movie1'],
+            "cinema_list": ['defaultcinema'],
             "date": arrow.now().format('YYYYMMDD'),
         }).encode('utf-8')
         instance_mock.ensure_path.assert_called_once_with(expected_path)
@@ -73,7 +79,7 @@ class TestUtils(unittest.TestCase):
         instance_mock.get = MagicMock(return_value=[old_data])
         change_spider_config(
             spiderid="testid", settings=settings, use_sample=True,
-            crawl_booking_data=False)
+            crawl_booking_data=False, movie_list=['newmovie'])
         instance_mock.get.assert_called_once_with(expected_path)
         self.assertEqual(instance_mock.set.call_count, 2)
         expected_data = json.dumps({
@@ -83,8 +89,28 @@ class TestUtils(unittest.TestCase):
             "require_js": False,
             "crawl_all_cinemas": False,
             "crawl_all_movies": False,
-            "movie_list": ['君の名は。'],
+            "movie_list": ['newmovie'],
             "cinema_list": settings['JCSS_SAMPLE_CINEMAS'],
             "date": arrow.now().format('YYYYMMDD'),
+        }).encode('utf-8')
+        instance_mock.set.assert_called_with(expected_path, expected_data)
+
+        instance_mock.exists = MagicMock(return_value=False)
+        change_spider_config(
+            spiderid="testid", settings=settings, use_sample=False,
+            crawl_booking_data=False, cinema_list=['newcinema'],
+            date='20170101')
+        instance_mock.get.assert_called_once_with(expected_path)
+        self.assertEqual(instance_mock.set.call_count, 3)
+        expected_data = json.dumps({
+            "use_sample": False,
+            "crawl_booking_data": False,
+            "use_proxy": False,
+            "require_js": False,
+            "crawl_all_cinemas": False,
+            "crawl_all_movies": False,
+            "movie_list": ['movie1'],
+            "cinema_list": ['newcinema'],
+            "date": '20170101',
         }).encode('utf-8')
         instance_mock.set.assert_called_with(expected_path, expected_data)

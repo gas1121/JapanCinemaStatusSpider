@@ -47,7 +47,11 @@ class TestChangeSpiderConfig(unittest.TestCase):
         self.settings = {
             'JCSS_ZOOKEEPER_HOST': 'zookeeper:2181',
             'JCSS_ZOOKEEPER_PATH': '/test/',
+            'JCSS_DEFAULT_MOVIES': ['movie1'],
             'JCSS_SAMPLE_CINEMAS': ['cinema1', 'cinema2'],
+            'JCSS_DEFAULT_CINEMAS': {
+                'testspider': ['defaultcinema']
+            },
         }
         self.spiderid = 'testspider'
         self.full_path = self.settings['JCSS_ZOOKEEPER_PATH'] + self.spiderid
@@ -65,6 +69,8 @@ class TestChangeSpiderConfig(unittest.TestCase):
         d = json.loads(data.decode('utf-8'))
         self.assertEqual(d["use_sample"], False)
         self.assertEqual(d["crawl_booking_data"], False)
+        self.assertEqual(
+            d["movie_list"], self.settings['JCSS_DEFAULT_MOVIES'])
 
         change_spider_config(
             spiderid=self.spiderid, settings=self.settings,
@@ -73,6 +79,8 @@ class TestChangeSpiderConfig(unittest.TestCase):
         d = json.loads(data.decode('utf-8'))
         self.assertEqual(d["use_sample"], True)
         self.assertEqual(d["crawl_booking_data"], True)
+        self.assertEqual(
+            d["cinema_list"], self.settings['JCSS_SAMPLE_CINEMAS'])
 
     def tearDown(self):
         # clean zookeeper test data

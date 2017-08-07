@@ -77,6 +77,22 @@ JCSS_ZOOKEEPER_HOST = os.getenv("ZOOKEEPER_HOST", "zookeeper:2181")
 JCSS_ZOOKEEPER_PATH = os.getenv(
     "JCSS_ZOOKEEPER_PATH", "/japancinemastatusspider/spiders/")
 
+# default cinema for each cinema chain
+JCSS_DEFAULT_CINEMAS = {
+    "aeon": ["イオンシネマ板橋"],
+    "toho_v2": ["TOHOシネマズ 新宿"],
+    "united": ["ユナイテッド・シネマとしまえん"],
+    "movix": ["新宿ピカデリー"],
+    "kinezo": ["新宿バルト9"],
+    "cinema109": ["109シネマズ湘南"],
+    "korona": ["青森コロナシネマワールド"],
+    "cinemasunshine": ["シネマサンシャイン池袋"],
+    "forum": ["フォーラム八戸"],
+}
+
+# default movies to crawl
+JCSS_DEFAULT_MOVIES = ['君の名は。']
+
 # sample cinema for a quick showing crawl job
 JCSS_SAMPLE_CINEMAS = [
     "TOHOシネマズ府中", "TOHOシネマズ海老名", "TOHOシネマズ西宮OS",

@@ -42,8 +42,8 @@ def send_job_to_kafka(topic, job):
 def change_spider_config(spiderid, settings, use_sample=False,
                          crawl_booking_data=False, use_proxy=False,
                          require_js=False, crawl_all_cinemas=False,
-                         crawl_all_movies=False, movie_list=['君の名は。'],
-                         cinema_list=['TOHOシネマズ海老名'], date=None):
+                         crawl_all_movies=False, movie_list=[],
+                         cinema_list=[], date=None):
     """
     change spider config with zookeeper
     """
@@ -66,9 +66,15 @@ def change_spider_config(spiderid, settings, use_sample=False,
     data_dict["require_js"] = require_js
     data_dict["crawl_all_cinemas"] = crawl_all_cinemas
     data_dict["crawl_all_movies"] = crawl_all_movies
-    data_dict["movie_list"] = movie_list
+    data_dict["movie_list"] = (movie_list if movie_list
+                               else settings['JCSS_DEFAULT_MOVIES'])
     sample_cinemas = settings['JCSS_SAMPLE_CINEMAS']
-    data_dict["cinema_list"] = sample_cinemas if use_sample else cinema_list
+    if use_sample:
+        data_dict["cinema_list"] = sample_cinemas
+    elif cinema_list:
+        data_dict["cinema_list"] = cinema_list
+    else:
+        data_dict["cinema_list"] = settings['JCSS_DEFAULT_CINEMAS'][spiderid]
     # set date to tomorrow as default
     data_dict["date"] = arrow.now().format('YYYYMMDD') if not date else date
     data = json.dumps(data_dict)

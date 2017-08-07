@@ -201,6 +201,10 @@ DNSCACHE_ENABLED = True
 JCSS_DATA_PROCESSOR_TOPIC = os.getenv(
     'JCSS_DATA_PROCESSOR_TOPIC', 'jcss.data_processor')
 
+# zookeeper path to store spider config
+JCSS_ZOOKEEPER_PATH = os.getenv(
+    "JCSS_ZOOKEEPER_PATH", "/japancinemastatusspider/spiders/")
+
 # make timeout a bit longer
 DOWNLOAD_TIMEOUT = 60
 
