@@ -28,7 +28,7 @@ class ScrapyClusterSpider(RedisSpider):
     def change_config(self, config_string):
         if config_string and len(config_string) > 0:
             self.loaded_config = json.loads(config_string)
-            self._logger.info(
+            self.logger.info(
                 "{}: config changed".format(self.name),
                 extra=self.loaded_config)
         elif config_string is None or len(config_string) == 0:
@@ -38,7 +38,7 @@ class ScrapyClusterSpider(RedisSpider):
         extras = {}
         extras['message'] = message
         extras['spiderid'] = self.name
-        self._logger.info(
+        self.logger.info(
             "{}: lost config from Zookeeper".format(self.name), extra=extras)
         # lost connection to zookeeper, reverting back to defaults
         self.loaded_config = {}
@@ -56,13 +56,9 @@ class ScrapyClusterSpider(RedisSpider):
         """
         enter point for response processing
         """
-        print("parse")
         self._logger.debug("crawled url {}".format(response.request.url))
         result_list = []
         if "curr_step" not in response.meta:
-            print("test")
-            print(self.parse_first_page)
-            print(self.parse_first_page())
             self.parse_first_page(response, result_list)
         else:
             curr_step = response.meta["curr_step"]

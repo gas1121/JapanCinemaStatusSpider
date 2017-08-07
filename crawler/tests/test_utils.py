@@ -46,6 +46,14 @@ class TestScrapyClusterSpider(unittest.TestCase):
         self.spider.error_config("")
         self.assertEqual(self.spider.loaded_config['date'], '20170101')
 
+    def test_parse(self):
+        response = MagicMock()
+        response.meta = []
+        self.spider.parse_first_page = MagicMock()
+        self.assertRaises(StopIteration, next, self.spider.parse(response))
+        self.spider.parse_first_page.assert_called_once_with(
+            response, [])
+
     def test_set_next_func(self):
         def func1():
             pass
