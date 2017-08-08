@@ -21,6 +21,7 @@ class BasicScrapyClusterSpider(ScrapyClusterSpider):
 class TestScrapyClusterSpider(unittest.TestCase):
     def setUp(self):
         zookeeper_host = "zookeeper:2181"
+        self.zookeeper_path = "/test/"
         self.zookeeper = KazooClient(hosts=zookeeper_host)
         self.zookeeper.start()
 
@@ -38,6 +39,13 @@ class TestScrapyClusterSpider(unittest.TestCase):
     def test_parse(self):
         # TODO
         pass
+
+    def tearDown(self):
+        self.spider.zoo_watcher.close()
+        # clean zookeeper test data
+        self.zookeeper.delete(self.zookeeper_path, recursive=True)
+        self.zookeeper.stop()
+        self.zookeeper.close()
 
 
 if __name__ == '__main__':
