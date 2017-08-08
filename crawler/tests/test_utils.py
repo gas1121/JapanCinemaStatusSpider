@@ -22,6 +22,9 @@ class BasicScrapyClusterSpider(ScrapyClusterSpider):
     def __init__(self):
         pass
 
+    def parse_next(self, response, result_list):
+        result_list.append("test")
+
 
 class TestScrapyClusterSpider(unittest.TestCase):
     def setUp(self):
@@ -48,11 +51,15 @@ class TestScrapyClusterSpider(unittest.TestCase):
 
     def test_parse(self):
         response = MagicMock()
-        response.meta = []
+        response.meta = {}
         self.spider.parse_first_page = MagicMock()
         self.assertRaises(StopIteration, next, self.spider.parse(response))
         self.spider.parse_first_page.assert_called_once_with(
             response, [])
+
+        response.meta["curr_step"] = self.spider.parse_next.__name__
+        result = next(self.spider.parse(response))
+        self.assertEqual(result, "test")
 
     def test_set_next_func(self):
         def func1():
