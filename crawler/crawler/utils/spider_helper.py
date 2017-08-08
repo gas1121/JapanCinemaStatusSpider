@@ -2,6 +2,7 @@ import sys
 import json
 
 from kazoo.handlers.threading import KazooTimeoutError
+from scrapy import signals
 from scutils.zookeeper_watcher import ZookeeperWatcher
 from crawling.spiders.redis_spider import RedisSpider
 
@@ -10,12 +11,15 @@ class ScrapyClusterSpider(RedisSpider):
     """
     base spider for integrating into scrapy cluster
     """
-    def __init__(self, *args, **kwargs):
-        self.assign_path = self.settings.get('JCSS_ZOOKEEPER_PATH')
+    def __init__(self, zookeeper_hosts, jcss_zookeeper_path, *args, **kwargs):
+        super(ScrapyClusterSpider, self).__init__(*args, **kwargs)
+        # settings is not usable in __init__ and can only be passed
+        # by parameter
+        self.assign_path = jcss_zookeeper_path
         self.loaded_config = {}
         try:
             self.zoo_watcher = ZookeeperWatcher(
-                                hosts=self.settings.get('ZOOKEEPER_HOSTS'),
+                                hosts=zookeeper_hosts,
                                 filepath=self.assign_path + self.name,
                                 config_handler=self.change_config,
                                 error_handler=self.error_config,
@@ -77,3 +81,8 @@ class ScrapyClusterSpider(RedisSpider):
         set next parse function to call when response returns
         """
         request.meta["curr_step"] = func.__name__
+
+    def closed(self, reason):
+        # TODO not called in online test, don't know if called when using
+        self._logger.debug("{} closed ".format(self.name), reason)
+        self.zoo_watcher.close()
