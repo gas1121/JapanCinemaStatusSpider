@@ -17,11 +17,8 @@ class BasicScrapyClusterSpider(ScrapyClusterSpider):
     name = "basic"
 
     def __init__(self):
-        self.settings = {
-            "ZOOKEEPER_HOSTS": "zookeeper:2181",
-            "JCSS_ZOOKEEPER_PATH": "/test/",
-        }
-        super().__init__()
+        super().__init__(
+            zookeeper_hosts="zookeeper:2181", jcss_zookeeper_path="/test/")
 
     def parse_next(self, response, result_list):
         result_list.append("test")
