@@ -70,6 +70,7 @@ class TestUtils(unittest.TestCase):
         }).encode('utf-8')
         instance_mock.ensure_path.assert_called_once_with(expected_path)
         instance_mock.set.assert_called_once_with(expected_path, expected_data)
+        instance_mock.set.reset_mock()
 
         instance_mock.exists = MagicMock(return_value=True)
         old_dict = {
@@ -81,7 +82,6 @@ class TestUtils(unittest.TestCase):
             spiderid="testid", settings=settings, use_sample=True,
             crawl_booking_data=False, movie_list=['newmovie'])
         instance_mock.get.assert_called_once_with(expected_path)
-        self.assertEqual(instance_mock.set.call_count, 2)
         expected_data = json.dumps({
             "use_sample": True,
             "crawl_booking_data": False,
@@ -93,7 +93,8 @@ class TestUtils(unittest.TestCase):
             "cinema_list": settings['JCSS_SAMPLE_CINEMAS'],
             "date": arrow.now('UTC+9').shift(days=+1).format('YYYYMMDD'),
         }).encode('utf-8')
-        instance_mock.set.assert_called_with(expected_path, expected_data)
+        instance_mock.set.assert_called_once_with(expected_path, expected_data)
+        instance_mock.set.reset_mock()
 
         instance_mock.exists = MagicMock(return_value=False)
         change_spider_config(
@@ -101,7 +102,6 @@ class TestUtils(unittest.TestCase):
             crawl_booking_data=False, cinema_list=['newcinema'],
             date='20170101')
         instance_mock.get.assert_called_once_with(expected_path)
-        self.assertEqual(instance_mock.set.call_count, 3)
         expected_data = json.dumps({
             "use_sample": False,
             "crawl_booking_data": False,
@@ -113,4 +113,5 @@ class TestUtils(unittest.TestCase):
             "cinema_list": ['newcinema'],
             "date": '20170101',
         }).encode('utf-8')
-        instance_mock.set.assert_called_with(expected_path, expected_data)
+        instance_mock.set.assert_called_once_with(expected_path, expected_data)
+        instance_mock.set.reset_mock()

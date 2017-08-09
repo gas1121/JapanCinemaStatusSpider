@@ -64,6 +64,7 @@ class TestPlugins(unittest.TestCase):
         args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].current_cinema_count, 1)
+        add_item_to_database_mock.reset_mock()
 
         exist_data = {
             "title": "Your Name.",
@@ -72,12 +73,13 @@ class TestPlugins(unittest.TestCase):
         exist_movie = Movie(**exist_data)
         exist_func_mock.return_value = exist_movie
         handler.handle(data)
-        self.assertEqual(add_item_to_database_mock.call_count, 2)
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
         expected_count = \
             data["current_cinema_count"] + exist_data["current_cinema_count"]
-        args, kwargs = add_item_to_database_mock.call_args_list[1]
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].current_cinema_count, expected_count)
+        add_item_to_database_mock.reset_mock()
 
     @patch('models.cinema.Cinema.get_cinema_if_exist')
     @patch('plugins.crawled_cinema_handler.add_item_to_database')
@@ -110,6 +112,7 @@ class TestPlugins(unittest.TestCase):
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].total_seats, proto_data['total_seats'])
         self.assertEqual(args[1].source, proto_data['source'])
+        add_item_to_database_mock.reset_mock()
 
         # test cinema exists with more screens
         exist_data = deepcopy(proto_data)
@@ -125,11 +128,12 @@ class TestPlugins(unittest.TestCase):
         exist_func_mock.return_value = exist_movie
         data = deepcopy(proto_data)
         handler.handle(data)
-        self.assertEqual(add_item_to_database_mock.call_count, 2)
-        args, kwargs = add_item_to_database_mock.call_args_list[1]
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].total_seats, exist_data['total_seats'])
         self.assertEqual(args[1].source, exist_data['source'])
+        add_item_to_database_mock.reset_mock()
 
         # test cinema exists with less screens
         exist_data = deepcopy(proto_data)
@@ -143,11 +147,12 @@ class TestPlugins(unittest.TestCase):
         exist_func_mock.return_value = exist_movie
         data = deepcopy(proto_data)
         handler.handle(data)
-        self.assertEqual(add_item_to_database_mock.call_count, 3)
-        args, kwargs = add_item_to_database_mock.call_args_list[2]
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].total_seats, proto_data['total_seats'])
         self.assertEqual(args[1].source, proto_data['source'])
+        add_item_to_database_mock.reset_mock()
 
         # same source, no site with exist cinema
         exist_data = deepcopy(proto_data)
@@ -161,11 +166,13 @@ class TestPlugins(unittest.TestCase):
         exist_func_mock.return_value = exist_movie
         data = deepcopy(proto_data)
         handler.handle(data)
-        self.assertEqual(add_item_to_database_mock.call_count, 4)
-        args, kwargs = add_item_to_database_mock.call_args_list[3]
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].total_seats, proto_data['total_seats'])
         self.assertEqual(args[1].source, proto_data['source'])
+        add_item_to_database_mock.reset_mock()
+
         # same source, site with exist cinema
         exist_data = deepcopy(proto_data)
         exist_data["screens"] = {
@@ -177,8 +184,8 @@ class TestPlugins(unittest.TestCase):
         exist_func_mock.return_value = exist_movie
         data = deepcopy(proto_data)
         handler.handle(data)
-        self.assertEqual(add_item_to_database_mock.call_count, 5)
-        args, kwargs = add_item_to_database_mock.call_args_list[4]
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         expect_total_seats = exist_data["total_seats"] +\
             proto_data['total_seats']
