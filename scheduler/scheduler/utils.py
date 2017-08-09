@@ -76,7 +76,9 @@ def change_spider_config(spiderid, settings, use_sample=False,
     else:
         data_dict["cinema_list"] = settings['JCSS_DEFAULT_CINEMAS'][spiderid]
     # set date to tomorrow(UTC+9) as default
-    if not date:
+    if date:
+        data_dict["date"] = date
+    else:
         data_dict["date"] = arrow.now('UTC+9').shift(days=+1).format(
             'YYYYMMDD')
     data = json.dumps(data_dict)

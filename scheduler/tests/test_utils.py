@@ -66,7 +66,7 @@ class TestUtils(unittest.TestCase):
             "crawl_all_movies": False,
             "movie_list": ['movie1'],
             "cinema_list": ['defaultcinema'],
-            "date": arrow.now().format('YYYYMMDD'),
+            "date": arrow.now('UTC+9').shift(days=+1).format('YYYYMMDD'),
         }).encode('utf-8')
         instance_mock.ensure_path.assert_called_once_with(expected_path)
         instance_mock.set.assert_called_once_with(expected_path, expected_data)
@@ -91,7 +91,7 @@ class TestUtils(unittest.TestCase):
             "crawl_all_movies": False,
             "movie_list": ['newmovie'],
             "cinema_list": settings['JCSS_SAMPLE_CINEMAS'],
-            "date": arrow.now().format('YYYYMMDD'),
+            "date": arrow.now('UTC+9').shift(days=+1).format('YYYYMMDD'),
         }).encode('utf-8')
         instance_mock.set.assert_called_with(expected_path, expected_data)
 
