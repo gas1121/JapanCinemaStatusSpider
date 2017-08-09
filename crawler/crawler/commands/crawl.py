@@ -59,6 +59,9 @@ spiders in single process"""
         opts.spargs['movie_list'] = opts.movie_list
         opts.spargs['cinema_list'] = opts.cinema_list
         opts.spargs['date'] = opts.date
+        # TODO arg for spider
+        opts.spargs['zookeeper_hosts'] = 'zookeeper:2181'
+        opts.spargs['jcss_zookeeper_path'] = '/japancinemastatusspider/spiders/'
         if opts.all_showing:
             self.run_multiple_spiders(args, opts)
         else:

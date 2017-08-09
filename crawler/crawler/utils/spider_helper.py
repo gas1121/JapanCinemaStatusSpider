@@ -2,7 +2,6 @@ import sys
 import json
 
 from kazoo.handlers.threading import KazooTimeoutError
-from scrapy import signals
 from scutils.zookeeper_watcher import ZookeeperWatcher
 from crawling.spiders.redis_spider import RedisSpider
 
@@ -15,6 +14,7 @@ class ScrapyClusterSpider(RedisSpider):
         super(ScrapyClusterSpider, self).__init__(*args, **kwargs)
         # settings is not usable in __init__ and can only be passed
         # by parameter
+        jcss_zookeeper_path = "/test/"
         self.assign_path = jcss_zookeeper_path
         self.loaded_config = {}
         try:
@@ -83,6 +83,5 @@ class ScrapyClusterSpider(RedisSpider):
         request.meta["curr_step"] = func.__name__
 
     def closed(self, reason):
-        # TODO not called in online test, don't know if called when using
-        self._logger.debug("{} closed ".format(self.name), reason)
+        self._logger.debug("{} closed: {}".format(self.name, reason))
         self.zoo_watcher.close()

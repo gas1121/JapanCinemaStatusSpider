@@ -101,7 +101,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
         # run the spider, give 20 seconds to crawl. Then we kill the reactor
         def thread_func():
             sleep(5)
-            reactor.stop()
+            runner.stop()
 
         # TODO finish test case
 
@@ -111,8 +111,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
 
     def tearDown(self):
         # clean zookeeper test data
-        self.zookeeper.delete(
-            self.settings.get('JCSS_ZOOKEEPER_PATH'), recursive=True)
+        self.zookeeper.delete(self.jcss_zookeeper_path, recursive=True)
         self.zookeeper.delete(
             self.settings.get('ZOOKEEPER_ASSIGN_PATH'), recursive=True)
         self.zookeeper.stop()
