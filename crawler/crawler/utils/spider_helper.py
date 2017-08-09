@@ -12,11 +12,10 @@ class ScrapyClusterSpider(RedisSpider):
     """
     def __init__(self, zookeeper_hosts, jcss_zookeeper_path, *args, **kwargs):
         super(ScrapyClusterSpider, self).__init__(*args, **kwargs)
+        self.set_default_config()
         # settings is not usable in __init__ and can only be passed
         # by parameter
-        jcss_zookeeper_path = "/test/"
         self.assign_path = jcss_zookeeper_path
-        self.loaded_config = {}
         try:
             self.zoo_watcher = ZookeeperWatcher(
                                 hosts=zookeeper_hosts,
@@ -45,6 +44,9 @@ class ScrapyClusterSpider(RedisSpider):
         self.logger.info(
             "{}: lost config from Zookeeper".format(self.name), extra=extras)
         # lost connection to zookeeper, reverting back to defaults
+        self.set_default_config()
+
+    def set_default_config(self):
         self.loaded_config = {}
         self.loaded_config['use_sample'] = False
         self.loaded_config['crawl_booking_data'] = False

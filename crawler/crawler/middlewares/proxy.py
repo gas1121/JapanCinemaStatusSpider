@@ -21,7 +21,7 @@ class ProxyDownloaderMiddleware(object):
 
     def process_request(self, request, spider):
         self.logger.debug("processing proxy downloader middleware")
-        if not spider.use_proxy:
+        if not spider.loaded_config['use_proxy']:
             return
         # convert 'cookie' in headers to 'Cookie' as requests library
         # do not recognize the former one

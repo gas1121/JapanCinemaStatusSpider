@@ -75,8 +75,10 @@ def change_spider_config(spiderid, settings, use_sample=False,
         data_dict["cinema_list"] = cinema_list
     else:
         data_dict["cinema_list"] = settings['JCSS_DEFAULT_CINEMAS'][spiderid]
-    # set date to tomorrow as default
-    data_dict["date"] = arrow.now().format('YYYYMMDD') if not date else date
+    # set date to tomorrow(UTC+9) as default
+    if not date:
+        data_dict["date"] = arrow.now('UTC+9').shift(days=+1).format(
+            'YYYYMMDD')
     data = json.dumps(data_dict)
 
     zookeeper.set(file_path, data.encode('utf-8'))
