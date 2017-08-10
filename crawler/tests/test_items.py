@@ -4,6 +4,16 @@ import unicodedata
 import crawler.items as items
 
 
+class TestItems(unittest.TestCase):
+    def test_standardize_cinema_name(self):
+        name = items.standardize_cinema_name(' \ufb01')
+        self.assertEqual(name, 'fi')
+
+    def test_standardize_screen_name(self):
+        name = items.standardize_screen_name(' \ufb01', 'cinema1')
+        self.assertEqual(name, 'fi')
+
+
 class TestMovie(unittest.TestCase):
     def test_movie_loader(self):
         title = '\ufb01'

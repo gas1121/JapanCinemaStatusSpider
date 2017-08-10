@@ -1,26 +1,17 @@
 import sys
 import json
 import unittest
-from mock import MagicMock
 from time import sleep
+import threading
 
 import redis
 from kazoo.client import KazooClient
 from kafka import KafkaConsumer
+from twisted.internet import reactor
+from scrapy.crawler import CrawlerRunner
 from scrapy.utils.project import get_project_settings
 
-from crawler.utils import ScrapyClusterSpider
-
-
-class BasicScrapyClusterSpider(ScrapyClusterSpider):
-    name = "basic"
-
-    def __init__(self):
-        super().__init__(
-            zookeeper_hosts="zookeeper:2181", jcss_zookeeper_path="/test/")
-
-    def parse_next(self, response, result_list):
-        result_list.append("test")
+from crawler.moviespiders.walkerplus_movie import WalkerplusMovieSpider
 
 
 class SpiderMixin(object):
@@ -93,40 +84,72 @@ class SpiderMixin(object):
         self.consumer.close()
 
 
-class TestScrapyClusterSpider(unittest.TestCase):
+class CustomWalkerplusMovieSpider(WalkerplusMovieSpider):
+    '''
+    Overridden spider name for testing
+    '''
+    name = "test-spider"
+
+
+class TestWalkerplusMovieSpider(unittest.TestCase, SpiderMixin):
     def setUp(self):
-        zookeeper_host = "zookeeper:2181"
-        self.zookeeper_path = "/test/"
-        self.zookeeper = KazooClient(hosts=zookeeper_host)
-        self.zookeeper.start()
+        SpiderMixin.setUp(self)
 
-        self.spider = BasicScrapyClusterSpider()
-        self.spider._logger = MagicMock()
-        self.spider_path = self.zookeeper_path + self.spider.name
+        feed_data = {
+            'allowed_domains': None,
+            'allow_regex': None,
+            'crawlid': 'abc12345',
+            'url': 'http://movie.walkerplus.com/list/',
+            'expires': 0,
+            'ts': 1461549923.7956631184,
+            'priority': 1,
+            'deny_regex': None,
+            'cookie': None,
+            'attrs': None,
+            'appid': 'test',
+            'spiderid': 'test-spider',
+            'useragent': None,
+            'deny_extensions': None,
+            'maxdepth': 0,
+        }
+        self.example_feed = json.dumps(feed_data)
 
-    def test_change_config(self):
-        d = {"a": 1}
-        data = json.dumps(d)
-        self.zookeeper.set(self.spider_path, data.encode('utf-8'))
-        # sleep some time to make sure callback is called
-        sleep(1)
-        self.assertEqual(self.spider.loaded_config, d)
+    def test_crawler_process(self):
+        runner = CrawlerRunner(self.settings)
+        # pass settings as parameter
+        d = runner.crawl(
+            CustomWalkerplusMovieSpider, zookeeper_hosts=self.zookeeper_host,
+            jcss_zookeeper_path=self.jcss_zookeeper_path)
+        d.addBoth(lambda _: reactor.stop())
 
-    def test_error_config(self):
-        d = {"a": 1}
-        data = json.dumps(d)
-        self.zookeeper.set(self.spider_path, data.encode('utf-8'))
-        sleep(1)
-        self.zookeeper.set(self.spider_path, "".encode('utf-8'))
-        sleep(1)
-        self.assertEqual(self.spider.loaded_config['date'], '20170101')
+        # add crawl to redis
+        key = "test-spider:walkerplus.com:queue"
+        self.redis_conn.zadd(key, self.example_feed, -99)
+
+        # run the spider, give 20 seconds to crawl. Then we kill the reactor
+        def thread_func():
+            sleep(20)
+            runner.stop()
+
+        thread = threading.Thread(target=thread_func)
+        thread.start()
+        reactor.run()
+
+        message_count = 0
+        m = next(self.consumer)
+
+        if m is None:
+            pass
+        else:
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'title' in the_dict \
+                    and 'current_cinema_count' in the_dict:
+                message_count += 1
+
+        self.assertGreaterEqual(message_count, 1)
 
     def tearDown(self):
-        self.spider.zoo_watcher.close()
-        # clean zookeeper test data
-        self.zookeeper.delete(self.zookeeper_path, recursive=True)
-        self.zookeeper.stop()
-        self.zookeeper.close()
+        SpiderMixin.tearDown(self)
 
 
 if __name__ == '__main__':
