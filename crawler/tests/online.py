@@ -72,8 +72,9 @@ class CustomWalkerplusMovieSpider(WalkerplusMovieSpider):
 
 class TestWalkerplusMovieSpider(unittest.TestCase):
     def setUp(self):
+        self.topic = "jcss.test"
         self.settings = get_project_settings()
-        self.settings.set('JCSS_DATA_PROCESSOR_TOPIC', "jcss.test")
+        self.settings.set('JCSS_DATA_PROCESSOR_TOPIC', self.topic)
         self.settings.set('JCSS_ZOOKEEPER_PATH', "/test/")
         self.settings.set('SC_LOG_STDOUT', True)
         self.settings.set('ZOOKEEPER_ASSIGN_PATH', '/demo_test/')
@@ -104,7 +105,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
             'maxdepth': 0,
         }
         self.example_feed = json.dumps(feed_data)
-        
+
         # set up redis
         self.redis_conn = redis.Redis(host=self.settings['REDIS_HOST'],
                                       port=self.settings['REDIS_PORT'],
@@ -119,7 +120,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
 
         # set up kafka to consumer potential result
         self.consumer = KafkaConsumer(
-            "demo_test.crawled_firehose",
+            self.topic,
             bootstrap_servers=self.settings['KAFKA_HOSTS'],
             group_id="demo-id",
             auto_commit_interval_ms=10,
@@ -137,8 +138,6 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
         self.zookeeper.ensure_path(self.jcss_zookeeper_path)
 
     def test_crawler_process(self):
-        # TODO block test before code modify finish
-        """
         runner = CrawlerRunner(self.settings)
         # pass settings as parameter
         d = runner.crawl(
@@ -152,7 +151,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
 
         # run the spider, give 20 seconds to crawl. Then we kill the reactor
         def thread_func():
-            sleep(10)
+            sleep(20)
             runner.stop()
 
         thread = threading.Thread(target=thread_func)
@@ -170,8 +169,7 @@ class TestWalkerplusMovieSpider(unittest.TestCase):
                     and 'current_cinema_count' in the_dict:
                 message_count += 1
 
-        self.assertEquals(message_count, 1)
-        """
+        self.assertGreaterEqual(message_count, 1)
 
     def tearDown(self):
         # clear out older test keys if any
