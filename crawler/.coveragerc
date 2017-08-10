@@ -1,6 +1,6 @@
 [run]
 include=
-  *crawler*
+  crawler/*
 [report]
 omit=
   *settings.py
