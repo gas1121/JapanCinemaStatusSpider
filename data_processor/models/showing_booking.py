@@ -27,4 +27,7 @@ class ShowingBooking(DeclarativeBase):
         result.minutes_before = item['minutes_before']
         result.record_time = arrow.get(item['record_time'])
         result.showing = Showing.from_item(session, item['showing'])
+        # if book_status is 'SoldOut', set book_seat_count
+        if result.book_status == "SoldOut":
+            result.book_seat_count = result.showing.total_seat_count
         return result

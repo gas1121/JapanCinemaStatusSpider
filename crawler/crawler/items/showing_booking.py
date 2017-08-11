@@ -9,6 +9,8 @@ from crawler.items.showing import Showing
 class ShowingBooking(scrapy.Item):
     showing = scrapy.Field(serializer=Showing)
     book_status = scrapy.Field()
+    # when book_status is 'SoldOut', book_seat_count is changed
+    # in data_processor
     book_seat_count = scrapy.Field()
     minutes_before = scrapy.Field()
     record_time = scrapy.Field()

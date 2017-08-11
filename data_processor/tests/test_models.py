@@ -70,10 +70,17 @@ class TestShowingBooking(unittest.TestCase):
                 "screen": "test_screen",
                 "seat_type": "FreeSeat",
                 "source": "test_source",
+                "total_seat_count": 300,
             },
         }
         session = MagicMock()
         showing_booking = ShowingBooking.from_item(session, item)
         self.assertEqual(showing_booking.book_status, 'PlentyLeft')
         self.assertEqual(showing_booking.showing.screen, 'test_screen')
+        item["book_status"] = "SoldOut"
+        item["book_seat_count"] = 0
+        showing_booking = ShowingBooking.from_item(session, item)
+        self.assertEqual(showing_booking.book_status, 'SoldOut')
+        self.assertEqual(showing_booking.showing.total_seat_count, 300)
+        self.assertEqual(showing_booking.book_seat_count, 300)
         pass

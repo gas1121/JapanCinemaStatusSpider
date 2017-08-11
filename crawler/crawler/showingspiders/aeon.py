@@ -131,8 +131,6 @@ class AeonSpider(ShowingSpider):
         showing_data_proto.add_value(
             'seat_type', AeonUtil.standardize_seat_type(seat_type))
 
-        # query screen number from database
-        showing_data_proto.add_total_seat_count()
         # check whether need to continue crawl booking data or stop now
         if not self.crawl_booking_data:
             result_list.append(showing_data_proto.load_item())
@@ -145,12 +143,8 @@ class AeonSpider(ShowingSpider):
         book_status = booking_data_proto.get_output_value('book_status')
         seat_type = showing_data_proto.get_output_value('seat_type')
         if (seat_type == 'FreeSeat' or book_status in ['SoldOut', 'NotSold']):
-            # sold out or not sold
-            total_seat_count = showing_data_proto.get_output_value(
-                'total_seat_count')
-            book_seat_count = (
-                total_seat_count if book_status == 'SoldOut' else 0)
-            booking_data_proto.add_value('book_seat_count', book_seat_count)
+            # sold out or not sold, set book_seat_count to 0 temporarily
+            booking_data_proto.add_value('book_seat_count', 0)
             booking_data_proto.add_time_data()
             result_list.append(booking_data_proto.load_item())
             return
