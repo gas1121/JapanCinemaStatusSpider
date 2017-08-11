@@ -68,7 +68,7 @@ class TohoV2Spider(ShowingSpider):
             if not self.is_cinema_crawl(cinema_name_list):
                 continue
             site_cd = curr_cinema['VIT_GROUP_CD']
-            show_day = self.date
+            show_day = self.loaded_config['date']
             curr_cinema_url = self.generate_cinema_schedule_url(
                 site_cd, show_day)
             request = response.follow(curr_cinema_url, callback=self.parse)
@@ -181,7 +181,7 @@ class TohoV2Spider(ShowingSpider):
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
         booking_data_proto = init_show_booking_loader(response=response)

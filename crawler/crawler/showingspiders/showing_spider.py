@@ -27,28 +27,17 @@ class ShowingSpider(ScrapyClusterSpider):
         All strings are normailized
         """
         super(ShowingSpider, self).__init__(*args, **kwargs)
-        # if movie list is empty, add default movie for spider
-        if not self.movie_list:
-            self.movie_list.append('君の名は。')
-        # if cinema list is empty, add default cinema for spider
-        if not self.cinema_list:
-            self.cinema_list.append(default_cinema[self.name])
-        # normalize cinema and movie name
-        for idx, item in enumerate(self.movie_list):
-            self.movie_list[idx] = unicodedata.normalize('NFKC', item)
-        for idx, item in enumerate(self.cinema_list):
-            self.cinema_list[idx] = unicodedata.normalize('NFKC', item)
 
     def is_cinema_crawl(self, cinema_names):
         """
         check if current cinema should be crawled
         """
-        if self.crawl_all_cinemas:
+        if self.loaded_config['crawl_all_cinemas']:
             return True
         # replace full width text before compare
         for curr_name in cinema_names:
             used_name = unicodedata.normalize('NFKC', curr_name)
-            if used_name in self.cinema_list:
+            if used_name in self.loaded_config['cinema_list']:
                 return True
         return False
 
@@ -57,9 +46,9 @@ class ShowingSpider(ScrapyClusterSpider):
         check if current movie should be crawled
         """
         # any(curr_title in title for curr_title in movie_list)
-        if self.crawl_all_movies:
+        if self.loaded_config['crawl_all_movies']:
             return True
-        for target_name in self.movie_list:
+        for target_name in self.loaded_config['movie_list']:
             if not target_name:
                 continue
             for compare_name in movie_names:
@@ -74,6 +63,7 @@ class ShowingSpider(ScrapyClusterSpider):
         as time like 24:40 can not be directly parsed, we need shift time
         properly
         """
-        time = arrow.get(self.date, 'YYYYMMDD').replace(tzinfo='UTC+9')
+        time = arrow.get(
+            self.loaded_config['date'], 'YYYYMMDD').replace(tzinfo='UTC+9')
         time = time.shift(hours=hours, minutes=minutes)
         return time.format()
