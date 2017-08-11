@@ -1,25 +1,102 @@
 import unittest
+from mock import MagicMock
 import json
 from time import sleep
 
 from kazoo.client import KazooClient
 from kafka import KafkaConsumer
 
-from run import cinema_crawl_job
+from run import (spider_setting, cinema_crawl_job, movie_crawl_job,
+                 set_throttle_job)
 from scheduler.utils import send_job_to_kafka, change_spider_config
 
 
 class TestRun(unittest.TestCase):
     def setUp(self):
-        pass
+        self.settings = {
+            'KAFKA_HOSTS': 'kafka:9092',
+            'JCSS_DATA_PROCESSOR_TOPIC': 'jcss.test',
+            'KAFKA_INCOMING_TOPIC': 'demo.test',
+        }
+        self.logger = MagicMock()
+
+        # set up kafka to consumer potential result
+        self.jcss_consumer = KafkaConsumer(
+            self.settings['JCSS_DATA_PROCESSOR_TOPIC'],
+            bootstrap_servers=self.settings['KAFKA_HOSTS'],
+            group_id="jcss-test",
+            auto_commit_interval_ms=10,
+            consumer_timeout_ms=5000,
+            auto_offset_reset='earliest',
+            value_deserializer=lambda m: m.decode('utf-8')
+        )
+        sleep(2)
+        self.consumer = KafkaConsumer(
+            self.settings['KAFKA_INCOMING_TOPIC'],
+            bootstrap_servers=self.settings['KAFKA_HOSTS'],
+            group_id="test",
+            auto_commit_interval_ms=10,
+            consumer_timeout_ms=5000,
+            auto_offset_reset='earliest',
+            value_deserializer=lambda m: m.decode('utf-8')
+        )
+        sleep(2)
 
     def test_cinema_crawl_job(self):
-        # TODO
-        pass
+        cinema_crawl_job(self.logger, self.settings)
+        jcss_message_count = 0
+        for m in self.jcss_consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'action' in the_dict \
+                    and the_dict['action'] \
+                    and 'target' in the_dict \
+                    and the_dict['target'] == 'cinema':
+                jcss_message_count += 1
+
+        self.assertEqual(jcss_message_count, 1)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict \
+                    and the_dict['spiderid'] == 'walkerplus_cinema':
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def test_movie_crawl_job(self):
-        # TODO
-        pass
+        movie_crawl_job(self.logger, self.settings)
+        jcss_message_count = 0
+        for m in self.jcss_consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'action' in the_dict \
+                    and the_dict['action'] \
+                    and 'target' in the_dict \
+                    and the_dict['target'] == 'movie':
+                jcss_message_count += 1
+
+        self.assertEqual(jcss_message_count, 1)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict \
+                    and the_dict['spiderid'] == 'walkerplus_movie':
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def test_showing_crawl_job(self):
         # TODO
@@ -33,8 +110,30 @@ class TestRun(unittest.TestCase):
         # TODO
         pass
 
+    def test_set_throttle_job(self):
+        set_throttle_job(self.logger, self.settings)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'hits' in the_dict \
+                    and the_dict['hits'] > 0:
+                message_count += 1
+
+        self.assertEqual(message_count, len(spider_setting))
+
     def tearDown(self):
-        pass
+        # make sure no test kafka message is left
+        for m in self.jcss_consumer:
+            pass
+        self.jcss_consumer.close()
+        for m in self.consumer:
+            pass
+        self.consumer.close()
 
 
 class TestSendJobToKafka(unittest.TestCase):

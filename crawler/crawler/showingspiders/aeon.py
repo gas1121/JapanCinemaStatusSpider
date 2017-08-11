@@ -30,7 +30,6 @@ class AeonSpider(ShowingSpider):
         """
         crawl theater list data first
         """
-        # TODO not tested
         self._logger.debug("{} parse_first_page".format(self.name))
         theater_link_list = response.xpath(
             '//div[contains(@class,"area")]//dd//a')

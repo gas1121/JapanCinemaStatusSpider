@@ -34,5 +34,5 @@ class TestCinema(unittest.TestCase):
         item = loader.load_item()
         self.assertEqual(item['names'], ['cinema1', 'cinema2'])
         # at the current we only store site's top domain
-        # TODO use tldextract to get top domain
+        # TODO use tldextract to get top domain, postfix also needed
         self.assertEqual(item['site'], 'test.org')

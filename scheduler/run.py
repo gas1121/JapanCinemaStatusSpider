@@ -115,8 +115,8 @@ def cinema_crawl_job(logger, settings):
     }
     send_job_to_kafka(clear_topic, clear_job)
     # TODO maybe clean related key in redis is needed
-    # config spider properly
-    # TODO job to change config ex. date for spider before crawl
+    # cinema spider do not need read config
+
     # send crawl job
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     crawl_job = create_crawl_job(
@@ -135,8 +135,8 @@ def movie_crawl_job(logger, settings):
     }
     send_job_to_kafka(clear_topic, clear_job)
     # TODO maybe clean related key in redis is needed
-    # config spider properly
-    # TODO job to change config ex. date for spider before crawl
+    # cinema spider do not need read config
+
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     crawl_job = create_crawl_job(
         url="http://movie.walkerplus.com/list/", spiderid="walkerplus_movie")
@@ -150,9 +150,9 @@ def showing_crawl_job(logger, settings):
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
         # config spider properly
-        # TODO job to change config ex. date for spider before crawl
         change_spider_config(
-            spider_id, settings, use_sample=False, crawl_booking_data=False)
+            spider_id, settings, use_sample=False, crawl_booking_data=False,
+            crawl_all_cinemas=True, crawl_all_movies=True)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
@@ -165,9 +165,9 @@ def showing_booking_crawl_job(logger, settings):
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
         # config spider properly
-        # TODO job to change config ex. date for spider before crawl
         change_spider_config(
-            spider_id, settings, use_sample=False, crawl_booking_data=True)
+            spider_id, settings, use_sample=False, crawl_booking_data=True,
+            crawl_all_cinemas=True, crawl_all_movies=True)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
@@ -180,13 +180,24 @@ def showing_booking_sample_crawl_job(logger, settings):
     crawl_topic = settings['KAFKA_INCOMING_TOPIC']
     for spider_id in spider_setting:
         # config spider properly
-        # TODO job to change config ex. date for spider before crawl
         change_spider_config(
-            spider_id, settings, use_sample=True, crawl_booking_data=True)
-
+            spider_id, settings, use_sample=True, crawl_booking_data=True,
+            crawl_all_cinemas=False, crawl_all_movies=True)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
+
+
+def set_throttle_job(logger, settings):
+    logger.info("begin to set site throttle")
+    for spider_id in spider_setting:
+        url = spider_setting[spider_id]["url"]
+        hits = spider_setting[spider_id]["throttle"]["hits"]
+        window = spider_setting[spider_id]["throttle"]["window"]
+        scale = spider_setting[spider_id]["throttle"]["scale"]
+        throttle_job = create_domain_throttle_job(
+            url=url, hits=hits, window=window, scale=scale)
+        send_job_to_kafka(settings['KAFKA_INCOMING_TOPIC'], throttle_job)
 
 
 if __name__ == '__main__':
@@ -200,14 +211,7 @@ if __name__ == '__main__':
     logger.info("scheduler started")
 
     # set per site throttle to make crawl faster
-    for spider_id in spider_setting:
-        url = spider_setting[spider_id]["url"]
-        hits = spider_setting[spider_id]["throttle"]["hits"]
-        window = spider_setting[spider_id]["throttle"]["window"]
-        scale = spider_setting[spider_id]["throttle"]["scale"]
-        throttle_job = create_domain_throttle_job(
-            url=url, hits=hits, window=window, scale=scale)
-        send_job_to_kafka(settings['KAFKA_INCOMING_TOPIC'], throttle_job)
+    set_throttle_job(logger, settings)
 
     # if JCSS_CLEAR_SHOWING_AT_INIT is True, clear showing data
     if settings['JCSS_CLEAR_SHOWING_AT_INIT']:

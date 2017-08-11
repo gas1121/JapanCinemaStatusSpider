@@ -22,7 +22,6 @@ class Cinema109Spider(ShowingSpider):
         """
         crawl theater list data first
         """
-        # TODO not tested
         self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath('//section[@id="theatres"]//a')
         for theater_element in theater_list:

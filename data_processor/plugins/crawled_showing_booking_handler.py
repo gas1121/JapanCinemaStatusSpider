@@ -6,7 +6,7 @@ from models.showing_booking import ShowingBooking
 
 
 class CrawledShowingBookingHandler(BaseHandler):
-    # TODO modify scrapy-cluster to support use relative schema file
+    # TODOLATER modify scrapy-cluster to support use relative schema file
     schema = "crawled_showing_booking_schema.json"
 
     def setup(self, settings):

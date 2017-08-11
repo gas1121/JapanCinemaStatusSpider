@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/gas1121/JapanCinemaStatusSpider.svg?branch=dev)](https://travis-ci.org/gas1121/JapanCinemaStatusSpider) [![Coverage Status](https://coveralls.io/repos/github/gas1121/JapanCinemaStatusSpider/badge.svg?branch=dev)](https://coveralls.io/github/gas1121/JapanCinemaStatusSpider?branch=dev)
 
 # JapanCinemaStatusSpider
-A scrapy project to crawl movie booking data from several cinema company chains.
+A scrapy spider cluster to crawl movie booking data from several cinema company chains.
 
 ## Feature
-- Crawl cinema data from several movie web portals.
-- Crawl movie booking data.
+- Crawl cinema data from several cinema companies' site.
+- Distribution support.
 - All in docker container, easy to use
 - support proxy include socks5
 
@@ -13,10 +13,9 @@ A scrapy project to crawl movie booking data from several cinema company chains.
 ## Usage
 - set docker compose variables or use default
 - set up **POSTGRES_USER**,**POSTGRES_PASSWORD**,**POSTGRES_DB** variable in .env file
-- build **crawler** image
-- TODO run **crawler** service in **docker-compose** to start spider
+- build **crawler**,**data_processor**,**scheduler** image
+- run `sudo docker-compose up -d` to start service
 - you can use **psql** or **pgweb** in service in **docker-compose** file to visit database
-- you can also use **data_handler.py** in spider image to get crawl result.
 
 ## Customize
 #### Modify schedule time
@@ -85,15 +84,13 @@ Here is a list of useful site and some of them is used by this spider
 
 ## TODO list
 - [ ] change log
-- [ ] use scrapy-cluster dev branch instead of forked branch
-- [ ] split a data processor module for handling kafka messages to database
-- [ ] can not get total seat count?
-- [ ] redis cookie pool
-- [ ] move some command line options to zookeeper to allow spider change config
-- [ ] some request missing when run multiple spiders concurrently?(maybe timeout issue)
-- [ ] Better integration with scrapy cluster
 - [ ] Destribution support
-- [x] Better command line support for spider
+ - [x] Better integration with scrapy cluster
+ - [x] split a data processor module for handling kafka messages to database
+ - [x] configure spider by zookeeper instead of command line
+ - [ ] use scrapy-cluster dev branch instead of forked branch
+ - [ ] redis cookie pool
+ - [ ] some request missing when run multiple spiders concurrently?(maybe timeout issue)
 - [ ] Filter locked seat data
 - [ ] Add more stand alone cinema's crawler
 - [ ] Handle showings selecting seat freely

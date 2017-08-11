@@ -56,7 +56,6 @@ class TohoV2Spider(ShowingSpider):
         crawl theater list data first
         """
         self._logger.debug("{} parse_first_page".format(self.name))
-        # TODO concurrent bug
         try:
             theater_list = json.loads(response.text)
         except json.JSONDecodeError:
