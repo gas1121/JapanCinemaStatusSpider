@@ -7,7 +7,8 @@ from kazoo.client import KazooClient
 from kafka import KafkaConsumer
 
 from run import (spider_setting, cinema_crawl_job, movie_crawl_job,
-                 set_throttle_job)
+                 showing_crawl_job, showing_booking_crawl_job,
+                 showing_booking_sample_crawl_job, set_throttle_job)
 from scheduler.utils import send_job_to_kafka, change_spider_config
 
 
@@ -17,6 +18,21 @@ class TestRun(unittest.TestCase):
             'KAFKA_HOSTS': 'kafka:9092',
             'JCSS_DATA_PROCESSOR_TOPIC': 'jcss.test',
             'KAFKA_INCOMING_TOPIC': 'demo.test',
+            'JCSS_ZOOKEEPER_HOST': 'zookeeper:2181',
+            'JCSS_ZOOKEEPER_PATH': '/test/',
+            'JCSS_DEFAULT_MOVIES': ['movie1'],
+            'JCSS_SAMPLE_CINEMAS': ['sample_cinema1'],
+            'JCSS_DEFAULT_CINEMAS': {
+                "aeon": ['cinema1'],
+                "toho_v2": ['cinema1'],
+                "united": ['cinema1'],
+                "movix": ['cinema1'],
+                "kinezo": ['cinema1'],
+                "cinema109": ['cinema1'],
+                "korona": ['cinema1'],
+                "cinemasunshine": ['cinema1'],
+                "forum": ['cinema1'],
+            },
         }
         self.logger = MagicMock()
 
@@ -41,6 +57,12 @@ class TestRun(unittest.TestCase):
             value_deserializer=lambda m: m.decode('utf-8')
         )
         sleep(2)
+
+        # zookeeper client
+        self.zookeeper_path = self.settings['JCSS_ZOOKEEPER_PATH']
+        self.zookeeper = KazooClient(
+            hosts=self.settings['JCSS_ZOOKEEPER_HOST'])
+        self.zookeeper.start()
 
     def test_cinema_crawl_job(self):
         cinema_crawl_job(self.logger, self.settings)
@@ -99,16 +121,79 @@ class TestRun(unittest.TestCase):
         self.assertEqual(message_count, 1)
 
     def test_showing_crawl_job(self):
-        # TODO
-        pass
+        showing_crawl_job(self.logger, self.settings)
+
+        for spider_id in spider_setting:
+            path = self.zookeeper_path + spider_id
+            data = self.zookeeper.get(path)[0]
+            data_dict = json.loads(data.decode('utf-8'))
+            self.assertEqual(data_dict['use_sample'], False)
+            self.assertEqual(data_dict['crawl_booking_data'], False)
+            self.assertEqual(data_dict['crawl_all_cinemas'], True)
+            self.assertEqual(data_dict['crawl_all_movies'], True)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict \
+                    and the_dict['spiderid'] == 'walkerplus_movie':
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def test_showing_booking_crawl_job(self):
-        # TODO
-        pass
+        showing_booking_crawl_job(self.logger, self.settings)
+
+        for spider_id in spider_setting:
+            path = self.zookeeper_path + spider_id
+            data = self.zookeeper.get(path)[0]
+            data_dict = json.loads(data.decode('utf-8'))
+            self.assertEqual(data_dict['use_sample'], False)
+            self.assertEqual(data_dict['crawl_booking_data'], True)
+            self.assertEqual(data_dict['crawl_all_cinemas'], True)
+            self.assertEqual(data_dict['crawl_all_movies'], True)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict \
+                    and the_dict['spiderid'] == 'walkerplus_movie':
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def test_showing_booking_sample_crawl_job(self):
-        # TODO
-        pass
+        showing_booking_sample_crawl_job(self.logger, self.settings)
+
+        for spider_id in spider_setting:
+            path = self.zookeeper_path + spider_id
+            data = self.zookeeper.get(path)[0]
+            data_dict = json.loads(data.decode('utf-8'))
+            self.assertEqual(data_dict['use_sample'], True)
+            self.assertEqual(data_dict['crawl_booking_data'], True)
+            self.assertEqual(data_dict['crawl_all_cinemas'], False)
+            self.assertEqual(data_dict['crawl_all_movies'], True)
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict \
+                    and the_dict['spiderid'] == 'walkerplus_movie':
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def test_set_throttle_job(self):
         set_throttle_job(self.logger, self.settings)
@@ -134,6 +219,12 @@ class TestRun(unittest.TestCase):
         for m in self.consumer:
             pass
         self.consumer.close()
+
+        # clean zookeeper test data
+        self.zookeeper.delete(
+            self.settings['JCSS_ZOOKEEPER_PATH'], recursive=True)
+        self.zookeeper.stop()
+        self.zookeeper.close()
 
 
 class TestSendJobToKafka(unittest.TestCase):

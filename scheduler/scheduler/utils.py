@@ -69,11 +69,12 @@ def change_spider_config(spiderid, settings, use_sample=False,
     data_dict["movie_list"] = (movie_list if movie_list
                                else settings['JCSS_DEFAULT_MOVIES'])
     sample_cinemas = settings['JCSS_SAMPLE_CINEMAS']
+    data_dict["cinema_list"] = []
     if use_sample:
         data_dict["cinema_list"] = sample_cinemas
     elif cinema_list:
         data_dict["cinema_list"] = cinema_list
-    else:
+    elif spiderid in settings['JCSS_DEFAULT_CINEMAS']:
         data_dict["cinema_list"] = settings['JCSS_DEFAULT_CINEMAS'][spiderid]
     # set date to tomorrow(UTC+9) as default
     if date:
