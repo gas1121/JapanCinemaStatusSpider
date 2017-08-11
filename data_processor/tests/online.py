@@ -139,6 +139,42 @@ class TestCinema(DatabaseMixin, unittest.TestCase):
         self.assertEqual(result, 0)
 
 
+class TestMovie(DatabaseMixin, unittest.TestCase):
+    def setUp(self):
+        DatabaseMixin.setUp(self)
+        self.engine = db_connect(self.database)
+        create_table(self.engine)
+        self.session = sessionmaker(bind=self.engine)()
+
+    def test_get_movie_if_exist(self):
+        data = {
+            "title": "movie1",
+            "current_cinema_count": 42,
+        }
+        movie = Movie(**data)
+        result = Movie.get_movie_if_exist(self.session, movie)
+        self.assertFalse(result)
+        add_item_to_database(self.session, movie)
+        result = Movie.get_movie_if_exist(self.session, movie)
+        self.assertTrue(result)
+
+    def test_get_by_title(self):
+        data = {
+            "title": "movie1",
+            "current_cinema_count": 42,
+        }
+        movie = Movie(**data)
+        result = Movie.get_by_title(self.session, 'movie1')
+        self.assertFalse(result)
+        add_item_to_database(self.session, movie)
+        result = Movie.get_by_title(self.session, 'movie1')
+        self.assertTrue(result)
+        result = Movie.get_by_title(self.session, 'movie')
+        self.assertTrue(result)
+        result = Movie.get_by_title(self.session, 'test')
+        self.assertFalse(result)
+
+
 class TestDbManageHandler(DatabaseMixin, unittest.TestCase):
     @patch('plugins.dbmanage_handler.db_connect')
     def test_handle(self, db_connect_mock):
@@ -236,6 +272,16 @@ class TestScrapedShowingHandler(DatabaseMixin, unittest.TestCase):
         engine = db_connect(self.database)
         with patch('plugins.crawled_showing_handler.Session', scoped_session(
                         sessionmaker(bind=engine))) as Session_mock:
+            # prepare data in database
+            create_table(engine)
+            movie = Movie(title="Your Name.", current_cinema_count=42)
+            add_item_to_database(Session_mock, movie)
+            cinema = Cinema(
+                names=['test_cinema'], county='county1',
+                screens={'test_screen': 200}, screen_count=1,
+                total_seats=200, source='test_source')
+            add_item_to_database(Session_mock, cinema)
+
             handler = CrawledShowingHandler()
             handler.logger = MagicMock()
             handler.setup(MagicMock())
@@ -244,7 +290,6 @@ class TestScrapedShowingHandler(DatabaseMixin, unittest.TestCase):
             data = {
                 "title": "Your Name.",
                 "title_en": "Your Name.",
-                "real_title": "Your Name.",
                 "start_time": arrow.get(
                     "201608271200", 'YYYYMMDDhhmm').format(),
                 "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
@@ -252,10 +297,8 @@ class TestScrapedShowingHandler(DatabaseMixin, unittest.TestCase):
                 "cinema_site": "test_site",
                 "screen": "test_screen",
                 "seat_type": "FreeSeat",
-                "total_seat_count": 300,
                 "source": "test_source",
             }
-            create_table(handler.engine)
             self.assertTrue(handler.engine.dialect.has_table(
                 handler.engine, Showing.__table__))
             result = Session_mock.query(Showing).all()
@@ -264,6 +307,10 @@ class TestScrapedShowingHandler(DatabaseMixin, unittest.TestCase):
             result = Session_mock.query(Showing).all()
             self.assertEquals(len(result), 1)
             self.assertEquals(result[0].screen, "test_screen")
+            # real_title and total_seat_count value should be set by
+            # querying database
+            self.assertEquals(result[0].real_title, "Your Name.")
+            self.assertEquals(result[0].total_seat_count, 200)
 
             # should not add to database if alread exists
             handler.handle(data)

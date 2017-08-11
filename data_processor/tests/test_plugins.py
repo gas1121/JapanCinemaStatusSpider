@@ -223,7 +223,8 @@ class TestPlugins(unittest.TestCase):
         self.assertEqual(args[1].screen, proto_data['screen'])
 
         # test cinema exists with more screens
-        exist_showing = Showing.from_item(proto_data)
+        session = MagicMock()
+        exist_showing = Showing.from_item(session, proto_data)
         exist_func_mock.return_value = exist_showing
         data = deepcopy(proto_data)
         handler.handle(data)

@@ -20,11 +20,11 @@ class ShowingBooking(DeclarativeBase):
     record_time = Column('record_time', ArrowType, nullable=False)
 
     @staticmethod
-    def from_item(item):
+    def from_item(session, item):
         result = ShowingBooking()
         result.book_status = item['book_status']
         result.book_seat_count = item['book_seat_count']
         result.minutes_before = item['minutes_before']
         result.record_time = arrow.get(item['record_time'])
-        result.showing = Showing.from_item(item['showing'])
+        result.showing = Showing.from_item(session, item['showing'])
         return result

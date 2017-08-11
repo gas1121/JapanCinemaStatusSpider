@@ -4,6 +4,8 @@ from sqlalchemy import and_
 import arrow
 
 from models import DeclarativeBase
+from models.movie import Movie
+from models.cinema import Cinema
 
 
 class Showing(DeclarativeBase):
@@ -25,13 +27,24 @@ class Showing(DeclarativeBase):
     source = Column('source', String, nullable=False)
 
     @staticmethod
-    def from_item(item):
+    def from_item(session, item):
         item_dict = dict(item)
         # convert time str to Arrow object
         item_dict["start_time"] = arrow.get(item_dict["start_time"])
         if "end_time" in item_dict:
             item_dict["end_time"] = arrow.get(item_dict["end_time"])
-        return Showing(**item_dict)
+        showing = Showing(**item_dict)
+        # query real title in database
+        if not showing.real_title:
+            showing.real_title = Movie.get_by_title(session, showing.title)
+        # query total_seat_count in database
+        if not showing.total_seat_count:
+            showing.total_seat_count = Cinema.get_screen_seat_count(
+                session,
+                cinema_name=showing.cinema_name,
+                cinema_site=showing.cinema_site,
+                screen=showing.screen)
+        return showing
 
     @staticmethod
     def get_showing_if_exist(session, model_item):

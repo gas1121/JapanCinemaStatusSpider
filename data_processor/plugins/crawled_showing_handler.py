@@ -23,7 +23,7 @@ class CrawledShowingHandler(BaseHandler):
         """
         # remove 'ts' item in input dict
         showing_dict = {k: v for k, v in dict.items() if k != 'ts'}
-        showing = Showing.from_item(showing_dict)
+        showing = Showing.from_item(Session, showing_dict)
         # if data do not exist in database, add it
         if not Showing.get_showing_if_exist(Session, showing):
             try:

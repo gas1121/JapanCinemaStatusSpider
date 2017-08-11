@@ -26,7 +26,7 @@ class CrawledShowingBookingHandler(BaseHandler):
         # remove 'ts' item in input dict
         showing_dict = {k: v for k, v in dict.items() if k != 'ts'}
 
-        showing_booking = ShowingBooking.from_item(showing_dict)
+        showing_booking = ShowingBooking.from_item(Session, showing_dict)
         # if showing exists use its id in database
         exist_showing = Showing.get_showing_if_exist(
             Session, showing_booking.showing)
