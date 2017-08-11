@@ -1,10 +1,10 @@
 import unittest
 
-from crawler.showingspiders.toho_v2 import TohoV2Spider
+from crawler.showingspiders.forum import ForumSpider
 from .spider_mixin import BaseSpiderRunCase
 
 
-class CustomSpider(TohoV2Spider):
+class CustomSpider(ForumSpider):
     '''
     Overridden spider name for testing
     '''
@@ -14,9 +14,7 @@ class CustomSpider(TohoV2Spider):
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
-            self,
-            'https://hlo.tohotheater.jp/responsive/json/theater_list.json',
-            CustomSpider)
+            self, 'http://forum-movie.net/theater-list', CustomSpider)
 
     def is_message_count(self, the_dict):
         # item is Showing or ShowingBooking

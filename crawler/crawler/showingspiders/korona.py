@@ -40,7 +40,7 @@ class KoronaSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
-                cinema_name_en, self.date)
+                cinema_name_en, self.loaded_config['date'])
             request = response.follow(schedule_url, callback=self.parse)
             self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
@@ -103,7 +103,7 @@ class KoronaSpider(ShowingSpider):
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
 

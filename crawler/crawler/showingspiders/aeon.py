@@ -62,7 +62,8 @@ class AeonSpider(ShowingSpider):
         schedule_url = response.xpath(
             '//a[contains(@href,"dt=")]/@href').extract_first()
         schedule_url = re.sub(
-            r'&dt=\d+&', '&dt=' + self.date + '&', schedule_url)
+            r'&dt=\d+&', '&dt=' + self.loaded_config['date'] + '&',
+            schedule_url)
         request = response.follow(schedule_url, callback=self.parse)
         self.set_next_func(request, self.parse_cinema_schedule)
         request.meta["dict_proto"] = response.meta['dict_proto']
@@ -132,7 +133,7 @@ class AeonSpider(ShowingSpider):
             'seat_type', AeonUtil.standardize_seat_type(seat_type))
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
 

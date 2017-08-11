@@ -41,7 +41,7 @@ class CinemaSunshineSpider(ShowingSpider):
             data_proto.add_value('source', self.name)
             cinema_name_en = curr_cinema_url.split('/')[-1]
             json_url = self.generate_cinema_schedule_url(
-                cinema_name_en, self.date)
+                cinema_name_en, self.loaded_config['date'])
             request = response.follow(json_url, callback=self.parse)
             self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
@@ -125,7 +125,7 @@ class CinemaSunshineSpider(ShowingSpider):
         # TODO get seat type right now
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
 

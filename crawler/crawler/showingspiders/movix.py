@@ -62,7 +62,7 @@ class MovixSpider(ShowingSpider):
             '//script[contains(.,"thnumber")]/text()').extract_first()
         thnumber = re.findall(r'\d+', script_text)[0]
         schedule_url = self.generate_cinema_schedule_url(
-            response.url, thnumber, self.date)
+            response.url, thnumber, self.loaded_config['date'])
         request = response.follow(
             schedule_url, encoding='utf-8', callback=self.parse)
         self.set_next_func(request, self.parse_schedule)
@@ -126,7 +126,7 @@ class MovixSpider(ShowingSpider):
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
 

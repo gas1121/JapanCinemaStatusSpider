@@ -40,7 +40,7 @@ class ForumSpider(ShowingSpider):
                 response.urljoin(curr_cinema_url), cinema_name)
             data_proto.add_value('source', self.name)
             schedule_url = self.generate_cinema_schedule_url(
-                curr_cinema_url, self.date)
+                curr_cinema_url, self.loaded_config['date'])
             request = response.follow(schedule_url, callback=self.parse)
             self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
@@ -119,7 +119,7 @@ class ForumSpider(ShowingSpider):
         showing_data_proto.add_value('seat_type', 'NormalSeat')
 
         # check whether need to continue crawl booking data or stop now
-        if not self.crawl_booking_data:
+        if not self.loaded_config['crawl_booking_data']:
             result_list.append(showing_data_proto.load_item())
             return
 
