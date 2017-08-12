@@ -50,9 +50,25 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         if request.meta.get('dont_merge_cookies', False):
             return response
+
+        # get cookie from redis if exist
+        # TODO
+
+        # extract cookies from Set-Cookie and drop invalid/expired cookies
         jar = CookieJar()
         jar.extract_cookies(response, request)
         # TODO store cookie to redis
         self._debug_set_cookie(response, spider)
 
         return response
+
+    def _get_key(self, spider, cookiejarkey=None):
+        """
+        get key for cookies in redis
+        """
+        return "{}:{}:{}".format(
+            spider.name, spider.my_ip, cookiejarkey if cookiejarkey else "all")
+
+    def _get_cookie_from_redis(self, key):
+        # TODO
+        pass

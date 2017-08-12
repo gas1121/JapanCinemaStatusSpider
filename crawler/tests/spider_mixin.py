@@ -1,5 +1,6 @@
 import sys
 import json
+from mock import patch
 from time import sleep
 import threading
 
@@ -24,6 +25,11 @@ class SpiderMixin(object):
         self.settings.set('ZOOKEEPER_ASSIGN_PATH', '/demo_test/')
         self.settings.set('KAFKA_TOPIC_PREFIX', "demo_test")
         self.settings.set('LOG_FILE', None)
+        self.patcher = patch(
+            'crawler.utils.spider_helper.get_project_settings')
+        self.mock_get_project_settings = self.patcher.start()
+        self.mock_get_project_settings.return_value = self.settings
+
         # add debug middleware
         spider_middlewares = self.settings.getdict('SPIDER_MIDDLEWARES')
         spider_middlewares[
@@ -97,6 +103,8 @@ class SpiderMixin(object):
             pass
         self.consumer.close()
 
+        self.patcher.stop()
+
 
 class BaseSpiderRunCase(SpiderMixin):
     def setUp(self, url, spider_cls):
@@ -125,9 +133,7 @@ class BaseSpiderRunCase(SpiderMixin):
     def test_crawler_process(self):
         runner = CrawlerRunner(self.settings)
         # pass settings as parameter
-        d = runner.crawl(
-            self.spider_cls, zookeeper_hosts=self.zookeeper_host,
-            jcss_zookeeper_path=self.jcss_zookeeper_path)
+        d = runner.crawl(self.spider_cls)
         d.addBoth(lambda _: reactor.stop())
 
         # add crawl to redis

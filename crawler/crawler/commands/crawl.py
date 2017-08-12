@@ -23,12 +23,7 @@ multiple spiders in single process"""
         Command.process_options(self, args, opts)
 
     def run(self, args, opts):
-        settings = get_project_settings()
-        # pass zookeeper settings to spiders
         opts.spargs = {}
-        opts.spargs['zookeeper_hosts'] = settings.get('ZOOKEEPER_HOSTS')
-        opts.spargs['jcss_zookeeper_path'] = settings.get(
-            'JCSS_ZOOKEEPER_PATH')
         if opts.all_spiders:
             self.run_multiple_spiders(args, opts)
         else:
