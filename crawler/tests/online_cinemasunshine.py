@@ -11,7 +11,7 @@ class CustomSpider(CinemaSunshineSpider):
     name = "test-spider"
 
 
-# TODO cookie needed
+# TODO need to handle redirect without push request into redis
 """
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):

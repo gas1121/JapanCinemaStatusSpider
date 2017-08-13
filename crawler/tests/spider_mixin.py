@@ -144,7 +144,7 @@ class BaseSpiderRunCase(SpiderMixin):
 
         # run the spider, give 20 seconds to crawl. Then we kill the reactor
         def thread_func():
-            sleep(40)
+            sleep(60)
             runner.stop()
 
         thread = threading.Thread(target=thread_func)

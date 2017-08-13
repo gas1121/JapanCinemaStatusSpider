@@ -41,7 +41,7 @@ class Cinema109Spider(ShowingSpider):
             cinema_name_en = curr_cinema_url.split('/')[-2]
             schedule_url = self.generate_cinema_schedule_url(
                 cinema_name_en, self.loaded_config['date'])
-            request = response.follow(schedule_url, callback=self.parse_cinema)
+            request = response.follow(schedule_url, callback=self.parse)
             self.set_next_func(request, self.parse_cinema)
             request.meta["dict_proto"] = dict(data_proto.load_item())
             result_list.append(request)
