@@ -1,4 +1,5 @@
 import json
+import pickle
 import unittest
 from mock import MagicMock, patch
 from time import sleep
@@ -6,6 +7,7 @@ from time import sleep
 import redis
 from kazoo.client import KazooClient
 from scrapy.utils.project import get_project_settings
+from scrapy.http.cookies import CookieJar
 from scrapy.http import HtmlResponse
 from scrapy.http import Request
 
@@ -105,19 +107,22 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.middleware.process_request(request, spider)
         self.assertTrue(self.redis_conn.exists(key))
         data = self.redis_conn.get(key)
-        jar_dict = json.loads(data)
-        self.assertFalse(jar_dict)
+        jar = pickle.loads(data.encode('latin1'))
+        self.assertFalse(jar._cookies)
 
-        origin_dict = {'a': 'b'}
-        self.redis_conn.set(key, json.dumps(origin_dict))
+        exist_jar = CookieJar()
+        exist_jar._cookies['a'] = 'b'
+        self.redis_conn.set(key, pickle.dumps(exist_jar).decode('latin1'))
         request = Request(url='http://www.baidu.com', meta=meta,
                           cookies={'key': 'value'})
         self.middleware.process_request(request, spider)
         self.assertTrue(self.redis_conn.exists(key))
         data = self.redis_conn.get(key)
-        jar_dict = json.loads(data)
-        self.assertEqual(jar_dict['a'], 'b')
-        self.assertEqual(jar_dict['key'], 'value')
+        jar = pickle.loads(data.encode('latin1'))
+        self.assertEqual(jar._cookies['a'], 'b')
+        self.assertTrue('key' in jar._cookies['www.baidu.com']['/'])
+        self.assertEqual(
+            jar._cookies['www.baidu.com']['/']['key'].value, 'value')
 
     def test_process_response(self):
         meta = {
@@ -138,8 +143,11 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.middleware.process_response(request, response, spider)
         self.assertTrue(self.redis_conn.exists(key))
         data = self.redis_conn.get(key)
-        jar_dict = json.loads(data)
-        self.assertEqual(jar_dict['key'], 'value')
+        jar = pickle.loads(data.encode('latin1'))
+        self.assertTrue('key' in jar._cookies['www.baidu.com']['/'])
+        self.assertEqual(
+            jar._cookies['www.baidu.com']['/']['key'].value, 'value')
+
 
     def tearDown(self):
         # delete test keys

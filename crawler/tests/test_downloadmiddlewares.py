@@ -1,8 +1,7 @@
 import unittest
 from mock import MagicMock, patch
-import json
+import pickle
 
-import requests
 from scrapy.utils.project import get_project_settings
 from scrapy.http.cookies import CookieJar
 
@@ -82,26 +81,22 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.redis_conn.exists.return_value = False
         key = 'test'
         jar = self.middleware._get_cookie_from_redis(key)
-        cookie_dict = requests.utils.dict_from_cookiejar(jar)
-        expected_jar = CookieJar()
-        expected_dict = requests.utils.dict_from_cookiejar(expected_jar)
-        self.assertEqual(cookie_dict, expected_dict)
+        self.assertFalse(jar._cookies)
 
         self.redis_conn.exists.return_value = True
-        exist_data = {'key': 'value'}
-        self.redis_conn.get.return_value = json.dumps(exist_data)
+        exist_jar = CookieJar()
+        exist_jar._cookies['key'] = 'value'
+        self.redis_conn.get.return_value = pickle.dumps(
+            exist_jar).decode('latin1')
         jar = self.middleware._get_cookie_from_redis(key)
-        cookie_dict = requests.utils.dict_from_cookiejar(jar)
-        self.assertEqual(cookie_dict, exist_data)
+        self.assertEqual(jar._cookies['key'], 'value')
 
     def test_store_cookie_to_redis(self):
-        jar = CookieJar()
-        exist_data = {'key': 'value'}
-        jar = requests.utils.add_dict_to_cookiejar(jar, exist_data)
         self.redis_conn.set = MagicMock()
+        jar = CookieJar()
         self.middleware._store_cookie_to_redis('test', jar)
         self.redis_conn.set.assert_called_once_with(
-            'test', json.dumps(exist_data))
+            'test', pickle.dumps(jar).decode('latin1'))
 
     def tearDown(self):
         self.patcher.stop()

@@ -16,18 +16,11 @@ class KinezoSpider(ShowingSpider):
         'http://kinezo.jp/pc/'
     ]
     """
-    # TODO may useless now?
-    # disallow concurrent requests to avoid cookie expiring
-    custom_settings = {
-        'CONCURRENT_REQUESTS': 1,
-        'COOKIES_DEBUG': True,
-    }
-
+    
     def parse_first_page(self, response, result_list):
         """
         crawl theater list data first
         """
-        # TODO cookie issue?
         self._logger.debug("{} parse_first_page".format(self.name))
         theater_list = response.xpath(
             '//footer/p[position()>=2 and position() <=3]//a')
@@ -81,6 +74,7 @@ class KinezoSpider(ShowingSpider):
         we have to pass this page to get independent cookie for each cinema
         """
         self._logger.debug("{} parse_cinema".format(self.name))
+        print(response.headers.getlist('Set-Cookie'))        
         data_proto = ShowingLoader(response=response)
         data_proto.add_value(None, response.meta["dict_proto"])
         movie_title_list = response.xpath('//div[@class="cinemaTitle elp"]')
@@ -156,7 +150,8 @@ class KinezoSpider(ShowingSpider):
 
     def parse_normal_showing(self, response, result_list):
         self._logger.debug("{} parse_normal_showing".format(self.name))
-        print(response.text)
+        print(response.headers.getlist('Set-Cookie'))
+        print("ブラウザのセッション" in response.text)
         result = init_show_booking_loader(
             response=response, item=response.meta["dict_proto"])
         time_text = response.xpath(

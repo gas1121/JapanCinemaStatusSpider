@@ -1,7 +1,6 @@
 import redis
-import json
+import pickle
 
-import requests
 from scrapy.http.cookies import CookieJar
 from scrapy.exceptions import NotConfigured
 from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
@@ -35,6 +34,8 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         read cookies from redis when needed
         """
+        self.logger.debug("{}: process_request".format(
+            self.__class__.__name__))
         if request.meta.get('dont_merge_cookies', False):
             return
         # get cookie from redis if exist
@@ -55,6 +56,8 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         store cookies to redis
         """
+        self.logger.debug("{}: process_response".format(
+            self.__class__.__name__))
         if request.meta.get('dont_merge_cookies', False):
             return response
 
@@ -82,17 +85,16 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         get stored cookiejar if exist, else return a new cookie
         """
-        cookiejar = CookieJar()
         if self.redis_conn.exists(key):
             exist_data = self.redis_conn.get(key)
-            cookie_dict = json.loads(exist_data)
-            cookiejar = requests.utils.add_dict_to_cookiejar(
-                cookiejar, cookie_dict)
-        return cookiejar
+            return pickle.loads(exist_data.encode('latin1'))
+        else:
+            return CookieJar()
 
     def _store_cookie_to_redis(self, key, cookiejar):
         """
         store a exist cookiejar into redis
         """
-        cookie_dict = requests.utils.dict_from_cookiejar(cookiejar)
-        self.redis_conn.set(key, json.dumps(cookie_dict))
+        self.redis_conn.set(key, pickle.dumps(cookiejar).decode('latin1'))
+        # set expire time for cookiejar in redis
+        self.redis_conn.expire(key, 60*60)

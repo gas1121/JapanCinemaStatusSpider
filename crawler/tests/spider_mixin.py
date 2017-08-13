@@ -25,6 +25,8 @@ class SpiderMixin(object):
         self.settings.set('ZOOKEEPER_ASSIGN_PATH', '/demo_test/')
         self.settings.set('KAFKA_TOPIC_PREFIX', "demo_test")
         self.settings.set('LOG_FILE', None)
+        # TODO
+        self.settings.set('COOKIES_DEBUG', True)
         self.patcher = patch(
             'crawler.utils.spider_helper.get_project_settings')
         self.mock_get_project_settings = self.patcher.start()
@@ -87,7 +89,7 @@ class SpiderMixin(object):
     def tearDown(self):
         # clear out older test keys if any
         keys = self.redis_conn.keys('stats:crawler:*:test-spider:*')
-        keys = keys + self.redis_conn.keys('test-spider:*')
+        keys = keys + self.redis_conn.keys('*test-spider:*')
         for key in keys:
             self.redis_conn.delete(key)
 
@@ -142,7 +144,7 @@ class BaseSpiderRunCase(SpiderMixin):
 
         # run the spider, give 20 seconds to crawl. Then we kill the reactor
         def thread_func():
-            sleep(20)
+            sleep(40)
             runner.stop()
 
         thread = threading.Thread(target=thread_func)

@@ -4,6 +4,7 @@ import unicodedata
 import copy
 import demjson
 import scrapy
+import pickle
 from crawler.showingspiders.showing_spider import ShowingSpider
 from crawler.items import (ShowingLoader, ShowingBookingLoader,
                            init_show_booking_loader)
@@ -71,7 +72,7 @@ class AeonSpider(ShowingSpider):
 
     def parse_cinema_schedule(self, response, result_list):
         data_proto = ShowingLoader(response=response)
-        data_proto.add_value(None, response.meta["data_proto"])
+        data_proto.add_value(None, response.meta["dict_proto"])
         movie_section_list = response.xpath(
             '//div[contains(@class,"movielist")]')
         for curr_movie in movie_section_list:
@@ -157,7 +158,10 @@ class AeonSpider(ShowingSpider):
             schedule_url = response.meta['schedule_url']
             request = response.follow(
                 schedule_url, dont_filter=True, callback=self.parse)
-            request.meta["showing_request"] = showing_request
+            # serialize request to pass through redis
+            # TODO unserializable issue
+            request.meta["showing_request"] = pickle.dumps(
+                showing_request).decode('latin1')
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
             # add spider name to avoid conflict between spiders
@@ -221,7 +225,8 @@ class AeonSpider(ShowingSpider):
         generate cookie for showing page to use
         """
         self._logger.debug("{} parse_new_cookie".format(self.name))
-        request = response.meta['showing_request']
+        request = pickle.loads(
+            response.meta['showing_request'].encode('latin1'))
         self.set_next_func(request, self.parse_agreement)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
