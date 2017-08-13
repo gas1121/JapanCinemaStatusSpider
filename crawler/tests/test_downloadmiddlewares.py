@@ -72,11 +72,11 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
     def test_get_key(self):
         spider = MagicMock()
         spider.name = 'test'
-        spider.my_ip = '1.1.1.1'
+        spider.uuid = 'uuid'
         key = self.middleware._get_key(spider, cookiejarkey=None)
-        self.assertEqual(key, 'test:1.1.1.1:all')
+        self.assertEqual(key, 'cookie:test:uuid:all')
         key = self.middleware._get_key(spider, cookiejarkey='key')
-        self.assertEqual(key, 'test:1.1.1.1:key')
+        self.assertEqual(key, 'cookie:test:uuid:key')
 
     def test_get_cookie_from_redis(self):
         self.redis_conn.exists.return_value = False

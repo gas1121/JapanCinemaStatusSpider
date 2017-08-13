@@ -1,7 +1,6 @@
 import json
-import re
 import unittest
-from mock import MagicMock, patch
+from mock import MagicMock
 
 from crawler.utils import standardize_county_name, ScrapyClusterSpider
 
@@ -49,16 +48,6 @@ class TestScrapyClusterSpider(unittest.TestCase):
     def test_error_config(self):
         self.spider.error_config("")
         self.assertEqual(self.spider.loaded_config['date'], '20170101')
-
-    @patch('crawler.utils.spider_helper.requests')
-    def test_update_ipaddress(self, requests_mock):
-        self.spider.my_ip = None
-        self.spider.old_ip = None
-        self.spider.public_ip_url = MagicMock()
-        self.spider.ip_regex = re.compile('.*')
-        requests_mock.get().text = '1.11.111.111'
-        self.spider.update_ipaddress()
-        self.assertEqual(self.spider.my_ip, '1.11.111.111')
 
     def test_parse(self):
         response = MagicMock()

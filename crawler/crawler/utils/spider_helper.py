@@ -1,11 +1,10 @@
 import sys
 import json
-import re
+import uuid
 
 from kazoo.handlers.threading import KazooTimeoutError
 from scutils.zookeeper_watcher import ZookeeperWatcher
 from crawling.spiders.redis_spider import RedisSpider
-import requests
 from scrapy.utils.project import get_project_settings
 
 
@@ -17,15 +16,9 @@ class ScrapyClusterSpider(RedisSpider):
         super(ScrapyClusterSpider, self).__init__(*args, **kwargs)
         settings = get_project_settings()
         self.set_default_config()
-        # get public ip for spider
-        self.my_ip = None
-        self.old_ip = None
-        self.ip_regex = re.compile(settings.get('IP_ADDR_REGEX', '.*'))
-        self.public_ip_url = settings.get(
-            'PUBLIC_IP_URL', 'http://ip.42.pl/raw')
-        self.update_ipaddress()
-        # settings is not usable in __init__ and can only be passed
-        # by parameter
+        # create a unique uuid for each spider
+        self.uuid = str(uuid.uuid4())
+        # set up zookeeper watcher for spider config
         zookeeper_hosts = settings.get('ZOOKEEPER_HOSTS')
         self.assign_path = settings.get('JCSS_ZOOKEEPER_PATH')
         try:
@@ -69,30 +62,6 @@ class ScrapyClusterSpider(RedisSpider):
         self.loaded_config['movie_list'] = []
         self.loaded_config['cinema_list'] = []
         self.loaded_config['date'] = '20170101'
-
-    def update_ipaddress(self):
-        '''
-        Updates the scheduler so it knows its own ip address
-        '''
-        # TODO do this job periodically
-        # assign local ip in case of exception
-        self.old_ip = self.my_ip
-        self.my_ip = '127.0.0.1'
-        try:
-            r = requests.get(self.public_ip_url)
-            results = self.ip_regex.findall(r.text)
-            if len(results) > 0:
-                self.my_ip = results[0]
-            else:
-                raise IOError("Could not get valid IP Address")
-            self.logger.debug("Current public ip: {ip}".format(ip=self.my_ip))
-        except IOError:
-            self.logger.error("Could not reach out to get public ip")
-            pass
-
-        if self.old_ip != self.my_ip:
-            self.logger.info("Changed Public IP: {old} -> {new}".format(
-                             old=self.old_ip, new=self.my_ip))
 
     def parse(self, response):
         """

@@ -4,7 +4,6 @@ from mock import MagicMock, patch
 from time import sleep
 
 import redis
-import requests
 from kazoo.client import KazooClient
 from scrapy.utils.project import get_project_settings
 from scrapy.http import HtmlResponse
@@ -62,10 +61,6 @@ class TestScrapyClusterSpider(unittest.TestCase):
         sleep(1)
         self.assertEqual(self.spider.loaded_config['date'], '20170101')
 
-    def test_update_ipaddress(self):
-        r = requests.get('http://ip.42.pl/raw')
-        self.assertEqual(self.spider.my_ip, r.text)
-
     def tearDown(self):
         self.spider.zoo_watcher.close()
         # clean zookeeper test data
@@ -100,13 +95,13 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
 
         }
         name = 'test'
-        ip = '1.1.1.1'
-        key = "{}:{}:{}".format(name, ip, 'all')
+        uuid = 'uuid'
+        key = "cookie:{}:{}:{}".format(name, uuid, 'all')
         self.assertFalse(self.redis_conn.exists(key))
         request = Request(url='http://www.baidu.com', meta=meta)
         spider = MagicMock()
         spider.name = name
-        spider.my_ip = ip
+        spider.uuid = uuid
         self.middleware.process_request(request, spider)
         self.assertTrue(self.redis_conn.exists(key))
         data = self.redis_conn.get(key)
@@ -131,15 +126,15 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
 
         }
         name = 'test'
-        ip = '1.1.1.1'
-        key = "{}:{}:{}".format(name, ip, 'all')
+        uuid = 'uuid'
+        key = "cookie:{}:{}:{}".format(name, uuid, 'all')
         self.assertFalse(self.redis_conn.exists(key))
         request = Request(url='http://www.baidu.com', meta=meta)
         response = HtmlResponse(url='http://www.baidu.com', headers={
             'Set-Cookie': 'key=value'})
         spider = MagicMock()
         spider.name = name
-        spider.my_ip = ip
+        spider.uuid = uuid
         self.middleware.process_response(request, response, spider)
         self.assertTrue(self.redis_conn.exists(key))
         data = self.redis_conn.get(key)

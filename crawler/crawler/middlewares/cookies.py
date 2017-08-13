@@ -75,8 +75,8 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         get key for cookies in redis
         """
-        return "{}:{}:{}".format(
-            spider.name, spider.my_ip, cookiejarkey if cookiejarkey else "all")
+        return "cookie:{}:{}:{}".format(
+            spider.name, spider.uuid, cookiejarkey if cookiejarkey else "all")
 
     def _get_cookie_from_redis(self, key):
         """
