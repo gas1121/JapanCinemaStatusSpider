@@ -1,19 +1,110 @@
 import unittest
 from mock import MagicMock, patch
+import json
+
+import requests
+from scrapy.utils.project import get_project_settings
+from scrapy.http.cookies import CookieJar
 
 from crawler.middlewares.cookies import RedisCookiesMiddleware
 from crawler.middlewares.proxy import ProxyDownloaderMiddleware
 from crawler.middlewares.selenium import SeleniumDownloaderMiddleware
 
 
+@patch('crawler.middlewares.proxy.sc_log_setup', MagicMock())
 class TestRedisCookiesMiddleware(unittest.TestCase):
+    def setUp(self):
+        self.patcher = patch('crawler.middlewares.cookies.redis')
+        self.redis_mock = self.patcher.start()
+        self.redis_conn = MagicMock()
+        self.redis_mock.Redis.return_value = self.redis_conn
+
+        settings = get_project_settings()
+        settings.set('COOKIES_ENABLED', True)
+        settings.set('COOKIES_DEBUG', True)
+        crawler = MagicMock()
+        crawler.settings = settings
+        self.middleware = RedisCookiesMiddleware.from_crawler(crawler)
+
     def test_process_request(self):
-        # TODO
-        pass
+        request = MagicMock()
+        request.meta = {
+            'dont_merge_cookies': False,
+            'cookiejar': None,
+        }
+        spider = MagicMock()
+        self.middleware._get_key = MagicMock(return_value='test-key')
+        jar = MagicMock()
+        self.middleware._get_cookie_from_redis = MagicMock(return_value=jar)
+        self.middleware._get_request_cookies = MagicMock()
+        self.middleware._store_cookie_to_redis = MagicMock()
+        self.middleware._debug_cookie = MagicMock()
+        self.middleware.process_request(request, spider)
+        self.middleware._get_key.assert_called_once_with(
+            spider, cookiejarkey=None)
+        self.middleware._get_cookie_from_redis.assert_called_once_with(
+            'test-key')
+        self.middleware._get_request_cookies.assert_called_once_with(
+            jar, request)
+        self.middleware._store_cookie_to_redis.assert_called_once_with(
+            'test-key', jar)
 
     def test_process_response(self):
-        # TODO
-        pass
+        request = MagicMock()
+        request.meta = {
+            'dont_merge_cookies': False,
+            'cookiejar': None,
+        }
+        spider = MagicMock()
+        self.middleware._get_key = MagicMock(return_value='test-key')
+        jar = MagicMock()
+        self.middleware._get_cookie_from_redis = MagicMock(return_value=jar)
+        self.middleware._store_cookie_to_redis = MagicMock()
+        self.middleware._debug_cookie = MagicMock()
+        self.middleware.process_response(request, MagicMock(), spider)
+        self.middleware._get_key.assert_called_once_with(
+            spider, cookiejarkey=None)
+        self.middleware._get_cookie_from_redis.assert_called_once_with(
+            'test-key')
+        self.middleware._store_cookie_to_redis.assert_called_once_with(
+            'test-key', jar)
+
+    def test_get_key(self):
+        spider = MagicMock()
+        spider.name = 'test'
+        spider.my_ip = '1.1.1.1'
+        key = self.middleware._get_key(spider, cookiejarkey=None)
+        self.assertEqual(key, 'test:1.1.1.1:all')
+        key = self.middleware._get_key(spider, cookiejarkey='key')
+        self.assertEqual(key, 'test:1.1.1.1:key')
+
+    def test_get_cookie_from_redis(self):
+        self.redis_conn.exists.return_value = False
+        key = 'test'
+        jar = self.middleware._get_cookie_from_redis(key)
+        cookie_dict = requests.utils.dict_from_cookiejar(jar)
+        expected_jar = CookieJar()
+        expected_dict = requests.utils.dict_from_cookiejar(expected_jar)
+        self.assertEqual(cookie_dict, expected_dict)
+
+        self.redis_conn.exists.return_value = True
+        exist_data = {'key': 'value'}
+        self.redis_conn.get.return_value = json.dumps(exist_data)
+        jar = self.middleware._get_cookie_from_redis(key)
+        cookie_dict = requests.utils.dict_from_cookiejar(jar)
+        self.assertEqual(cookie_dict, exist_data)
+
+    def test_store_cookie_to_redis(self):
+        jar = CookieJar()
+        exist_data = {'key': 'value'}
+        jar = requests.utils.add_dict_to_cookiejar(jar, exist_data)
+        self.redis_conn.set = MagicMock()
+        self.middleware._store_cookie_to_redis('test', jar)
+        self.redis_conn.set.assert_called_once_with(
+            'test', json.dumps(exist_data))
+
+    def tearDown(self):
+        self.patcher.stop()
 
 
 class TestProxyDownloaderMiddleware(unittest.TestCase):

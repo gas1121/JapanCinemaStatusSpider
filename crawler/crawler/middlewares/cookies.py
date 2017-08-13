@@ -1,4 +1,7 @@
 import redis
+import json
+
+import requests
 from scrapy.http.cookies import CookieJar
 from scrapy.exceptions import NotConfigured
 from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
@@ -32,16 +35,20 @@ class RedisCookiesMiddleware(CookiesMiddleware):
         """
         read cookies from redis when needed
         """
-        if 'dont_merge_cookies' in request.meta:
+        if request.meta.get('dont_merge_cookies', False):
             return
-        jar = CookieJar()
-        # TODO get cookie from redis
+        # get cookie from redis if exist
+        cookiejarkey = request.meta.get("cookiejar")
+        key = self._get_key(spider, cookiejarkey=cookiejarkey)
+        jar = self._get_cookie_from_redis(key)
         cookies = self._get_request_cookies(jar, request)
         for cookie in cookies:
             jar.set_cookie_if_ok(cookie, request)
         # set Cookie header
         request.headers.pop('Cookie', None)
         jar.add_cookie_header(request)
+        # store cookie to redis
+        self._store_cookie_to_redis(key, jar)
         self._debug_cookie(request, spider)
 
     def process_response(self, request, response, spider):
@@ -52,12 +59,14 @@ class RedisCookiesMiddleware(CookiesMiddleware):
             return response
 
         # get cookie from redis if exist
-        # TODO
-
+        cookiejarkey = request.meta.get("cookiejar")
+        key = self._get_key(spider, cookiejarkey=cookiejarkey)
+        jar = self._get_cookie_from_redis(key)
         # extract cookies from Set-Cookie and drop invalid/expired cookies
-        jar = CookieJar()
         jar.extract_cookies(response, request)
-        # TODO store cookie to redis
+        # store cookie to redis
+        self._store_cookie_to_redis(key, jar)
+
         self._debug_set_cookie(response, spider)
 
         return response
@@ -70,5 +79,20 @@ class RedisCookiesMiddleware(CookiesMiddleware):
             spider.name, spider.my_ip, cookiejarkey if cookiejarkey else "all")
 
     def _get_cookie_from_redis(self, key):
-        # TODO
-        pass
+        """
+        get stored cookiejar if exist, else return a new cookie
+        """
+        cookiejar = CookieJar()
+        if self.redis_conn.exists(key):
+            exist_data = self.redis_conn.get(key)
+            cookie_dict = json.loads(exist_data)
+            cookiejar = requests.utils.add_dict_to_cookiejar(
+                cookiejar, cookie_dict)
+        return cookiejar
+
+    def _store_cookie_to_redis(self, key, cookiejar):
+        """
+        store a exist cookiejar into redis
+        """
+        cookie_dict = requests.utils.dict_from_cookiejar(cookiejar)
+        self.redis_conn.set(key, json.dumps(cookie_dict))

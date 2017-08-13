@@ -3,11 +3,15 @@ import unittest
 from mock import MagicMock, patch
 from time import sleep
 
+import redis
 import requests
 from kazoo.client import KazooClient
 from scrapy.utils.project import get_project_settings
+from scrapy.http import HtmlResponse
+from scrapy.http import Request
 
 from crawler.utils import ScrapyClusterSpider
+from crawler.middlewares.cookies import RedisCookiesMiddleware
 
 
 class BasicScrapyClusterSpider(ScrapyClusterSpider):
@@ -70,6 +74,83 @@ class TestScrapyClusterSpider(unittest.TestCase):
         self.zookeeper.close()
 
         self.patcher.stop()
+
+
+class TestRedisCookiesMiddleware(unittest.TestCase):
+    def setUp(self):
+        settings = get_project_settings()
+        settings.set('REDIS_HOST', 'redis')
+        settings.set('REDIS_PORT', 6379)
+        settings.set('REDIS_DB', 0)
+        settings.set('COOKIES_ENABLED', True)
+        settings.set('COOKIES_DEBUG', False)
+        crawler = MagicMock()
+        crawler.settings = settings
+        self.middleware = RedisCookiesMiddleware.from_crawler(crawler)
+
+        self.redis_conn = redis.Redis(host=settings['REDIS_HOST'],
+                                      port=settings['REDIS_PORT'],
+                                      db=settings['REDIS_DB'],
+                                      decode_responses=True)
+
+    def test_process_request(self):
+        meta = {
+            'dont_merge_cookies': False,
+            'cookiejar': None,
+
+        }
+        name = 'test'
+        ip = '1.1.1.1'
+        key = "{}:{}:{}".format(name, ip, 'all')
+        self.assertFalse(self.redis_conn.exists(key))
+        request = Request(url='http://www.baidu.com', meta=meta)
+        spider = MagicMock()
+        spider.name = name
+        spider.my_ip = ip
+        self.middleware.process_request(request, spider)
+        self.assertTrue(self.redis_conn.exists(key))
+        data = self.redis_conn.get(key)
+        jar_dict = json.loads(data)
+        self.assertFalse(jar_dict)
+
+        origin_dict = {'a': 'b'}
+        self.redis_conn.set(key, json.dumps(origin_dict))
+        request = Request(url='http://www.baidu.com', meta=meta,
+                          cookies={'key': 'value'})
+        self.middleware.process_request(request, spider)
+        self.assertTrue(self.redis_conn.exists(key))
+        data = self.redis_conn.get(key)
+        jar_dict = json.loads(data)
+        self.assertEqual(jar_dict['a'], 'b')
+        self.assertEqual(jar_dict['key'], 'value')
+
+    def test_process_response(self):
+        meta = {
+            'dont_merge_cookies': False,
+            'cookiejar': None,
+
+        }
+        name = 'test'
+        ip = '1.1.1.1'
+        key = "{}:{}:{}".format(name, ip, 'all')
+        self.assertFalse(self.redis_conn.exists(key))
+        request = Request(url='http://www.baidu.com', meta=meta)
+        response = HtmlResponse(url='http://www.baidu.com', headers={
+            'Set-Cookie': 'key=value'})
+        spider = MagicMock()
+        spider.name = name
+        spider.my_ip = ip
+        self.middleware.process_response(request, response, spider)
+        self.assertTrue(self.redis_conn.exists(key))
+        data = self.redis_conn.get(key)
+        jar_dict = json.loads(data)
+        self.assertEqual(jar_dict['key'], 'value')
+
+    def tearDown(self):
+        # delete test keys
+        keys = self.redis_conn.keys('*test*')
+        for key in keys:
+            self.redis_conn.delete(key)
 
 
 if __name__ == '__main__':
