@@ -107,7 +107,7 @@ class SpiderMixin(object):
 
 
 class BaseSpiderRunCase(SpiderMixin):
-    def setUp(self, url, spider_cls):
+    def setUp(self, url, spider_cls, wait_time=20):
         SpiderMixin.setUp(self)
 
         feed_data = {
@@ -129,6 +129,7 @@ class BaseSpiderRunCase(SpiderMixin):
         }
         self.example_feed = json.dumps(feed_data)
         self.spider_cls = spider_cls
+        self.wait_time = wait_time
 
     def test_crawler_process(self):
         runner = CrawlerRunner(self.settings)
@@ -142,7 +143,7 @@ class BaseSpiderRunCase(SpiderMixin):
 
         # run the spider, give 20 seconds to crawl. Then we kill the reactor
         def thread_func():
-            sleep(60)
+            sleep(self.wait_time)
             runner.stop()
 
         thread = threading.Thread(target=thread_func)

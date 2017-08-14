@@ -14,7 +14,8 @@ class CustomSpider(CinemaSunshineSpider):
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
-            self, 'http://www.cinemasunshine.co.jp/theater/', CustomSpider)
+            self, 'http://www.cinemasunshine.co.jp/theater/', CustomSpider,
+            100)
 
     def is_message_count(self, the_dict):
         # item is Showing or ShowingBooking
