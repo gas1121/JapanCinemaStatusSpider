@@ -56,7 +56,8 @@ def change_spider_config(spiderid, settings, use_sample=False,
     data_dict = {}
     if zookeeper.exists(file_path):
         old_data = zookeeper.get(file_path)[0]
-        data_dict = json.loads(old_data.decode('utf-8'))
+        if old_data:
+            data_dict = json.loads(old_data.decode('utf-8'))
     else:
         zookeeper.ensure_path(file_path)
     # set up spider config

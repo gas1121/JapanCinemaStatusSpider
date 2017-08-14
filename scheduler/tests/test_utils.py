@@ -72,6 +72,27 @@ class TestUtils(unittest.TestCase):
         instance_mock.set.assert_called_once_with(expected_path, expected_data)
         instance_mock.set.reset_mock()
 
+        # ignore when old data exists but is empty
+        instance_mock.exists = MagicMock(return_value=True)
+        instance_mock.get = MagicMock(return_value=[b""])
+        change_spider_config(
+            spiderid="testid", settings=settings, use_sample=True,
+            crawl_booking_data=False, movie_list=['newmovie'])
+        instance_mock.get.assert_called_once_with(expected_path)
+        expected_data = json.dumps({
+            "use_sample": True,
+            "crawl_booking_data": False,
+            "use_proxy": False,
+            "require_js": False,
+            "crawl_all_cinemas": False,
+            "crawl_all_movies": False,
+            "movie_list": ['newmovie'],
+            "cinema_list": settings['JCSS_SAMPLE_CINEMAS'],
+            "date": arrow.now('UTC+9').shift(days=+1).format('YYYYMMDD'),
+        }).encode('utf-8')
+        instance_mock.set.assert_called_once_with(expected_path, expected_data)
+        instance_mock.set.reset_mock()
+
         instance_mock.exists = MagicMock(return_value=True)
         old_dict = {
             'use_sample': False
