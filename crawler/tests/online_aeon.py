@@ -11,8 +11,6 @@ class CustomSpider(AeonSpider):
     name = "test-spider"
 
 
-# TODO cookie needed
-"""
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
@@ -32,7 +30,6 @@ class TestSpider(unittest.TestCase, BaseSpiderRunCase):
 
     def tearDown(self):
         BaseSpiderRunCase.tearDown(self)
-"""
 
 
 if __name__ == '__main__':

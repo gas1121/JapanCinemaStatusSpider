@@ -11,8 +11,6 @@ class CustomSpider(CinemaSunshineSpider):
     name = "test-spider"
 
 
-# TODO need to handle redirect without push request into redis
-"""
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
@@ -32,7 +30,6 @@ class TestSpider(unittest.TestCase, BaseSpiderRunCase):
 
     def tearDown(self):
         BaseSpiderRunCase.tearDown(self)
-"""
 
 
 if __name__ == '__main__':

@@ -4,7 +4,9 @@ import unicodedata
 import copy
 import demjson
 import scrapy
-import pickle
+
+from scrapy.utils.reqser import request_to_dict, request_from_dict
+
 from crawler.showingspiders.showing_spider import ShowingSpider
 from crawler.items import (ShowingLoader, ShowingBookingLoader,
                            init_show_booking_loader)
@@ -159,9 +161,8 @@ class AeonSpider(ShowingSpider):
             request = response.follow(
                 schedule_url, dont_filter=True, callback=self.parse)
             # serialize request to pass through redis
-            # TODO unserializable issue
-            request.meta["showing_request"] = pickle.dumps(
-                showing_request).decode('latin1')
+            request.meta["showing_request"] = request_to_dict(
+                showing_request, self)
             (performance_id, _, _) = self.extract_showing_parameters(
                 curr_showing)
             # add spider name to avoid conflict between spiders
@@ -225,8 +226,7 @@ class AeonSpider(ShowingSpider):
         generate cookie for showing page to use
         """
         self._logger.debug("{} parse_new_cookie".format(self.name))
-        request = pickle.loads(
-            response.meta['showing_request'].encode('latin1'))
+        request = request_from_dict(response.meta['showing_request'], self)
         self.set_next_func(request, self.parse_agreement)
         request.meta["dict_proto"] = response.meta["dict_proto"]
         request.meta["cookiejar"] = response.meta["cookiejar"]
