@@ -148,7 +148,6 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.assertEqual(
             jar._cookies['www.baidu.com']['/']['key'].value, 'value')
 
-
     def tearDown(self):
         # delete test keys
         keys = self.redis_conn.keys('*test*')

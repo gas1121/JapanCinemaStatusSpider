@@ -8,33 +8,34 @@ arrow==0.10.0
 asn1crypto==0.22.0        # via cryptography
 attrs==17.2.0             # via automat, service-identity
 automat==0.6.0            # via twisted
-certifi==2017.4.17        # via requests
+certifi==2017.7.27.1      # via requests
 cffi==1.10.0              # via cryptography
 chardet==3.0.4            # via requests
 constantly==15.1.0        # via twisted
-cryptography==1.9         # via pyopenssl
+cryptography==2.0.3       # via pyopenssl
 cssselect==1.0.1          # via parsel, scrapy
 demjson==2.2.4
+hyperlink==17.3.0         # via twisted
 idna==2.5                 # via cryptography, requests
 incremental==17.5.0       # via twisted
 lxml==3.8.0               # via parsel, scrapy
 parsel==1.2.0             # via scrapy
-pyasn1-modules==0.0.9     # via service-identity
-pyasn1==0.2.3             # via pyasn1-modules, service-identity
-pycparser==2.17           # via cffi
+pyasn1-modules==0.0.11    # via service-identity
+pyasn1==0.3.2             # via pyasn1-modules, service-identity
+pycparser==2.18           # via cffi
 pydispatcher==2.0.5       # via scrapy
-pyopenssl==17.0.0         # via scrapy, service-identity
+pyopenssl==17.2.0         # via scrapy, service-identity
 pysocks==1.6.7            # via requests
-python-dateutil==2.6.0    # via arrow
+python-dateutil==2.6.1    # via arrow
 queuelib==1.4.2           # via scrapy
-requests[socks]==2.17.3
+requests[socks]==2.18.3
 scrapy==1.4.0
-selenium==3.4.3
+selenium==3.5.0
 service-identity==17.0.0  # via scrapy
 six==1.10.0               # via automat, cryptography, parsel, pyopenssl, python-dateutil, scrapy, w3lib
-twisted==17.1.0           # via scrapy
-urllib3==1.21.1           # via requests
-w3lib==1.17.0             # via parsel, scrapy
-zope.interface==4.4.1     # via twisted
+twisted==17.5.0           # via scrapy
+urllib3==1.22             # via requests
+w3lib==1.18.0             # via parsel, scrapy
+zope.interface==4.4.2     # via twisted
 # utils dependency
 ../utils

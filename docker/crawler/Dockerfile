@@ -21,7 +21,7 @@ RUN apt-get update && apt-get -y install \
   libxml2-dev \
   libxslt1-dev \
   && rm -rf /var/lib/apt/lists/*
-RUN git clone -b py3 https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
+RUN git clone -b custom-dev https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
 WORKDIR /temp/scrapy-cluster/crawler
 # add a setup.py file to install as package
 COPY docker/crawler/setup.py .
@@ -40,5 +40,5 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 RUN rm -rf /utils
 
-# by default run walkerplus_movie spider, override this in compose file
-CMD scrapy crawl walkerplus_movie
+# by default run all spiders, override this in compose file
+CMD scrapy crawl --all_spiders

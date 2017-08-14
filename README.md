@@ -84,6 +84,10 @@ Here is a list of useful site and some of them is used by this spider
 
 ## TODO list
 - [ ] change log
+- [ ] pull requests for scrapy-cluster
+ - [ ] request serialization issue
+ - [ ] meta_passthrough_middleware ignore scrapy's special keys
+ - [ ] redis_cookie_middleware
 - [ ] Destribution support
  - [x] Better integration with scrapy cluster
  - [x] split a data processor module for handling kafka messages to database

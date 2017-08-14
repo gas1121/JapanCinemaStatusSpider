@@ -25,8 +25,6 @@ class SpiderMixin(object):
         self.settings.set('ZOOKEEPER_ASSIGN_PATH', '/demo_test/')
         self.settings.set('KAFKA_TOPIC_PREFIX', "demo_test")
         self.settings.set('LOG_FILE', None)
-        # TODO
-        self.settings.set('COOKIES_DEBUG', True)
         self.patcher = patch(
             'crawler.utils.spider_helper.get_project_settings')
         self.mock_get_project_settings = self.patcher.start()
