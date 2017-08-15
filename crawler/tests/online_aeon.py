@@ -14,7 +14,7 @@ class CustomSpider(AeonSpider):
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
-            self, 'http://www.aeoncinema.com/theater/', CustomSpider, 60)
+            self, 'http://www.aeoncinema.com/theater/', CustomSpider, 70)
 
     def is_message_count(self, the_dict):
         # item is Showing or ShowingBooking
