@@ -3,6 +3,7 @@ from mock import MagicMock
 import json
 from time import sleep
 
+import tldextract
 from kazoo.client import KazooClient
 from kafka import KafkaConsumer
 
@@ -198,13 +199,21 @@ class TestRun(unittest.TestCase):
     def test_set_throttle_job(self):
         set_throttle_job(self.logger, self.settings)
 
+        extractor = tldextract.TLDExtract()
+        tld_list = []
+        for spider_name in spider_setting:
+            url = spider_setting[spider_name]['url']
+            ex_res = extractor(url)
+            top_level_domain = "{}.{}".format(ex_res.domain, ex_res.suffix)
+            tld_list.append(top_level_domain)
+
         message_count = 0
         for m in self.consumer:
             if m is None:
                 pass
             the_dict = json.loads(m.value)
-            if the_dict is not None and 'url' in the_dict \
-                    and the_dict['url'] \
+            if the_dict is not None and 'domain' in the_dict \
+                    and the_dict['domain'] in tld_list \
                     and 'hits' in the_dict \
                     and the_dict['hits'] > 0:
                 message_count += 1

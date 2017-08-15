@@ -5,11 +5,11 @@ from kazoo.client import KazooClient
 from kafka_monitor import KafkaMonitor
 
 
-def create_domain_throttle_job(url, hits=20, window=60, scale=1.0,
+def create_domain_throttle_job(domain, hits=20, window=60, scale=1.0,
                                uuid="abc123", appid="testapp",
                                action="domain-update"):
     data = {}
-    data["url"] = url
+    data["domain"] = domain
     data["hits"] = hits
     data["window"] = window
     data["scale"] = scale

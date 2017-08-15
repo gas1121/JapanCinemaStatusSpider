@@ -6,6 +6,7 @@ use different log file each time we run spider.
 """
 import time
 import schedule
+import tldextract
 from scutils.log_factory import LogFactory
 from scutils.settings_wrapper import SettingsWrapper
 
@@ -105,6 +106,10 @@ spider_setting = {
 }
 
 
+# top level domain extractor
+extractor = tldextract.TLDExtract()
+
+
 def cinema_crawl_job(logger, settings):
     logger.info("begin cinema crawl job")
     # clear cinema data in database first
@@ -192,11 +197,13 @@ def set_throttle_job(logger, settings):
     logger.info("begin to set site throttle")
     for spider_id in spider_setting:
         url = spider_setting[spider_id]["url"]
+        ex_res = extractor(url)
+        top_level_domain = "{}.{}".format(ex_res.domain, ex_res.suffix)
         hits = spider_setting[spider_id]["throttle"]["hits"]
         window = spider_setting[spider_id]["throttle"]["window"]
         scale = spider_setting[spider_id]["throttle"]["scale"]
         throttle_job = create_domain_throttle_job(
-            url=url, hits=hits, window=window, scale=scale)
+            domain=top_level_domain, hits=hits, window=window, scale=scale)
         send_job_to_kafka(settings['KAFKA_INCOMING_TOPIC'], throttle_job)
 
 

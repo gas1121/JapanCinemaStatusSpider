@@ -10,9 +10,9 @@ from scheduler.utils import (create_crawl_job, send_job_to_kafka,
 
 class TestUtils(unittest.TestCase):
     def test_create_domain_throttle_job(self):
-        url = "testurl"
-        data = create_domain_throttle_job(url=url)
-        self.assertEqual(data["url"], url)
+        domain = "test.domain"
+        data = create_domain_throttle_job(domain=domain)
+        self.assertEqual(data["domain"], domain)
         self.assertEqual(data["action"], "domain-update")
 
     def test_create_crawl_job(self):
