@@ -138,10 +138,10 @@ class BaseSpiderRunCase(SpiderMixin):
         d.addBoth(lambda _: reactor.stop())
 
         # add crawl to redis
-        key = "test-spider:tohotheater.jp:queue"
+        key = "test-spider:example.com:queue"
         self.redis_conn.zadd(key, self.example_feed, -99)
 
-        # run the spider, give 20 seconds to crawl. Then we kill the reactor
+        # run the spider, give some time to crawl. Then we kill the reactor
         def thread_func():
             sleep(self.wait_time)
             runner.stop()
