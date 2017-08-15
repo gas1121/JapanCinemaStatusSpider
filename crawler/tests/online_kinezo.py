@@ -14,7 +14,7 @@ class CustomSpider(KinezoSpider):
 class TestSpider(unittest.TestCase, BaseSpiderRunCase):
     def setUp(self):
         BaseSpiderRunCase.setUp(
-            self, 'http://kinezo.jp/pc/', CustomSpider, 30)
+            self, 'http://kinezo.jp/pc/', CustomSpider)
 
     def is_message_count(self, the_dict):
         # item is Showing or ShowingBooking

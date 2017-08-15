@@ -107,7 +107,7 @@ class SpiderMixin(object):
 
 
 class BaseSpiderRunCase(SpiderMixin):
-    def setUp(self, url, spider_cls, wait_time=20):
+    def setUp(self, url, spider_cls, wait_time=30):
         SpiderMixin.setUp(self)
 
         feed_data = {
