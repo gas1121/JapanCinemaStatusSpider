@@ -18,7 +18,7 @@ spider_setting = {
     "walkerplus_cinema": {
         "url": "http://movie.walkerplus.com/theater/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -26,7 +26,7 @@ spider_setting = {
     "walkerplus_movie": {
         "url": "http://movie.walkerplus.com/list/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },

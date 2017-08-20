@@ -21,8 +21,7 @@ services:
       - PROXY_ADDRESS=${PROXY_ADDRESS:-10.0.2.2}
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}
-    # TODO only run cinema movie temporarily
-    command: scrapy crawl walkerplus_movie
+    command: scrapy crawl --all_spiders
   scheduler:
     build:
       context: .
@@ -61,7 +60,7 @@ services:
     restart: always
   kafka_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/kafka-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -69,7 +68,7 @@ services:
     restart: always
   redis_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/redis-monitor/Dockerfile.py3
     depends_on:
       - kafka
@@ -78,7 +77,7 @@ services:
     restart: always
   rest:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#py3
+      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/rest/Dockerfile.py3
     depends_on:
       - kafka

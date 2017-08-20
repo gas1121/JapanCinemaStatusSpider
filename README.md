@@ -92,8 +92,8 @@ Here is a list of useful site and some of them is used by this spider
  - [x] Better integration with scrapy cluster
  - [x] split a data processor module for handling kafka messages to database
  - [x] configure spider by zookeeper instead of command line
- - [ ] use scrapy-cluster dev branch instead of forked branch
- - [ ] redis cookie pool
+ - [x] use scrapy-cluster custom-dev branch instead of forked branch
+ - [x] redis cookie pool
  - [ ] some request missing when run multiple spiders concurrently?(maybe timeout issue)
 - [ ] Filter locked seat data
 - [ ] Add more stand alone cinema's crawler
