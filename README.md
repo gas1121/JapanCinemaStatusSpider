@@ -84,8 +84,12 @@ Here is a list of useful site and some of them is used by this spider
 
 ## TODO list
 - [ ] change log
+- [ ] redis cookie middleware develop
+- [ ] support use multiple local ip
+- [ ] support use ip proxy
+- [ ] cloud manager module
 - [ ] pull requests for scrapy-cluster
- - [ ] request serialization issue
+ - [x] scheduler request serialization issue
  - [ ] meta_passthrough_middleware ignore scrapy's special keys
  - [ ] redis_cookie_middleware
 - [ ] Destribution support
