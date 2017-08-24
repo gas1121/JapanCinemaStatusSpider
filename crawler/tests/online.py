@@ -94,7 +94,6 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         meta = {
             'dont_merge_cookies': False,
             'cookiejar': None,
-
         }
         name = 'test'
         uuid = 'uuid'

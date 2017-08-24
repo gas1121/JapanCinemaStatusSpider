@@ -16,7 +16,9 @@ class ScrapyClusterSpider(RedisSpider):
         super(ScrapyClusterSpider, self).__init__(*args, **kwargs)
         settings = get_project_settings()
         self.set_default_config()
-        # create a unique uuid for each spider
+        # create a unique uuid for each spider instance, this is stored
+        # with request so it can get the cookiejar when it is used
+        # on a different spider instance
         self.uuid = str(uuid.uuid4())
         # set up zookeeper watcher for spider config
         zookeeper_hosts = settings.get('ZOOKEEPER_HOSTS')

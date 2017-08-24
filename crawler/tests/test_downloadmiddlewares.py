@@ -10,7 +10,7 @@ from crawler.middlewares.proxy import ProxyDownloaderMiddleware
 from crawler.middlewares.selenium import SeleniumDownloaderMiddleware
 
 
-@patch('crawler.middlewares.proxy.sc_log_setup', MagicMock())
+@patch('crawler.middlewares.cookies.sc_log_setup', MagicMock())
 class TestRedisCookiesMiddleware(unittest.TestCase):
     def setUp(self):
         self.patcher = patch('crawler.middlewares.cookies.redis')
@@ -26,21 +26,42 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.middleware = RedisCookiesMiddleware.from_crawler(crawler)
 
     def test_process_request(self):
-        request = MagicMock()
-        request.meta = {
-            'dont_merge_cookies': False,
-            'cookiejar': None,
-        }
-        spider = MagicMock()
         self.middleware._get_key = MagicMock(return_value='test-key')
         jar = MagicMock()
         self.middleware._get_cookie_from_redis = MagicMock(return_value=jar)
         self.middleware._get_request_cookies = MagicMock()
         self.middleware._store_cookie_to_redis = MagicMock()
         self.middleware._debug_cookie = MagicMock()
+
+        # cookiejar_id not set
+        request = MagicMock()
+        request.meta = {
+            'dont_merge_cookies': False,
+            'cookiejar': None,
+        }
+        spider = MagicMock()
+        spider.name = 'test'
+        spider.uuid = 'uuid'
         self.middleware.process_request(request, spider)
         self.middleware._get_key.assert_called_once_with(
-            spider, cookiejarkey=None)
+            'test', 'uuid', cookiejarkey=None)
+        self.middleware._get_cookie_from_redis.assert_called_once_with(
+            'test-key')
+        self.middleware._get_request_cookies.assert_called_once_with(
+            jar, request)
+        self.middleware._store_cookie_to_redis.assert_called_once_with(
+            'test-key', jar)
+        self.middleware._get_key.reset_mock()
+        self.middleware._get_cookie_from_redis.reset_mock()
+        self.middleware._get_request_cookies.reset_mock()
+        self.middleware._store_cookie_to_redis.reset_mock()
+        self.middleware._debug_cookie.reset_mock()
+
+        # cookiejar_id set in request
+        request.meta['cookiejar_id'] = 'exist_id'
+        self.middleware.process_request(request, spider)
+        self.middleware._get_key.assert_called_once_with(
+            'test', 'exist_id', cookiejarkey=None)
         self.middleware._get_cookie_from_redis.assert_called_once_with(
             'test-key')
         self.middleware._get_request_cookies.assert_called_once_with(
@@ -53,8 +74,10 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         request.meta = {
             'dont_merge_cookies': False,
             'cookiejar': None,
+            'cookiejar_id': 'exist_id',
         }
         spider = MagicMock()
+        spider.name = 'test'
         self.middleware._get_key = MagicMock(return_value='test-key')
         jar = MagicMock()
         self.middleware._get_cookie_from_redis = MagicMock(return_value=jar)
@@ -62,19 +85,20 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         self.middleware._debug_cookie = MagicMock()
         self.middleware.process_response(request, MagicMock(), spider)
         self.middleware._get_key.assert_called_once_with(
-            spider, cookiejarkey=None)
+            'test', 'exist_id', cookiejarkey=None)
         self.middleware._get_cookie_from_redis.assert_called_once_with(
             'test-key')
         self.middleware._store_cookie_to_redis.assert_called_once_with(
             'test-key', jar)
 
     def test_get_key(self):
-        spider = MagicMock()
-        spider.name = 'test'
-        spider.uuid = 'uuid'
-        key = self.middleware._get_key(spider, cookiejarkey=None)
+        spider_name = 'test'
+        cookiejar_id = 'uuid'
+        key = self.middleware._get_key(
+            spider_name, cookiejar_id, cookiejarkey=None)
         self.assertEqual(key, 'cookie:test:uuid:all')
-        key = self.middleware._get_key(spider, cookiejarkey='key')
+        key = self.middleware._get_key(
+            spider_name, cookiejar_id, cookiejarkey='key')
         self.assertEqual(key, 'cookie:test:uuid:key')
 
     def test_get_cookie_from_redis(self):

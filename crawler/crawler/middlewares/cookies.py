@@ -38,9 +38,14 @@ class RedisCookiesMiddleware(CookiesMiddleware):
             self.__class__.__name__))
         if request.meta.get('dont_merge_cookies', False):
             return
+        # set cookiejar_id to source spider's uuid if not already set
+        if 'cookiejar_id' not in request.meta:
+            request.meta['cookiejar_id'] = spider.uuid
+        cookiejar_id = request.meta.get('cookiejar_id')
         # get cookie from redis if exist
         cookiejarkey = request.meta.get("cookiejar")
-        key = self._get_key(spider, cookiejarkey=cookiejarkey)
+        key = self._get_key(
+            spider.name, cookiejar_id, cookiejarkey=cookiejarkey)
         jar = self._get_cookie_from_redis(key)
         cookies = self._get_request_cookies(jar, request)
         for cookie in cookies:
@@ -60,10 +65,14 @@ class RedisCookiesMiddleware(CookiesMiddleware):
             self.__class__.__name__))
         if request.meta.get('dont_merge_cookies', False):
             return response
-
+        # set cookiejar_id to source spider's uuid if not already set
+        if 'cookiejar_id' not in request.meta:
+            request.meta['cookiejar_id'] = spider.uuid
         # get cookie from redis if exist
+        cookiejar_id = request.meta.get('cookiejar_id')
         cookiejarkey = request.meta.get("cookiejar")
-        key = self._get_key(spider, cookiejarkey=cookiejarkey)
+        key = self._get_key(
+            spider.name, cookiejar_id, cookiejarkey=cookiejarkey)
         jar = self._get_cookie_from_redis(key)
         # extract cookies from Set-Cookie and drop invalid/expired cookies
         jar.extract_cookies(response, request)
@@ -74,12 +83,16 @@ class RedisCookiesMiddleware(CookiesMiddleware):
 
         return response
 
-    def _get_key(self, spider, cookiejarkey=None):
+    def _get_key(self, spider_name, cookiejar_id, cookiejarkey=None):
         """
         get key for cookies in redis
+        @param cookiejar_id uuid of cookiejar, one for each spider instance
+        @param cookiejarkey extra key string of cookiejar
         """
+        # keep spider name for ease of cleaning in test
         return "cookie:{}:{}:{}".format(
-            spider.name, spider.uuid, cookiejarkey if cookiejarkey else "all")
+            spider_name, cookiejar_id,
+            cookiejarkey if cookiejarkey else "all")
 
     def _get_cookie_from_redis(self, key):
         """
