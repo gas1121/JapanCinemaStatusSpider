@@ -22,6 +22,12 @@ services:
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}
     command: scrapy crawl --all_spiders
+    deploy:
+      mode: global
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   scheduler:
     build:
       context: .
@@ -39,6 +45,16 @@ services:
       - kafka
       - redis
       - zookeeper
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   data_processor:
     build:
       context: .
@@ -58,6 +74,16 @@ services:
       - zookeeper
       - postgres
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   kafka_monitor:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
@@ -66,6 +92,13 @@ services:
       - kafka
       - redis
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   redis_monitor:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
@@ -75,6 +108,13 @@ services:
       - redis
       - zookeeper
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   rest:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
@@ -85,11 +125,28 @@ services:
     restart: always
     ports:
       - "8888:5343"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   zookeeper:
     image: zookeeper
     ports:
       - "2181:2181"
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   kafka:
     image: wurstmeister/kafka
     ports:
@@ -102,6 +159,16 @@ services:
     depends_on:
       - zookeeper
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   postgres:
     image: library/postgres:alpine
     expose:
@@ -114,6 +181,16 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - PGDATA=${PGDATA:-/var/lib/postgresql/data}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   psql:
     image: library/postgres:alpine
     command: psql -h postgres -p 5432 -U ${POSTGRES_USER} -W ${POSTGRES_PASSWORD}
@@ -125,6 +202,17 @@ services:
       - "8081:8081"
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    # TODO not needed in production
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   phantomjs:
     image: wernight/phantomjs:2
     expose:
@@ -139,6 +227,16 @@ services:
     volumes:
       - redisdata:${PGWEB_PORT:-/data}
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
 volumes:
   pgdata:
   redisdata:
