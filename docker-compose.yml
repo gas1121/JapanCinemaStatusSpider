@@ -6,6 +6,7 @@ services:
       dockerfile: ./docker/crawler/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
+    image: 127.0.0.1:5000/japancinemastatusspider:crawler
     volumes: 
       - ./crawler:/app
     working_dir: /app
@@ -34,6 +35,7 @@ services:
       dockerfile: ./docker/scheduler/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
+    image: 127.0.0.1:5000/japancinemastatusspider:scheduler
     environment:
       ZOOKEEPER_HOST: zookeeper:2181
       JS_ZOOKEEPER_PATH: /japancinemastatusspider/spiders/
@@ -61,6 +63,7 @@ services:
       dockerfile: ./docker/data_processor/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
+    image: 127.0.0.1:5000/japancinemastatusspider:data_processor
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -88,6 +91,7 @@ services:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/kafka-monitor/Dockerfile.py3
+    image: 127.0.0.1:5000/japancinemastatusspider:kafka_monitor
     depends_on:
       - kafka
       - redis
@@ -103,6 +107,7 @@ services:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/redis-monitor/Dockerfile.py3
+    image: 127.0.0.1:5000/japancinemastatusspider:redis_monitor
     depends_on:
       - kafka
       - redis
@@ -119,6 +124,7 @@ services:
     build:
       context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
       dockerfile: docker/rest/Dockerfile.py3
+    image: 127.0.0.1:5000/japancinemastatusspider:rest
     depends_on:
       - kafka
       - redis
@@ -134,8 +140,8 @@ services:
         window: 60s
   zookeeper:
     image: zookeeper
-    ports:
-      - "2181:2181"
+    expose:
+      - "2181"
     restart: always
     deploy:
       mode: replicated
@@ -149,11 +155,13 @@ services:
         window: 60s
   kafka:
     image: wurstmeister/kafka
-    ports:
-      - "9092:9092"
+    expose:
+      - "9092"
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_PORT: 9092
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -194,6 +202,9 @@ services:
   psql:
     image: library/postgres:alpine
     command: psql -h postgres -p 5432 -U ${POSTGRES_USER} -W ${POSTGRES_PASSWORD}
+    deploy:
+      mode: replicated
+      replicas: 0
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
@@ -202,7 +213,6 @@ services:
       - "8081:8081"
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
-    # TODO not needed in production
     deploy:
       mode: replicated
       replicas: 1
@@ -220,6 +230,9 @@ services:
     volumes: 
       - .:/app
     command: phantomjs --proxy=${PROXY_ADDRESS:-10.0.2.2}:${PROXY_PORT:-1080} --proxy-type=${PROXY_TYPE:-socks5} --webdriver=8910
+    deploy:
+      mode: replicated
+      replicas: 0
   redis:
     image: library/redis:alpine
     expose:

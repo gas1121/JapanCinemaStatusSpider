@@ -1,0 +1,21 @@
+version: "3"
+services:
+  registry:
+    restart: always
+    image: registry:2
+    ports:
+      - 5000:5000
+    volumes:
+    - registrydata:/var/lib/registry
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
+volumes:
+  registrydata:
