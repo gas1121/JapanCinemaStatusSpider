@@ -1,0 +1,40 @@
+version: "3"
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    command: elasticsearch
+    environment:
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+      - bootstrap.memory_lock=true
+      - discovery.zen.minimum_master_nodes=1
+      - network.host=0.0.0.0
+      - xpack.security.enabled=false
+    expose:
+      - "9200"
+      - "9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.5.2
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./jcss-logstash.conf:/etc/logstash/conf.d/logstash.conf
+      - ./logs-template.json:/etc/logstash/templates/logs-template.json
+      - jcss_logdata:/var/log/scrapy-cluster
+    expose:
+      - "5000"
+    depends_on:
+      - elasticsearch
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.5.2
+    environment:
+      - xpack.security.enabled=false
+    ports:
+      - "9090:5601"
+    depends_on:
+      - elasticsearch
+
+volumes:
+  jcss_logdata:
