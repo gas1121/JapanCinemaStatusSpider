@@ -1,5 +1,4 @@
 .env
-docker-compose.dev.yml
 
 \selenium
 *.log
