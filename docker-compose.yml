@@ -89,8 +89,10 @@ services:
         window: 60s
   kafka_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
-      dockerfile: docker/kafka-monitor/Dockerfile.py3
+      context: .
+      dockerfile: ./docker/kafka_monitor/Dockerfile
+      args:
+        - USE_MIRROR=${USE_MIRROR:-0}
     image: 127.0.0.1:5000/japancinemastatusspider:kafka_monitor
     depends_on:
       - kafka
@@ -105,8 +107,10 @@ services:
         window: 60s
   redis_monitor:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
-      dockerfile: docker/redis-monitor/Dockerfile.py3
+      context: .
+      dockerfile: ./docker/redis_monitor/Dockerfile
+      args:
+        - USE_MIRROR=${USE_MIRROR:-0}
     image: 127.0.0.1:5000/japancinemastatusspider:redis_monitor
     depends_on:
       - kafka
@@ -122,8 +126,10 @@ services:
         window: 60s
   rest:
     build:
-      context: https://github.com/gas1121/scrapy-cluster.git#custom-dev
-      dockerfile: docker/rest/Dockerfile.py3
+      context: .
+      dockerfile: ./docker/rest/Dockerfile
+      args:
+        - USE_MIRROR=${USE_MIRROR:-0}
     image: 127.0.0.1:5000/japancinemastatusspider:rest
     depends_on:
       - kafka

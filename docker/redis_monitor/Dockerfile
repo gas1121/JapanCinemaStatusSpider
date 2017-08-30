@@ -20,22 +20,17 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 RUN apt-get update
 RUN git clone -b custom-dev https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
-WORKDIR /temp/scrapy-cluster/kafka-monitor
+WORKDIR /temp/scrapy-cluster/redis-monitor
 RUN pip install -r requirements.txt
-# install kafka_monitor.py as module
-COPY docker/scheduler/setup.py /temp/scrapy-cluster/kafka-monitor
-RUN pip install .
 
-# install requirements
+RUN mkdir -p /usr/src/app
+WORKDIR /temp/scrapy-cluster
+# move codebase over
+RUN cp -r redis-monitor/* /usr/src/app
+# override settings via localsettings.py
+RUN cp -r docker/redis-monitor/settings.py /usr/src/app/localsettings.py
+# copy testing script into container
+RUN cp -r docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
+WORKDIR /usr/src/app
 
-RUN mkdir -p /app
-# install utils
-COPY utils /utils
-COPY scheduler /app
-COPY docker/run_tests.sh /app
-RUN chmod +x /app/run_tests.sh
-WORKDIR /app
-RUN pip install -r requirements.txt
-RUN rm -rf /utils
-
-CMD dockerize -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 20s python run.py
+CMD dockerize -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 20s python redis_monitor.py

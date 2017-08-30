@@ -18,9 +18,13 @@ A scrapy spider cluster to crawl movie booking data from several cinema company 
 - you can use **psql** or **pgweb** in service in **docker-compose** file to visit database
 
 ## Deploy to swarm cluster
-As swarm does not read values in **.env** file, we need to manually read those environment variables by
+Setup local docker registry with `docker stack deploy --compose-file docker-compose.registry.yml registry`
+
+build **crawler,data_processor,scheduler,kafka_monitor,redis_monitor,rest** image and push to local registry with `docker-compose push`
+
+Deploy stack, as swarm does not read values in **.env** file, we need to manually read those environment variables by
 ```
-env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml [STACK_NAME]
+env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml jcss
 ```
 
 ## Customize
