@@ -17,6 +17,12 @@ A scrapy spider cluster to crawl movie booking data from several cinema company 
 - run `sudo docker-compose up -d` to start service
 - you can use **psql** or **pgweb** in service in **docker-compose** file to visit database
 
+## Deploy to swarm cluster
+As swarm does not read values in **.env** file, we need to manually read those environment variables by
+```
+env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml [STACK_NAME]
+```
+
 ## Customize
 #### Modify schedule time
 We use [schedule](http://schedule.readthedocs.io/en/latest/]) to schedule our spider work, you can modify **run.py** to change schedule time following its documentation.
