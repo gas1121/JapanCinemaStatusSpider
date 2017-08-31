@@ -162,6 +162,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_PORT: 9092
+      KAFKA_HEAP_OPTS: "-Xmx200m -Xms100m"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -177,6 +178,11 @@ services:
         delay: 5s
         max_attempts: 5
         window: 60s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 200M
   postgres:
     image: library/postgres:alpine
     expose:

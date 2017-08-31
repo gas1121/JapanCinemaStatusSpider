@@ -1,0 +1,4 @@
+FROM docker.elastic.co/logstash/logstash:5.5.2
+
+COPY ./jcss-logstash.conf /etc/logstash/conf.d/logstash.conf
+COPY ./logs-template.json /etc/logstash/templates/logs-template.json

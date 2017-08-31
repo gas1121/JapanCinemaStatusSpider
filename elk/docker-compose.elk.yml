@@ -4,7 +4,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
     command: elasticsearch
     environment:
-      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+      - "ES_JAVA_OPTS=-Xms50m -Xmx250m"
       - bootstrap.memory_lock=true
       - discovery.zen.minimum_master_nodes=1
       - network.host=0.0.0.0
@@ -16,17 +16,49 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 200M
   logstash:
-    image: docker.elastic.co/logstash/logstash:5.5.2
+    build:
+      context: .
+      dockerfile: ./Dockerfile.logstash
+    image: 127.0.0.1:5000/japancinemastatusspider:logstash
     command: logstash -f /etc/logstash/conf.d/logstash.conf
+    environment:
+      - "LS_JAVA_OPTS=-Xms50m -Xmx250m"
     volumes:
-      - ./jcss-logstash.conf:/etc/logstash/conf.d/logstash.conf
-      - ./logs-template.json:/etc/logstash/templates/logs-template.json
-      - jcss_logdata:/var/log/scrapy-cluster
+      - logs:/var/log/scrapy-cluster
     expose:
       - "5000"
     depends_on:
       - elasticsearch
+    deploy:
+      mode: global
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 200M
   kibana:
     image: docker.elastic.co/kibana/kibana:5.5.2
     environment:
@@ -35,6 +67,17 @@ services:
       - "9090:5601"
     depends_on:
       - elasticsearch
-
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
 volumes:
-  jcss_logdata:
+  logs:
+    external:
+      name: jcss_logs

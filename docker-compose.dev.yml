@@ -22,8 +22,6 @@ services:
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
     image: 127.0.0.1:5000/japancinemastatusspider:crawler
-    volumes: 
-      - ./crawler:/app
     working_dir: /app
     depends_on:
       - kafka
@@ -38,6 +36,12 @@ services:
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}
     command: scrapy crawl --all_spiders
+    deploy:
+      mode: global
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   scheduler:
     build:
       context: .
@@ -49,13 +53,21 @@ services:
       ZOOKEEPER_HOST: zookeeper:2181
       JS_ZOOKEEPER_PATH: /japancinemastatusspider/spiders/
       JS_ZOOKEEPER_ID: all
-    volumes: 
-      - ./scheduler:/app
     working_dir: /app
     depends_on:
       - kafka
       - redis
       - zookeeper
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   data_processor:
     build:
       context: .
@@ -67,8 +79,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    volumes: 
-      - ./data_processor:/app
     working_dir: /app
     depends_on:
       - kafka
@@ -76,6 +86,16 @@ services:
       - zookeeper
       - postgres
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   kafka_monitor:
     build:
       context: .
@@ -87,6 +107,13 @@ services:
       - kafka
       - redis
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   redis_monitor:
     build:
       context: .
@@ -99,6 +126,13 @@ services:
       - redis
       - zookeeper
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   rest:
     build:
       context: .
@@ -112,11 +146,28 @@ services:
     restart: always
     ports:
       - "8888:5343"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   zookeeper:
     image: zookeeper
     expose:
       - "2181"
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   kafka:
     image: wurstmeister/kafka
     expose:
@@ -126,11 +177,27 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_PORT: 9092
+      KAFKA_HEAP_OPTS: "-Xmx200m -Xms100m"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - zookeeper
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 200M
   postgres:
     image: library/postgres:alpine
     expose:
@@ -143,9 +210,22 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - PGDATA=${PGDATA:-/var/lib/postgresql/data}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   psql:
     image: library/postgres:alpine
     command: psql -h postgres -p 5432 -U ${POSTGRES_USER} -W ${POSTGRES_PASSWORD}
+    deploy:
+      mode: replicated
+      replicas: 0
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
@@ -154,6 +234,16 @@ services:
       - "8081:8081"
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
   phantomjs:
     image: wernight/phantomjs:2
     expose:
@@ -161,6 +251,9 @@ services:
     volumes: 
       - .:/app
     command: phantomjs --proxy=${PROXY_ADDRESS:-10.0.2.2}:${PROXY_PORT:-1080} --proxy-type=${PROXY_TYPE:-socks5} --webdriver=8910
+    deploy:
+      mode: replicated
+      replicas: 0
   redis:
     image: library/redis:alpine
     expose:
@@ -168,6 +261,16 @@ services:
     volumes:
       - redisdata:${PGWEB_PORT:-/data}
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        delay: 5s
+        max_attempts: 5
+        window: 60s
 volumes:
   pgdata:
   redisdata:
