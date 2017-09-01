@@ -27,9 +27,6 @@ Deploy stack, as swarm does not read values in **.env** file, we need to manuall
 env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml jcss
 ```
 
-## Integration with elk stack
-If elasticsearch is failed with **max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]**, increase you local machine's virtual memory with `sysctl -w vm.max_map_count=262144`
-
 ## Customize
 #### Modify schedule time
 We use [schedule](http://schedule.readthedocs.io/en/latest/]) to schedule our spider work, you can modify **run.py** to change schedule time following its documentation.

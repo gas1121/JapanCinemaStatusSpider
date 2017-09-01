@@ -92,6 +92,11 @@ services:
       - kafka
       - redis
     restart: always
+    environment:
+      - LOG_STDOUT=False
+      - LOG_JSON=True
+    volumes:
+      - logs:/usr/src/app/logs
     deploy:
       mode: replicated
       replicas: 1
@@ -111,6 +116,11 @@ services:
       - redis
       - zookeeper
     restart: always
+    environment:
+      - LOG_STDOUT=False
+      - LOG_JSON=True
+    volumes:
+      - logs:/usr/src/app/logs
     deploy:
       mode: replicated
       replicas: 1
@@ -131,6 +141,11 @@ services:
     restart: always
     ports:
       - "8888:5343"
+    environment:
+      - LOG_STDOUT=False
+      - LOG_JSON=True
+    volumes:
+      - logs:/usr/src/app/logs
     deploy:
       mode: replicated
       replicas: 1
@@ -162,7 +177,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_PORT: 9092
-      KAFKA_HEAP_OPTS: "-Xmx200m -Xms100m"
+      KAFKA_HEAP_OPTS: "-Xmx400m -Xms100m"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -180,9 +195,9 @@ services:
         window: 60s
       resources:
         limits:
-          memory: 256M
+          memory: 512M
         reservations:
-          memory: 200M
+          memory: 300M
   postgres:
     image: library/postgres:alpine
     expose:

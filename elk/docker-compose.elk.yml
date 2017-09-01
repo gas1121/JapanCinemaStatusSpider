@@ -4,7 +4,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
     command: elasticsearch
     environment:
-      - "ES_JAVA_OPTS=-Xms50m -Xmx250m"
+      - "ES_JAVA_OPTS=-Xms500m -Xmx500m"
       - bootstrap.memory_lock=true
       - discovery.zen.minimum_master_nodes=1
       - network.host=0.0.0.0
@@ -31,9 +31,9 @@ services:
         window: 60s
       resources:
         limits:
-          memory: 256M
+          memory: 650M
         reservations:
-          memory: 200M
+          memory: 550M
   logstash:
     build:
       context: .
@@ -41,7 +41,7 @@ services:
     image: 127.0.0.1:5000/japancinemastatusspider:logstash
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     environment:
-      - "LS_JAVA_OPTS=-Xms50m -Xmx250m"
+      - "LS_JAVA_OPTS=-Xms100m -Xmx400m"
     volumes:
       - logs:/var/log/scrapy-cluster
     expose:
@@ -56,9 +56,9 @@ services:
         window: 60s
       resources:
         limits:
-          memory: 256M
+          memory: 512M
         reservations:
-          memory: 200M
+          memory: 300M
   kibana:
     image: docker.elastic.co/kibana/kibana:5.5.2
     environment:
