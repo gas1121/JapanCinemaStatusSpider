@@ -27,7 +27,6 @@ services:
       - kafka
       - redis
       - zookeeper
-      - postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -235,12 +234,6 @@ services:
         delay: 5s
         max_attempts: 5
         window: 60s
-  psql:
-    image: library/postgres:alpine
-    command: psql -h postgres -p 5432 -U ${POSTGRES_USER} -W ${POSTGRES_PASSWORD}
-    deploy:
-      mode: replicated
-      replicas: 0
   pgweb:
     image: sosedoff/pgweb
     depends_on: 
@@ -289,3 +282,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  logs:

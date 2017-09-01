@@ -13,6 +13,7 @@ from scrapy.http import Request
 
 from crawler.utils import ScrapyClusterSpider
 from crawler.middlewares.cookies import RedisCookiesMiddleware
+from crawler.commands.crawl import CrawlCommand
 
 
 class BasicScrapyClusterSpider(ScrapyClusterSpider):
@@ -152,6 +153,13 @@ class TestRedisCookiesMiddleware(unittest.TestCase):
         keys = self.redis_conn.keys('*test*')
         for key in keys:
             self.redis_conn.delete(key)
+
+
+class TestCrawlCommand(unittest.TestCase):
+    def test_is_remote_prepared(self):
+        cmd = CrawlCommand()
+        result = cmd.is_remote_prepared()
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':

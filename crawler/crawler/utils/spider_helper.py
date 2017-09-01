@@ -1,4 +1,3 @@
-import sys
 import json
 import uuid
 
@@ -6,6 +5,7 @@ from kazoo.handlers.threading import KazooTimeoutError
 from scutils.zookeeper_watcher import ZookeeperWatcher
 from crawling.spiders.redis_spider import RedisSpider
 from scrapy.utils.project import get_project_settings
+from scrapy.exceptions import CloseSpider
 
 
 class ScrapyClusterSpider(RedisSpider):
@@ -33,7 +33,7 @@ class ScrapyClusterSpider(RedisSpider):
         except KazooTimeoutError:
             self.logger.error(
                 "{}: Could not connect to Zookeeper".format(self.name))
-            sys.exit(1)
+            raise CloseSpider(reason='Could not connect to Zookeeper')
 
     def change_config(self, config_string):
         if config_string and len(config_string) > 0:

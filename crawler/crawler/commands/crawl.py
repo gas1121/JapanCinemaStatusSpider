@@ -1,4 +1,11 @@
+import sys
 from optparse import OptionGroup
+
+from kazoo.client import KazooClient
+from kazoo.exceptions import KazooException
+from kazoo.handlers.threading import KazooTimeoutError
+from kafka import KafkaConsumer
+from kafka.errors import KafkaError
 from scrapy.commands.crawl import Command
 from scrapy.utils.project import get_project_settings
 
@@ -23,6 +30,9 @@ multiple spiders in single process"""
         Command.process_options(self, args, opts)
 
     def run(self, args, opts):
+        # check zookeeper and kafka connection, exit if fail to connect
+        if not self.is_remote_prepared():
+            sys.exit(1)
         opts.spargs = {}
         if opts.all_spiders:
             self.run_multiple_spiders(args, opts)
@@ -43,3 +53,32 @@ multiple spiders in single process"""
         self.crawler_process.crawl('walkerplus_cinema', **opts.spargs)
         self.crawler_process.start()
         return
+
+    def is_remote_prepared(self):
+        """
+        check if kafka and zookeeper is prepared
+        """
+        settings = get_project_settings()
+        # ensure zookeeper connection
+        zookeeper_host = settings.get('ZOOKEEPER_HOSTS')
+        zk = KazooClient(hosts=zookeeper_host)
+        prepared = False
+        try:
+            zk.start()
+            prepared = True
+        except (KazooException, KazooTimeoutError) as e:
+            prepared = False
+        finally:
+            zk.stop()
+        if not prepared:
+            return False
+        # ensure kafka connection
+        kafka_host = settings.get('KAFKA_HOSTS')
+        try:
+            consumer = KafkaConsumer(
+                "jcss.test", group_id="demo-id", bootstrap_servers=kafka_host)
+            prepared = True
+            consumer.close()
+        except KafkaError as e:
+            prepared = False
+        return prepared
