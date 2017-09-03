@@ -33,4 +33,4 @@ COPY docker/kafka_monitor/localsettings.py /usr/src/app/localsettings.py
 RUN cp docker/run_docker_tests.sh /usr/src/app/run_docker_tests.sh
 WORKDIR /usr/src/app
 
-CMD dockerize -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 20s python kafka_monitor.py run
+CMD dockerize -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 40s python kafka_monitor.py run

@@ -39,4 +39,4 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 RUN rm -rf /utils
 
-CMD dockerize -wait tcp://postgres:5432 -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 20s python run.py
+CMD dockerize -wait tcp://postgres:5432 -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 40s python run.py

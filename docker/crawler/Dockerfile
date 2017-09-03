@@ -49,4 +49,4 @@ RUN pip install -r requirements.txt
 RUN rm -rf /utils
 
 # by default run all spiders, override this in compose file
-CMD dockerize -wait tcp://zookeeper:2181 -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 20s scrapy crawl --all_spiders
+CMD dockerize -wait tcp://zookeeper:2181 -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 40s scrapy crawl --all_spiders

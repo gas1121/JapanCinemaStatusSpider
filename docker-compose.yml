@@ -19,7 +19,6 @@ services:
       - PROXY_ADDRESS=${PROXY_ADDRESS:-10.0.2.2}
       - PROXY_PORT=${PROXY_PORT:-1080}
       - PROXY_TYPE=${PROXY_TYPE:-socks5}
-    command: scrapy crawl --all_spiders
     deploy:
       mode: global
       restart_policy:
