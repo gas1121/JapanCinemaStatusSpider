@@ -22,13 +22,6 @@ RUN apt-get update && apt-get -y install \
   libxslt1-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# install dockerize
-RUN apt-get update && apt-get install -y wget
-ENV DOCKERIZE_VERSION v0.5.0
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
 RUN git clone -b custom-dev https://github.com/gas1121/scrapy-cluster.git /temp/scrapy-cluster
 WORKDIR /temp/scrapy-cluster/crawler
 # add a setup.py file to install as package
@@ -47,6 +40,11 @@ RUN chmod +x /app/run_tests.sh
 WORKDIR /app
 RUN pip install -r requirements.txt
 RUN rm -rf /utils
+# copy service guarder script
+COPY docker/service_guarder.py /app/service_guarder.py
+# copy run script
+COPY docker/run.sh /app/run.sh
+RUN chmod +x /app/run.sh
 
-# by default run all spiders, override this in compose file
-CMD dockerize -wait tcp://zookeeper:2181 -wait tcp://kafka:9092 -wait tcp://redis:6379 -timeout 40s scrapy crawl --all_spiders
+# run all spiders
+CMD ./run.sh scrapy crawl --all_spiders

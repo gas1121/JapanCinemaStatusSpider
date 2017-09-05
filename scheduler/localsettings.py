@@ -12,7 +12,7 @@ REDIS_DB = int(os.getenv('REDIS_DB', 0))
 # Kafka server information
 KAFKA_HOSTS = [x.strip() for x in os.getenv('KAFKA_HOSTS', 'kafka:9092').split(',')]
 KAFKA_INCOMING_TOPIC = os.getenv('KAFKA_INCOMING_TOPIC', 'demo.incoming')
-KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'demo-group')
+KAFKA_GROUP = os.getenv('KAFKA_GROUP', 'jcss.scheduler')
 KAFKA_FEED_TIMEOUT = 10
 KAFKA_CONSUMER_AUTO_OFFSET_RESET = 'earliest'
 KAFKA_CONSUMER_TIMEOUT = 50
