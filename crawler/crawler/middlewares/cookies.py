@@ -38,6 +38,10 @@ class RedisCookiesMiddleware(CookiesMiddleware):
             self.__class__.__name__))
         if request.meta.get('dont_merge_cookies', False):
             return
+        # TODO support copy old cookiejar data when use new cookiejar
+        # TODO modify reset_meta middleware with used key
+        # TODO cookiejar_id should also be manually passed in spider
+        # TODO add method to allow spider manually delete useless cookie
         # set cookiejar_id to source spider's uuid if not already set
         if 'cookiejar_id' not in request.meta:
             request.meta['cookiejar_id'] = spider.uuid

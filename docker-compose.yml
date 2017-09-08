@@ -43,6 +43,7 @@ services:
       - kafka
       - redis
       - zookeeper
+      - kafka_monitor
     deploy:
       mode: replicated
       replicas: 1

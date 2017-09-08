@@ -34,7 +34,7 @@ spider_setting = {
     "aeon": {
         "url": "http://www.aeoncinema.com/theater/",
         "throttle": {
-            "hits": 50,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -42,7 +42,7 @@ spider_setting = {
     "toho_v2": {
         "url": "https://hlo.tohotheater.jp/responsive/json/theater_list.json",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -50,7 +50,7 @@ spider_setting = {
     "united": {
         "url": "http://www.unitedcinemas.jp/index.html",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -58,7 +58,7 @@ spider_setting = {
     "movix": {
         "url": "http://www.smt-cinema.com/theater/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -74,7 +74,7 @@ spider_setting = {
     "cinema109": {
         "url": "http://109cinemas.net/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -82,7 +82,7 @@ spider_setting = {
     "korona": {
         "url": "http://www.korona.co.jp/cinema/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -90,7 +90,7 @@ spider_setting = {
     "cinemasunshine": {
         "url": "http://www.cinemasunshine.co.jp/theater/",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -98,7 +98,7 @@ spider_setting = {
     "forum": {
         "url": "http://forum-movie.net/theater-list",
         "throttle": {
-            "hits": 60,
+            "hits": 90,
             "window": 60,
             "scale": 1.0,
         },
@@ -207,7 +207,9 @@ def set_throttle_job(logger, settings):
         send_job_to_kafka(settings['KAFKA_INCOMING_TOPIC'], throttle_job)
 
 
-def debug_crawl_job(spider, settings=None, movie_list=[], cinema_list=[]):
+def debug_crawl_job(spider, settings=None, crawl_booking_data=True,
+                    crawl_all_cinemas=False, crawl_all_movies=False,
+                    movie_list=[], cinema_list=[]):
     """start a crawl job for debug perpose
     """
     settings = settings or SettingsWrapper().load(local='localsettings.py')
@@ -216,10 +218,11 @@ def debug_crawl_job(spider, settings=None, movie_list=[], cinema_list=[]):
         if spider_id != spider:
             continue
         # config spider properly
-        change_spider_config(
-            spider_id, settings, use_sample=False, crawl_booking_data=True,
-            crawl_all_cinemas=False, crawl_all_movies=False,
-            movie_list=movie_list, cinema_list=cinema_list)
+        change_spider_config(spider_id, settings, use_sample=False,
+                             crawl_booking_data=crawl_booking_data,
+                             crawl_all_cinemas=crawl_all_cinemas,
+                             crawl_all_movies=crawl_all_movies,
+                             movie_list=movie_list, cinema_list=cinema_list)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)
