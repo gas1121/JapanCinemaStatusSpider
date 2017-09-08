@@ -9,7 +9,8 @@ from kafka import KafkaConsumer
 
 from run import (spider_setting, cinema_crawl_job, movie_crawl_job,
                  showing_crawl_job, showing_booking_crawl_job,
-                 showing_booking_sample_crawl_job, set_throttle_job)
+                 showing_booking_sample_crawl_job, set_throttle_job,
+                 debug_crawl_job)
 from scheduler.utils import send_job_to_kafka, change_spider_config
 
 
@@ -219,6 +220,35 @@ class TestRun(unittest.TestCase):
                 message_count += 1
 
         self.assertEqual(message_count, len(spider_setting))
+
+    def test_debug_crawl_job(self):
+        spider_id = 'aeon'
+        self.assertTrue('aeon' in spider_setting)
+        debug_crawl_job(spider_id, self.settings,
+                        movie_list=['movie1'], cinema_list=['cinema1'])
+
+        path = self.zookeeper_path + spider_id
+        data = self.zookeeper.get(path)[0]
+        data_dict = json.loads(data.decode('utf-8'))
+        self.assertEqual(data_dict['use_sample'], False)
+        self.assertEqual(data_dict['crawl_booking_data'], True)
+        self.assertEqual(data_dict['crawl_all_cinemas'], False)
+        self.assertEqual(data_dict['crawl_all_movies'], False)
+        self.assertEqual(data_dict['movie_list'], ['movie1'])
+        self.assertEqual(data_dict['cinema_list'], ['cinema1'])
+
+        message_count = 0
+        for m in self.consumer:
+            if m is None:
+                pass
+            the_dict = json.loads(m.value)
+            if the_dict is not None and 'url' in the_dict \
+                    and the_dict['url'] \
+                    and 'spiderid' in the_dict:
+                self.assertEqual(the_dict['spiderid'], spider_id)
+                message_count += 1
+
+        self.assertEqual(message_count, 1)
 
     def tearDown(self):
         # make sure no test kafka message is left
