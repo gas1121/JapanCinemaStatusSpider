@@ -209,7 +209,7 @@ def set_throttle_job(logger, settings):
 
 def debug_crawl_job(spider, settings=None, crawl_booking_data=True,
                     crawl_all_cinemas=False, crawl_all_movies=False,
-                    movie_list=[], cinema_list=[]):
+                    movie_list=[], cinema_list=[], date=None):
     """start a crawl job for debug perpose
     """
     settings = settings or SettingsWrapper().load(local='localsettings.py')
@@ -222,7 +222,8 @@ def debug_crawl_job(spider, settings=None, crawl_booking_data=True,
                              crawl_booking_data=crawl_booking_data,
                              crawl_all_cinemas=crawl_all_cinemas,
                              crawl_all_movies=crawl_all_movies,
-                             movie_list=movie_list, cinema_list=cinema_list)
+                             movie_list=movie_list, cinema_list=cinema_list,
+                             date=date)
         url = spider_setting[spider_id]['url']
         crawl_job = create_crawl_job(url=url, spiderid=spider_id)
         send_job_to_kafka(crawl_topic, crawl_job)

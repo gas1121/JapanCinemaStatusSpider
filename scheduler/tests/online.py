@@ -225,7 +225,8 @@ class TestRun(unittest.TestCase):
         spider_id = 'aeon'
         self.assertTrue('aeon' in spider_setting)
         debug_crawl_job(spider_id, self.settings,
-                        movie_list=['movie1'], cinema_list=['cinema1'])
+                        movie_list=['movie1'], cinema_list=['cinema1'],
+                        date='20160827')
 
         path = self.zookeeper_path + spider_id
         data = self.zookeeper.get(path)[0]
@@ -236,6 +237,7 @@ class TestRun(unittest.TestCase):
         self.assertEqual(data_dict['crawl_all_movies'], False)
         self.assertEqual(data_dict['movie_list'], ['movie1'])
         self.assertEqual(data_dict['cinema_list'], ['cinema1'])
+        self.assertEqual(data_dict['date'], '20160827')
 
         message_count = 0
         for m in self.consumer:
