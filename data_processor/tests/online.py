@@ -2,6 +2,7 @@ import unittest
 from mock import MagicMock, patch
 import os
 import json
+from copy import deepcopy
 
 import arrow
 from sqlalchemy import Column, Integer, String
@@ -375,10 +376,14 @@ class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
             self.assertEquals(result[0].showing.real_title, "Your Name.")
             self.assertEquals(result[0].showing.total_seat_count, 200)
 
+            # test case for sold out
             # should use exist showing
-            handler.handle(data)
+            second_data = deepcopy(data)
+            second_data['book_status'] = 'SoldOut'
+            handler.handle(second_data)
             result = Session_mock.query(ShowingBooking).all()
             self.assertEquals(len(result), 2)
+            self.assertEquals(result[1].book_seat_count, 200)
             showing_result = Session_mock.query(Showing).all()
             self.assertEquals(len(showing_result), 1)
 

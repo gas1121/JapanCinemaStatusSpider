@@ -279,3 +279,16 @@ class TestPlugins(unittest.TestCase):
         self.assertEqual(args[1].minutes_before, proto_data['minutes_before'])
         self.assertEqual(args[1].showing.real_title, "Your Name.")
         self.assertEqual(args[1].showing.total_seat_count, 300)
+        add_item_to_database_mock.reset_mock()
+
+        # test case for sold out
+        data = deepcopy(proto_data)
+        data['book_status'] = 'SoldOut'
+        handler.handle(data)
+        self.assertEqual(add_item_to_database_mock.call_count, 1)
+        args, kwargs = add_item_to_database_mock.call_args_list[0]
+        self.assertEqual(len(args), 2)
+        self.assertEqual(args[1].minutes_before, proto_data['minutes_before'])
+        self.assertEqual(args[1].showing.real_title, "Your Name.")
+        self.assertEqual(args[1].showing.total_seat_count, 300)
+        self.assertEqual(args[1].book_seat_count, 300)

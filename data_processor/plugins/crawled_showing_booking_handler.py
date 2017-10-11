@@ -38,6 +38,10 @@ class CrawledShowingBookingHandler(BaseHandler):
                 cinema_name=showing_dict['cinema_name'],
                 cinema_site=showing_dict['cinema_site'],
                 screen=showing_dict['screen'])
+        # if SoldOut, change book_seat_count
+        if showing_booking_dict['book_status'] == 'SoldOut':
+            showing_booking_dict['book_seat_count'] = showing_booking_dict[
+                'showing']['total_seat_count']
 
         showing_booking = ShowingBooking.from_item(
             Session, showing_booking_dict)
