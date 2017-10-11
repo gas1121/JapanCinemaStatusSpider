@@ -3,6 +3,8 @@ from kafka_monitor_plugins.base_handler import BaseHandler
 from models import db_connect, add_item_to_database, Session
 from models.showing import Showing
 from models.showing_booking import ShowingBooking
+from models.movie import Movie
+from models.cinema import Cinema
 
 
 class CrawledShowingBookingHandler(BaseHandler):
@@ -24,9 +26,21 @@ class CrawledShowingBookingHandler(BaseHandler):
         @param dict: a valid dictionary object
         """
         # remove 'ts' item in input dict
-        showing_dict = {k: v for k, v in dict.items() if k != 'ts'}
+        showing_booking_dict = {k: v for k, v in dict.items() if k != 'ts'}
+        showing_dict = showing_booking_dict['showing']
+        # try to get real_title from database
+        showing_booking_dict['showing']['real_title'] = Movie.get_by_title(
+            Session, showing_dict['title'])
+        # get total_seat_count from database
+        showing_booking_dict['showing']['total_seat_count'] = \
+            Cinema.get_screen_seat_count(
+                Session,
+                cinema_name=showing_dict['cinema_name'],
+                cinema_site=showing_dict['cinema_site'],
+                screen=showing_dict['screen'])
 
-        showing_booking = ShowingBooking.from_item(Session, showing_dict)
+        showing_booking = ShowingBooking.from_item(
+            Session, showing_booking_dict)
         # if showing exists use its id in database
         exist_showing = Showing.get_showing_if_exist(
             Session, showing_booking.showing)

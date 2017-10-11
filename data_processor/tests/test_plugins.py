@@ -191,12 +191,16 @@ class TestPlugins(unittest.TestCase):
             proto_data['total_seats']
         self.assertEqual(args[1].total_seats, expect_total_seats)
 
+    @patch('models.cinema.Cinema.get_screen_seat_count')
+    @patch('models.movie.Movie.get_by_title')
     @patch('models.showing.Showing.get_showing_if_exist')
     @patch('plugins.crawled_showing_handler.add_item_to_database')
     @patch('plugins.crawled_showing_handler.db_connect')
     def test_scraped_showing_handler(self, db_connect_mock,
                                      add_item_to_database_mock,
-                                     exist_func_mock):
+                                     exist_func_mock,
+                                     get_by_title_mock,
+                                     get_screen_seat_count_mock):
         handler = CrawledShowingHandler()
         handler.logger = MagicMock()
         handler.setup(MagicMock())
@@ -204,23 +208,25 @@ class TestPlugins(unittest.TestCase):
         proto_data = {
             "title": "Your Name.",
             "title_en": "Your Name.",
-            "real_title": "Your Name.",
             "start_time": arrow.get("201608271200", 'YYYYMMDDhhmm').format(),
             "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
             "cinema_name": "test_cinema",
             "cinema_site": "test_site",
             "screen": "test_screen",
             "seat_type": "FreeSeat",
-            "total_seat_count": 300,
             "source": "test_source",
         }
         exist_func_mock.return_value = None
+        get_by_title_mock.return_value = "Your Name."
+        get_screen_seat_count_mock.return_value = 300
         data = deepcopy(proto_data)
         handler.handle(data)
         self.assertEqual(add_item_to_database_mock.call_count, 1)
         args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].screen, proto_data['screen'])
+        self.assertEqual(args[1].real_title, "Your Name.")
+        self.assertEqual(args[1].total_seat_count, 300)
 
         # test cinema exists with more screens
         session = MagicMock()
@@ -230,12 +236,16 @@ class TestPlugins(unittest.TestCase):
         handler.handle(data)
         self.assertEqual(add_item_to_database_mock.call_count, 1)
 
+    @patch('models.cinema.Cinema.get_screen_seat_count')
+    @patch('models.movie.Movie.get_by_title')
     @patch('models.showing.Showing.get_showing_if_exist')
     @patch('plugins.crawled_showing_booking_handler.add_item_to_database')
     @patch('plugins.crawled_showing_booking_handler.db_connect')
     def test_scraped_showing_booking_handler(self, db_connect_mock,
                                              add_item_to_database_mock,
-                                             exist_func_mock):
+                                             exist_func_mock,
+                                             get_by_title_mock,
+                                             get_screen_seat_count_mock):
         handler = CrawledShowingBookingHandler()
         handler.logger = MagicMock()
         handler.setup(MagicMock())
@@ -243,14 +253,12 @@ class TestPlugins(unittest.TestCase):
         proto_showing_data = {
             "title": "Your Name.",
             "title_en": "Your Name.",
-            "real_title": "Your Name.",
             "start_time": arrow.get("201608271200", 'YYYYMMDDhhmm').format(),
             "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
             "cinema_name": "test_cinema",
             "cinema_site": "test_site",
             "screen": "test_screen",
             "seat_type": "FreeSeat",
-            "total_seat_count": 300,
             "source": "test_source",
         }
         proto_data = {
@@ -261,9 +269,13 @@ class TestPlugins(unittest.TestCase):
             "record_time": arrow.get("201608271100", 'YYYYMMDDhhmm').format(),
         }
         exist_func_mock.return_value = None
+        get_by_title_mock.return_value = "Your Name."
+        get_screen_seat_count_mock.return_value = 300
         data = deepcopy(proto_data)
         handler.handle(data)
         self.assertEqual(add_item_to_database_mock.call_count, 1)
         args, kwargs = add_item_to_database_mock.call_args_list[0]
         self.assertEqual(len(args), 2)
         self.assertEqual(args[1].minutes_before, proto_data['minutes_before'])
+        self.assertEqual(args[1].showing.real_title, "Your Name.")
+        self.assertEqual(args[1].showing.total_seat_count, 300)

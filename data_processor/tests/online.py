@@ -323,6 +323,16 @@ class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
         engine = db_connect(self.database)
         with patch('plugins.crawled_showing_booking_handler.Session',
                    scoped_session(sessionmaker(bind=engine))) as Session_mock:
+            # prepare data in database
+            create_table(engine)
+            movie = Movie(title="Your Name.", current_cinema_count=42)
+            add_item_to_database(Session_mock, movie)
+            cinema = Cinema(
+                names=['test_cinema'], county='county1',
+                screens={'test_screen': 200}, screen_count=1,
+                total_seats=200, source='test_source')
+            add_item_to_database(Session_mock, cinema)
+
             handler = CrawledShowingBookingHandler()
             handler.logger = MagicMock()
             handler.setup(MagicMock())
@@ -331,7 +341,6 @@ class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
             showing_data = {
                 "title": "Your Name.",
                 "title_en": "Your Name.",
-                "real_title": "Your Name.",
                 "start_time": arrow.get(
                     "201608271200", 'YYYYMMDDhhmm').format(),
                 "end_time": arrow.get("201608271400", 'YYYYMMDDhhmm').format(),
@@ -339,7 +348,6 @@ class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
                 "cinema_site": "test_site",
                 "screen": "test_screen",
                 "seat_type": "FreeSeat",
-                "total_seat_count": 300,
                 "source": "test_source",
             }
             data = {
@@ -362,15 +370,17 @@ class TestScrapedShowingBookingHandler(DatabaseMixin, unittest.TestCase):
             showing_result = Session_mock.query(Showing).all()
             self.assertEquals(len(showing_result), 1)
             self.assertEquals(showing_result[0].screen, "test_screen")
+            # real_title and total_seat_count value should be set by
+            # querying database
+            self.assertEquals(result[0].showing.real_title, "Your Name.")
+            self.assertEquals(result[0].showing.total_seat_count, 200)
 
             # should use exist showing
-            data["showing"]["real_title"] = "new_title"
             handler.handle(data)
             result = Session_mock.query(ShowingBooking).all()
             self.assertEquals(len(result), 2)
             showing_result = Session_mock.query(Showing).all()
             self.assertEquals(len(showing_result), 1)
-            self.assertEquals(showing_result[0].real_title, "new_title")
 
 
 # setup custom class to handle our requests

@@ -37,8 +37,7 @@
                     "default": "FreeSeat"
                 },
                 "total_seat_count": {
-                    "type": "integer",
-                    "default": 0
+                    "type": "integer"
                 },
                 "source": {
                     "type": "string"
@@ -51,7 +50,6 @@
                 "cinema_site",
                 "screen",
                 "seat_type",
-                "total_seat_count",
                 "source"
             ],
             "additionalProperties": false
