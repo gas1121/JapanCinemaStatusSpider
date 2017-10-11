@@ -149,6 +149,7 @@ class KinezoSpider(ShowingSpider):
             result_list.append(request)
 
     def parse_normal_showing(self, response, result_list):
+        # TODO sometimes fail
         self._logger.debug("{} parse_normal_showing".format(self.name))
         print(response.headers.getlist('Set-Cookie'))
         print("ブラウザのセッション" in response.text)

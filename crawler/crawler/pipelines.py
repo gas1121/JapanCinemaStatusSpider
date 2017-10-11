@@ -5,6 +5,7 @@ from kafka import KafkaProducer
 from kafka.errors import KafkaTimeoutError
 import ujson
 from crawler.utils import sc_log_setup
+from crawler.items.showing_booking import ShowingBooking, ShowingBookingLoader
 
 
 class CrawledItemToKafkaPipiline(object):
@@ -83,7 +84,11 @@ class CrawledItemToKafkaPipiline(object):
     def process_item(self, item, spider):
         self.logger.debug("process_item in {}".format(
             self.__class__.__name__))
-        data = dict(item)
+        # ShowingBooking need special handlement
+        if isinstance(item, ShowingBooking):
+            data = ShowingBookingLoader.to_dict(item)
+        else:
+            data = dict(item)
         try:
             message = ujson.dumps(data, sort_keys=True)
         except:
