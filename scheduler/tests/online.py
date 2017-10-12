@@ -222,13 +222,13 @@ class TestRun(unittest.TestCase):
         self.assertEqual(message_count, len(spider_setting))
 
     def test_debug_crawl_job(self):
-        spider_id = 'aeon'
+        spiders = ['aeon']
         self.assertTrue('aeon' in spider_setting)
-        debug_crawl_job(spider_id, self.settings,
+        debug_crawl_job(spiders, self.settings,
                         movie_list=['movie1'], cinema_list=['cinema1'],
                         date='20160827')
 
-        path = self.zookeeper_path + spider_id
+        path = self.zookeeper_path + 'aeon'
         data = self.zookeeper.get(path)[0]
         data_dict = json.loads(data.decode('utf-8'))
         self.assertEqual(data_dict['use_sample'], False)
@@ -247,7 +247,7 @@ class TestRun(unittest.TestCase):
             if the_dict is not None and 'url' in the_dict \
                     and the_dict['url'] \
                     and 'spiderid' in the_dict:
-                self.assertEqual(the_dict['spiderid'], spider_id)
+                self.assertEqual(the_dict['spiderid'], 'aeon')
                 message_count += 1
 
         self.assertEqual(message_count, 1)
