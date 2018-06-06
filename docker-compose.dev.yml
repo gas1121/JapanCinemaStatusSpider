@@ -21,7 +21,7 @@ services:
       dockerfile: ./docker/crawler/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:crawler
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:crawler
     working_dir: /app
     depends_on:
       - kafka
@@ -47,7 +47,7 @@ services:
       dockerfile: ./docker/scheduler/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:scheduler
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:scheduler
     environment:
       ZOOKEEPER_HOST: zookeeper:2181
       JS_ZOOKEEPER_PATH: /japancinemastatusspider/spiders/
@@ -73,7 +73,7 @@ services:
       dockerfile: ./docker/data_processor/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:data_processor
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:data_processor
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -101,7 +101,7 @@ services:
       dockerfile: ./docker/kafka_monitor/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:kafka_monitor
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:kafka_monitor
     depends_on:
       - kafka
       - redis
@@ -124,7 +124,7 @@ services:
       dockerfile: ./docker/redis_monitor/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:redis_monitor
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:redis_monitor
     depends_on:
       - kafka
       - redis
@@ -148,7 +148,7 @@ services:
       dockerfile: ./docker/rest/Dockerfile
       args:
         - USE_MIRROR=${USE_MIRROR:-0}
-    image: 127.0.0.1:5000/japancinemastatusspider:rest
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:rest
     depends_on:
       - kafka
       - redis

@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.logstash
-    image: 127.0.0.1:5000/japancinemastatusspider:logstash
+    image: registry.gitlab.com/gas1121/japancinemastatusspider:logstash
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     environment:
       - "LS_JAVA_OPTS=-Xms100m -Xmx400m"
